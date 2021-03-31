@@ -1,5 +1,8 @@
 #/bin/bash
 #
+. config/configure.sh $1
+
+sudo rm -Rf $BUILD_DIR
 
 sudo apt update
 sudo apt install -y bc build-essential git libncurses5-dev lzop perl libssl-dev

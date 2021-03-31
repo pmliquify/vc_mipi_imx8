@@ -1,0 +1,336 @@
+QsenIMX327 Command Interface V0.2
+=================================
+
+1. Mipi Module Command Interface
+
+The Mipi Module command interface controls the Mipi Module's operation.
+It uses the I2C interface (signals I2C_SCL and I2C_SDA) for communication.
+Two separate I2C addresses are used to communicate with the module
+controller and the sensor.
+
+    default module controller I2C address:  0x10
+    default sensor I2C address:             0x1A
+
+1.1 Basic Communication Protocol
+
+Communication protocol message type in short:
+
+7bit slave address, 16bit sub-address, 8bit data
+
+
+S | slave address[6:0] | r/w | A | subaddress[15:8] | A | subaddress[7:0] | data[7:0] | A/nA | P
+
+S: start
+P: stop
+r/w: 1 for read operation
+A: acknowledge
+nA: negative acknowledge
+
+The following operations are supported:
+
+* single and sequential reads from random location
+* single and sequential reads from current location
+* single and sequential writes starting at random location
+
+The internal subaddress automatically inreases by one after each read or write operation.
+
+When the "single read from random location" is desired, the master must issue
+a dummy write operation with only the subaddress. The master can then issue a stop and a new
+start for the next access or alternatively a repeated start condition.
+The module is addressed again with its I2C address for the read operation.
+It is not allowed to change I2C addresses within a sequential READ/WRITE-operation.
+
+
+2. Module Controller Registers
+
+default module controller I2C address:  0x10
+
+The module controller has 9 registers and a hardware descriptor ROM which is accessible via I2C.
+The registers are either read/write (R/W) or read-only (R).
+Registers start with 16-bit address 0x0100, i.e. register 1 has address 0x0101
+
+
+register 0 [0x0100]: reset and init register (R/W)
+
+reg0[0] = 0 sensor reset	the sensor is held in reset when this bit is 1
+reg0[1] = 0 power down		power for the sensor is switched off
+
+Both operations will completely reset the sensor (but not the module controller)
+to its default state. No communication with sensor is possible in this state.
+As soon as reg0[1:0] is zero, the module controller will perform an initialization
+sequence, i.e according to the value in register 2 the sensor will pe programmed
+to the respective mode. A successful initialization sequence will be indicated
+by a value of 0x80 in register 1. 
+This also indicates that communication with the sensor is possible.
+
+
+register 1 [0x0101]: status (R) 
+
+reg1[7:0] = 0x00 default, no communication with sensor possible
+reg1[7:0] = 0x80 sensor ready after successful initialization sequence
+reg1[7:0] = 0x01 internal error during initialization
+
+remark: automatic clear of this register on powerdown or reset (reg0)
+
+
+register 2 [0x0102]: initialisation mode (R/W)
+
+reg2[7:0] = 0x00 : 10bit streaming, 2 lanes
+reg2[7:0] = 0x01 : 10bit streaming, 4 lanes (22_22 cable required)
+
+
+reg2[7:0] = 0x00 per default
+
+Set the value for the desired mode first, then change register 0 (reset or power down).
+When register 0 is set to 0 again, the initialization with the desired mode is performed.
+
+
+register 3 [0x0103]: input/output control (R/W)
+
+reg3[0] : n/a
+reg3[1] : n/a
+reg3[2] : n/a
+reg3[3] : n/a
+reg3[4] : n/a
+reg3[5] : n/a
+reg3[6] : n/a
+
+reg3[7:0] = 0x08 per default
+
+The mipi module has two external I/O signals on its connector
+called "flash_from_sensor" (short: "flash") and "trigger_to_sensor" (short: "trigger").
+
+Although their names suggest a configuration where "flash" is always an output and
+"trigger" is always in input, both signals are in fact bidirectional and can be
+used in a very flexible way.
+
+Per default, flash and trigger signals are configured as inputs, 
+preventing a short-circuit if the pin is driven by the CPU board. 
+
+
+Currently it is not possible to use any signals for the IMX327. The sensor does not
+feature a trigger input nor a flash output in CSI2-mode. 
+
+
+register 4 [0x0104]: module i2c address (R/W, default: 0x10)
+
+
+register 5 [0x0105]: sensor i2c address (R/W, default: 0x1A)
+
+
+register 6 [0x0106]: output signal override register (R/W, default: 0x00)
+
+reg6[0] : new value for signal "flash" 
+reg6[1] : new value for signal "trigger"
+
+reg6[4] : override value for signal "flash"
+reg6[5] : override value for signal "trigger"
+
+It may be desirable to use one or both signals as a general purpose output.
+In this case, the corresponding signal must be configured as an output
+with register 3. In register 6, the corresponding override bit must be set.
+Changing reg6[0] will then be reflected on the "flash" output,
+changing reg6[1] will be reflected on the "trigger" signal.
+
+
+register 7 [0x0107]: input signal status register (R)
+
+reg7[0] : value of signal "flash" 
+reg7[1] : value of signal "trigger"
+
+It is also convenient to have a register that reflects the status of
+both IO-lines "flash" and "trigger".
+It does not matter if the IO-lines are configured as inputs or as outputs.
+register 7 will always reflect the state of the corresponding pin.
+
+
+register 8 [0x0108]: n/a (R/W, default: 0x00)
+
+This register is not used for the IMX290
+
+reg8[0] : n/a
+
+
+register 8 is cleared on sensor reset or power down (register 0).
+
+
+ 
+3. Hardware Desriptor ROM [0x1000]
+
+Starting at subaddress 0x1000, the module controller features a
+hardware descriptor ROM, describing some of the hardware properties
+of the module and the sensor.
+It should be possible to use this information to make the driver software
+"generic" for a certain class of modules or sensors, i.e. the driver
+software can load this information and switch to an operating mode
+that can handle and interface to the particular module.
+
+However, for example comparing Omnivision with Sony sensors, it soon
+becomes clear that it will not be possible to support all features
+for all sensors with a single driver.
+
+
+3.1 Content of the Descriptor ROM
+
+
+# IMX327 descriptor ROM
+#
+#
+0000:6d 69 70 69    # magic number          = "mipi-module" 
+0004:2d 6d 6f 64 
+0008:75 6c 65 00
+#
+000C:56 69 73 69    # manufacturer string   = "Vision Components"
+0010:6f 6e 20 43
+0014:6f 6d 70 6f
+0018:6e 65 6e 74 
+001C:73 00 00 00
+0020:00 00 00 00
+0024:00 00 00 00
+0028:00 00 00 00
+#
+#
+002C:27 04          # Mipi Manufacturer ID (MID) = 0x0427
+#
+002E:53 4F 4E 59    # sensor manufacturer   = "SONY"
+0032:00 00 00 00
+#
+0036:49 4D 58 33    # sensor type           = "IMX327C"
+003A:32 37 43 00
+003E:00 00 00 00
+0042:00 00 00 00
+#
+0046:27 03          # module ID             = 0x0327
+0048:02 00          # module revision       = 0x0002
+#
+# sensor registers:
+004A:9B 31          # chip ID high byte     = 0x319B	value = 0x07
+004C:9A 31          # chip ID low byte      = 0x319A  	value = 0xD0 
+004E:00 00          # chip revision         = 0x0000	n/a
+#
+0050:00 30          # idle                  = 0x3000
+0052:41 30          # horizontal start high = 0x3041	WINPH
+0054:40 30          # horizontal start low  = 0x3040 
+0056:3D 30          # vertical start high   = 0x303D	WINPV
+0058:3C 30          # vertical start low    = 0x303C
+005A:00 00          # hor. mipi size H      = 0x3473		
+005C:00 00          # hor. mipi size L      = 0x3472	
+005E:00 00          # vertical mipi size H  = 0x3419
+0060:00 00          # vertical mipi size L  = 0x3418
+0062:43 30          # hor. output width H   = 0x3043	WINWH
+0064:42 30          # hor. output width L   = 0x3042
+0066:3F 30          # ver. output height H  = 0x303F   	WINWV
+0068:3E 30          # ver. output height L  = 0x303E
+006A:22 30          # exposure H            = 0x3022
+006C:21 30          # exposure M            = 0x3021
+006E:20 30          # exposure L            = 0x3020   
+0070:00 00          # gain high             = 0x0000
+0072:14 30          # gain low              = 0x3014   
+#
+#  
+0074:00 00    		# reserved
+0076:00 00 00 00
+007A:00 00 00 00
+007E:00 00 00 00
+#
+0082:02 00          # number of modes
+0084:10 00          # number of bytes per mode = 16
+#
+0086:C0 94 1B 35    # mipi data rate        = 891 MBit/sec
+008A:02             # number of mipi lanes  = 2  
+008B:2B             # mipi format           = RGGB10 - RAW10
+008C:01             # type                  = streaming
+008D:00             # reserved
+008E:00 00 00 00
+0092:00 00 00 00
+#
+0096:60 CA 8D 1A    # data rate        	    = 445.5 MBit/sec (can be changed to 891 MBit/sec)
+009A:04             # number of mipi lanes  = 4  
+009B:2B             # mipi format           = RGGB10 - RAW10
+009C:01             # type                  = streaming
+009D:00             # reserved
+009E:00 00 00 00
+00A2:00 00 00 00
+#
+
+
+3.1.1 magic number
+
+This magic number can be used to detect that a module is present.
+It will always be the same for all of the mipi modules.
+
+3.1.2 sensor manufacturer
+
+This field can be "OM" for Omnivision "SONY" for Sony or "ON SEMI"
+for ON Semiconductor (former Aptina, Kodak, etc. sensors)
+It is recommended to use the information in this field to define
+a certain class of sensors.
+Remark: It could be necessary to subdivide, for instance, the 
+Sony sensors further into "Pregius" and "starvis" to define
+a consistent class of sensors with similar behavior.
+
+3.1.3 module ID
+
+This is a unique module ID
+
+3.1.4 sensor registers
+
+Here we have a list of all sensor registers that are accessible
+to modify parameters and to change performance.
+
+The sensor registers in this list are all Read/Write.
+The user could procede as follows:
+
+(1) read out the descriptor ROM and make a copy for the host system.
+
+(2) initialize the sensor and the module using the procedure described above.
+
+(3) read out the sensor registers in this list to get the information
+    about the specific mode setting.
+    E.g. the "horizontal output width" register value can be used 
+    to extract the maximum horizotal width for the particular 
+    mode chosen.
+    Each mode will always initialize the maximum allowed 
+    horizontal width and vertical height.
+
+
+3.1.5 Mode Descriptors
+
+This is a list of descriptors, one for each mode. For properly decoding
+the list, we have the number of different modes and the size of the
+descriptors.
+
+For the mipi format we use mipi alliance format specifiers.
+For the type we have:
+
+1 : streaming mode
+
+
+
+remarks: 
+(1) This sensor does not support external triggering
+
+(2) This sensor does not support a flash output.
+
+(3) When using 4 lanes, a 22_22 flat cable is required.
+    The 15_22 cable supports 2 lanes only.
+
+(4) The data rate for mode=1 is currently 445.5 MBit/sec per lane
+    and might be changed to 891 MBit/sec later
+
+(5) New for V0.2 are the sensor registers "hor. mipi size" and
+    "vertical mipi size" with I2C addresses 0x3473, 0x3472,
+    0x3419 and 0x3418.
+    In addition to the cropping size, the register must be set
+    for the correct vertical number of lines. 
+    Otherwise the sensor will add dummy lines or columns.
+
+
+
+
+
+
+
+
+
+ 
