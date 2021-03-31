@@ -3,3 +3,4 @@ logs/
 tools/
 .DS_Store
 .vscode-ctags
+.vscode-ctags.next

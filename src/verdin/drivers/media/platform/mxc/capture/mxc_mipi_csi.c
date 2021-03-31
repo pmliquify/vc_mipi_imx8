@@ -407,12 +407,12 @@ int csi_num_lanes(void)
     if(vc_mipi_csi_state)
     {
 #if TRACE_CSI_NUM_LANES
-      pr_info("[vc_mipi] %s: num_lanes=%d\n", __func__, vc_mipi_csi_state->num_lanes);
+      pr_info("[vc-mipi mipi_csi] %s: num_lanes=%d\n", __func__, vc_mipi_csi_state->num_lanes);
 #endif
       return vc_mipi_csi_state->num_lanes;
     }
 
-    pr_info("[vc_mipi] %s: Error: num_lanes=0\n", __func__);
+    pr_info("[vc-mipi mipi_csi] %s: Error: num_lanes=0\n", __func__);
     return 0;
 }
 EXPORT_SYMBOL(csi_num_lanes);
@@ -499,18 +499,18 @@ static int mipi_csis_phy_reset(struct csi_state *state)
 
     ret = of_property_read_u32_array(np, "csis-phy-reset", out_val, 3);
     if (ret) {
-        dev_dbg(state->dev, "no csis-hw-reset property found\n");
+        dev_dbg(state->dev, "[vc-mipi mipi_csi] no csis-hw-reset property found\n");
     } else {
         phandle = *out_val;
 
         node = of_find_node_by_phandle(phandle);
         if (!node) {
-            dev_dbg(state->dev, "not find src node by phandle\n");
+            dev_dbg(state->dev, "[vc-mipi mipi_csi] not find src node by phandle\n");
             ret = PTR_ERR(node);
         }
         state->hw_reset.src = syscon_node_to_regmap(node);
         if (IS_ERR(state->hw_reset.src)) {
-            dev_err(state->dev, "failed to get src regmap\n");
+            dev_err(state->dev, "[vc-mipi mipi_csi] failed to get src regmap\n");
             ret = PTR_ERR(state->hw_reset.src);
         }
         of_node_put(node);
@@ -557,7 +557,7 @@ static void __mipi_csis_set_format(struct csi_state *state)
     struct v4l2_mbus_framefmt *mf = &state->format;
     u32 val;
 
-    v4l2_dbg(1, debug, &state->mipi_sd, "fmt: %#x, %d x %d\n",
+    v4l2_dbg(1, debug, &state->mipi_sd, "[vc-mipi mipi_csi] fmt: %#x, %d x %d\n",
          mf->code, mf->width, mf->height);
 
     /* Color format */
@@ -654,25 +654,25 @@ static int mipi_csis_clk_get(struct csi_state *state)
 
     state->mipi_clk = devm_clk_get(dev, "mipi_clk");
     if (IS_ERR(state->mipi_clk)) {
-        dev_err(dev, "Could not get mipi csi clock\n");
+        dev_err(dev, "[vc-mipi mipi_csi] Could not get mipi csi clock\n");
         return -ENODEV;
     }
 
     state->phy_clk = devm_clk_get(dev, "phy_clk");
     if (IS_ERR(state->phy_clk)) {
-        dev_err(dev, "Could not get mipi phy clock\n");
+        dev_err(dev, "[vc-mipi mipi_csi] Could not get mipi phy clock\n");
         return -ENODEV;
     }
 
     state->disp_axi = devm_clk_get(dev, "disp_axi");
     if (IS_ERR(state->disp_axi)) {
-        dev_warn(dev, "Could not get disp_axi clock\n");
+        dev_warn(dev, "[vc-mipi mipi_csi] Could not get disp_axi clock\n");
         state->disp_axi = NULL;
     }
 
     state->disp_apb = devm_clk_get(dev, "disp_apb");
     if (IS_ERR(state->disp_apb)) {
-        dev_warn(dev, "Could not get disp apb clock\n");
+        dev_warn(dev, "[vc-mipi mipi_csi] Could not get disp apb clock\n");
         state->disp_apb = NULL;
     }
 
@@ -681,14 +681,14 @@ static int mipi_csis_clk_get(struct csi_state *state)
         ret = clk_set_rate(state->mipi_clk,
                    state->clk_frequency);
     else
-        dev_WARN(dev, "No clock frequency specified!\n");
+        dev_WARN(dev, "[vc-mipi mipi_csi] No clock frequency specified!\n");
     if (ret < 0) {
-        dev_err(dev, "set rate filed, rate=%d\n", state->clk_frequency);
+        dev_err(dev, "[vc-mipi mipi_csi] set rate filed, rate=%d\n", state->clk_frequency);
         return -EINVAL;
     }
 
 #if TRACE_MIPI_CSIS_CLK_GET
-    dev_err(dev, "[vc_mipi]: %s: clk_frequency=%d\n", __func__, state->clk_frequency);
+    dev_err(dev, "[vc-mipi mipi_csi]  %s: clk_frequency=%d\n", __func__, state->clk_frequency);
 #endif
 
     return ret;
@@ -752,7 +752,7 @@ static void mipi_csis_log_counters(struct csi_state *state, bool non_errors)
 
     for (i--; i >= 0; i--) {
         if (state->events[i].counter > 0 || debug)
-            v4l2_info(&state->mipi_sd, "%s events: %d\n",
+            v4l2_info(&state->mipi_sd, "[vc-mipi mipi_csi] %s events: %d\n",
                   state->events[i].name,
                   state->events[i].counter);
     }
@@ -812,7 +812,7 @@ static int mipi_csis_queryctrl(struct v4l2_subdev *mipi_sd, struct v4l2_queryctr
    struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 
 #if TRACE_MIPI_CSIS_QUERYCTRL
-    pr_err("[vc_mipi] %s: ...\n", __func__);
+    pr_err("[vc-mipi mipi_csi] %s: ...\n", __func__);
 #endif
 
    return v4l2_subdev_call(state->sensor_sd, core, queryctrl, qc);
@@ -825,7 +825,7 @@ static int mipi_csis_queryextctrl(struct v4l2_subdev *mipi_sd, struct v4l2_query
    struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 
 #if TRACE_MIPI_CSIS_QUERYEXTCTRL
-    pr_err("[vc_mipi] %s: ...\n", __func__);
+    pr_err("[vc-mipi mipi_csi] %s: ...\n", __func__);
 #endif
 
    return v4l2_subdev_call(state->sensor_sd, core, queryextctrl, qec);
@@ -894,14 +894,14 @@ static int mipi_csis_s_stream(struct v4l2_subdev *mipi_sd, int enable)
     int ret = 0;
 
 #if TRACE_MIPI_CSIS_S_STREAM
-    dev_err(state->dev, "%s: enable=%d\n", __func__, enable);
+    dev_err(state->dev, "[vc-mipi mipi_csi] %s: enable=%d\n", __func__, enable);
 #endif
 
 #if MIPI_CSIS_S_STREAM_DELAY
     mdelay(MIPI_CSIS_S_STREAM_DELAY);
 #endif
 
-    v4l2_dbg(1, debug, mipi_sd, "%s: %d, state: 0x%x\n",
+    v4l2_dbg(1, debug, mipi_sd, "[vc-mipi mipi_csi] %s: %d, state: 0x%x\n",
          __func__, enable, state->flags);
 
     if (enable) {
@@ -933,7 +933,7 @@ unlock:
         pm_runtime_put(&state->pdev->dev);
 
 #if TRACE_MIPI_CSIS_S_STREAM
-    dev_err(state->dev, "%s: ret=%d\n", __func__, ret == 1 ? 0 : ret);
+    dev_err(state->dev, "[vc-mipi mipi_csi] %s: ret=%d\n", __func__, ret == 1 ? 0 : ret);
 #endif
     return ret == 1 ? 0 : ret;
 }
@@ -953,7 +953,7 @@ static int mipi_csis_enum_mbus_code(struct v4l2_subdev *mipi_sd,
 
     csis_fmt = find_csis_format(code->code);
     if (csis_fmt == NULL) {
-        dev_err(state->dev, "format not match\n");
+        dev_err(state->dev, "[vc-mipi mipi_csi] format not match\n");
         return -EINVAL;
     }
 
@@ -1125,7 +1125,7 @@ static irqreturn_t mipi_csis_irq_handler(int irq, void *dev_id)
     status = mipi_csis_read(state, MIPI_CSIS_INTSRC);
 
 #if TRACE_MIPI_CSIS_IRQ_HANDLER
-    pr_err("%s: status=0x%x\n", __func__, status);
+    pr_err("[vc-mipi mipi_csi] %s: status=0x%x\n", __func__, status);
 #endif
 
     spin_lock_irqsave(&state->slock, flags);
@@ -1139,7 +1139,7 @@ static irqreturn_t mipi_csis_irq_handler(int irq, void *dev_id)
             offset = MIPI_CSIS_PKTDATA_ODD;
 
 #if TRACE_MIPI_CSIS_IRQ_HANDLER
-        pr_err("%s: offset=%d len=%d\n", __func__, offset, pktbuf->len);
+        pr_err("[vc-mipi mipi_csi] %s: offset=%d len=%d\n", __func__, offset, pktbuf->len);
 #endif
 
         memcpy(pktbuf->data, state->regs + offset, pktbuf->len);
@@ -1154,11 +1154,11 @@ static irqreturn_t mipi_csis_irq_handler(int irq, void *dev_id)
             if (!(status & state->events[i].mask))
                 continue;
             state->events[i].counter++;
-            v4l2_dbg(2, debug, &state->mipi_sd, "%s: %d\n",
+            v4l2_dbg(2, debug, &state->mipi_sd, "[vc-mipi mipi_csi] %s: %d\n",
                  state->events[i].name,
                  state->events[i].counter);
         }
-        v4l2_dbg(2, debug, &state->mipi_sd, "status: %08x\n", status);
+        v4l2_dbg(2, debug, &state->mipi_sd, "[vc-mipi mipi_csi] status: %08x\n", status);
 #if TRACE_MIPI_CSIS_IRQ_HANDLER
 //        pr_err("%s: status=0x%x\n", __func__, status);
 #endif
@@ -1182,7 +1182,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
     if (subdev == NULL)
         return -EINVAL;
 
-    v4l2_info(&state->v4l2_dev, "Registered sensor subdevice: %s\n",
+    v4l2_info(&state->v4l2_dev, "[vc-mipi mipi_csi] Registered sensor subdevice: %s\n",
           subdev->name);
 
     return 0;
@@ -1201,7 +1201,7 @@ static int mipi_csis_parse_dt(struct platform_device *pdev,
         state->clk_frequency = DEFAULT_SCLK_CSIS_FREQ;
 
 #if TRACE_MIPI_CSIS_PARSE_DT
-    dev_err(&pdev->dev, "[vc_mipi] %s: clock-frequency=%d, def=%d\n", __func__, state->clk_frequency, (int)DEFAULT_SCLK_CSIS_FREQ);
+    dev_err(&pdev->dev, "[vc-mipi mipi_csi] %s: clock-frequency=%d, def=%d\n", __func__, state->clk_frequency, (int)DEFAULT_SCLK_CSIS_FREQ);
 #endif
 
     if (of_property_read_u32(node, "bus-width",
@@ -1214,7 +1214,7 @@ static int mipi_csis_parse_dt(struct platform_device *pdev,
      */
     node = of_graph_get_endpoint_by_regs(node, 0, 1);
     if (!node) {
-        dev_err(&pdev->dev, "No port/endpoint 1 sensor node at %s\n",
+        dev_err(&pdev->dev, "[vc-mipi mipi_csi] No port/endpoint 1 sensor node at %s\n",
                 pdev->dev.of_node->full_name);
         return -EINVAL;
     }
@@ -1232,7 +1232,7 @@ static int mipi_csis_parse_dt(struct platform_device *pdev,
                     &state->num_lanes);
 
 #if TRACE_MIPI_CSIS_PARSE_DT
-    dev_err(&pdev->dev, "[vc_mipi] %s: num_lanes=%d\n", __func__, state->num_lanes);
+    dev_err(&pdev->dev, "[vc-mipi mipi_csi] %s: num_lanes=%d\n", __func__, state->num_lanes);
 #endif
 
     of_node_put(node);
@@ -1263,7 +1263,7 @@ static int mipi_csis_subdev_host(struct csi_state *state)
     node = of_graph_get_endpoint_by_regs(parent, 0, 1);
     if (node == NULL) {
         v4l2_info(&state->v4l2_dev,
-                    "Port at %s not found\n",
+                    "[vc-mipi mipi_csi] Port at %s not found\n",
                     parent->full_name);
         return -1;
     }
@@ -1272,7 +1272,7 @@ static int mipi_csis_subdev_host(struct csi_state *state)
     of_node_put(node);
     if (rem == NULL) {
         v4l2_info(&state->v4l2_dev,
-                    "Remote device at %s not found\n",
+                    "[vc-mipi mipi_csi] Remote device at %s not found\n",
                     node->full_name);
         return -1;
     }
@@ -1293,7 +1293,7 @@ static int mipi_csis_subdev_host(struct csi_state *state)
                     &state->subdev_notifier);
     if (ret)
         dev_err(state->dev,
-                    "Error register async notifier regoster\n");
+                    "[vc-mipi mipi_csi] Error register async notifier regoster\n");
 
     return ret;
 }
@@ -1323,7 +1323,7 @@ static int mipi_csis_subdev_init(struct v4l2_subdev *mipi_sd,
 
     ret = v4l2_async_register_subdev(mipi_sd);
     if (ret < 0)
-        dev_err(&pdev->dev, "%s--Async register faialed, ret=%d\n", __func__, ret);
+        dev_err(&pdev->dev, "[vc-mipi mipi_csi] %s--Async register faialed, ret=%d\n", __func__, ret);
 
     return ret;
 }
@@ -1341,7 +1341,7 @@ static int mipi_csis_probe(struct platform_device *pdev)
     int ret = -ENOMEM;
 
 
-    dev_err(&pdev->dev, "[vc_mipi] %s: Probing MIPI CSI driver: %s\n", __func__, CSIS_DRIVER_NAME);
+    dev_err(&pdev->dev, "[vc-mipi mipi_csi] %s: Probing MIPI CSI driver: %s\n", __func__, CSIS_DRIVER_NAME);
     state = devm_kzalloc(dev, sizeof(*state), GFP_KERNEL);
     if (!state)
         return -ENOMEM;
@@ -1358,10 +1358,10 @@ static int mipi_csis_probe(struct platform_device *pdev)
         return ret;
 
 #if TRACE_MIPI_CSIS_PROBE
-    dev_info(dev, "[vc_mipi] %s: bus-width (max_num_lanes) = %d\n", __func__, state->max_num_lanes);
+    dev_info(dev, "[vc-mipi mipi_csi] %s: bus-width (max_num_lanes) = %d\n", __func__, state->max_num_lanes);
 #endif
     if (state->num_lanes == 0 || state->num_lanes > state->max_num_lanes) {
-        dev_err(dev, "Unsupported number of data lanes: %d (max. %d)\n",
+        dev_err(dev, "[vc-mipi mipi_csi] Unsupported number of data lanes: %d (max. %d)\n",
             state->num_lanes, state->max_num_lanes);
         return -EINVAL;
     }
@@ -1380,7 +1380,7 @@ static int mipi_csis_probe(struct platform_device *pdev)
 
     state->irq = platform_get_irq(pdev, 0);
     if (state->irq < 0) {
-        dev_err(dev, "Failed to get irq\n");
+        dev_err(dev, "[vc-mipi mipi_csi] Failed to get irq\n");
         return state->irq;
     }
 
@@ -1395,14 +1395,14 @@ static int mipi_csis_probe(struct platform_device *pdev)
     ret = devm_request_irq(dev, state->irq, mipi_csis_irq_handler,
                    0, dev_name(dev), state);
     if (ret) {
-        dev_err(dev, "Interrupt request failed\n");
+        dev_err(dev, "[vc-mipi mipi_csi] Interrupt request failed\n");
         goto e_clkdis;
     }
 
 #if CTRL_HANDLER_METHOD == USER_CTRL_METHOD2
     ret = mipi_csis_init_controls(state);
     if (ret) {
-        dev_err(dev, "Media controls register failed\n");
+        dev_err(dev, "[vc-mipi mipi_csi] Media controls register failed\n");
         goto e_ctrl;
     }
 #endif
@@ -1411,12 +1411,12 @@ static int mipi_csis_probe(struct platform_device *pdev)
     ret = v4l2_device_register(dev, &state->v4l2_dev);
     if (ret) {
         v4l2_err(dev->driver,
-            "Unable to register v4l2 device.\n");
+            "[vc-mipi mipi_csi] Unable to register v4l2 device.\n");
         goto e_clkdis;
     }
 
 #if TRACE_MIPI_CSIS_PROBE
-    v4l2_err(&state->v4l2_dev, "[vc_mipi] %s: mipi csi v4l2 device registered\n", __func__);
+    v4l2_err(&state->v4l2_dev, "[vc-mipi mipi_csi] %s: mipi csi v4l2 device registered\n", __func__);
 #endif
 
     /* .. and a pointer to the subdev. */
@@ -1442,7 +1442,7 @@ static int mipi_csis_probe(struct platform_device *pdev)
 
     mipi_csis_clk_disable(state);
     dev_err(&pdev->dev,
-            "[vc_mipi] %s: lanes: %d, hs_settle: %d, clk_settle: %d, wclk: %d, freq: %u\n", __func__,
+            "[vc-mipi mipi_csi] %s: lanes: %d, hs_settle: %d, clk_settle: %d, wclk: %d, freq: %u\n", __func__,
          state->num_lanes, state->hs_settle, state->clk_settle,
          state->wclk_ext, state->clk_frequency);
 
@@ -1451,7 +1451,7 @@ static int mipi_csis_probe(struct platform_device *pdev)
 
 #if TRACE_MIPI_CSIS_PROBE
     dev_err(&pdev->dev,
-            "[vc_mipi] %s: num_lanes=%d\n", __func__,vc_mipi_csi_state->num_lanes);
+            "[vc-mipi mipi_csi] %s: num_lanes=%d\n", __func__,vc_mipi_csi_state->num_lanes);
 #endif
 #endif
 
@@ -1480,7 +1480,7 @@ static int mipi_csis_pm_suspend(struct device *dev, bool runtime)
     struct v4l2_subdev *mipi_sd = &state->mipi_sd;
     int ret = 0;
 
-    v4l2_dbg(1, debug, mipi_sd, "%s: flags: 0x%x\n",
+    v4l2_dbg(1, debug, mipi_sd, "[vc-mipi mipi_csi] %s: flags: 0x%x\n",
          __func__, state->flags);
 
     mutex_lock(&state->lock);
@@ -1506,7 +1506,7 @@ static int mipi_csis_pm_resume(struct device *dev, bool runtime)
     struct v4l2_subdev *mipi_sd = &state->mipi_sd;
     int ret = 0;
 
-    v4l2_dbg(1, debug, mipi_sd, "%s: flags: 0x%x\n",
+    v4l2_dbg(1, debug, mipi_sd, "[vc-mipi mipi_csi] %s: flags: 0x%x\n",
          __func__, state->flags);
 
     mutex_lock(&state->lock);
@@ -1538,7 +1538,7 @@ static int mipi_csis_suspend(struct device *dev)
     struct csi_state *state = platform_get_drvdata(pdev);
 
     if (state->flags & ST_STREAMING) {
-        dev_warn(dev, "running, prevent entering suspend.\n");
+        dev_warn(dev, "[vc-mipi mipi_csi] running, prevent entering suspend.\n");
         return -EAGAIN;
     }
 

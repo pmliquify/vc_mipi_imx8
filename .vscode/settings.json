@@ -1,0 +1,7 @@
+{
+        "search.showLineNumbers": true,
+        "search.useIgnoreFiles": false,
+        "files.associations": {
+                "vc_mipi_utils.h": "c"
+        }
+}

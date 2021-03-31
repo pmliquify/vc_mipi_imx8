@@ -497,7 +497,7 @@ int mx6s_set_ctrl_range (
     if(num_ctrls > MAX_NUM_CTRLS)
     {
       num_ctrls = MAX_NUM_CTRLS;
-      dev_err(csi->dev, "%s: Number of user controls truncated to %d\n", __func__, num_ctrls);
+      dev_err(csi->dev, "[vc-mipi mx6s_capture] %s: Number of user controls truncated to %d\n", __func__, num_ctrls);
     }
 
     for(i=0; i<num_ctrls; i++)
@@ -692,7 +692,7 @@ struct mx6s_fmt *format_by_fourcc(int fourcc)
         }
     }
 
-    pr_err("unknown pixelformat:'%4.4s'\n", (char *)&fourcc);
+    pr_err("[vc-mipi mx6s_capture] unknown pixelformat:'%4.4s'\n", (char *)&fourcc);
     return NULL;
 }
 
@@ -705,7 +705,7 @@ struct mx6s_fmt *format_by_mbus(u32 code)
             return formats + i;
     }
 
-    pr_err("unknown mbus:0x%x\n", code);
+    pr_err("[vc-mipi mx6s_capture] unknown mbus:0x%x\n", code);
     return NULL;
 }
 
@@ -873,7 +873,7 @@ static void csi_tvdec_enable(struct mx6s_csi_dev *csi_dev, bool enable)
     unsigned long cr1 = __raw_readl(csi_dev->regbase + CSI_CSICR1);
 
 #if TRACE_CSI_TVDEC_ENABLE
-        dev_err(csi_dev->dev,"%s: enable=%d (0=false,1=true)\n", __func__, (int)enable);
+        dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: enable=%d (0=false,1=true)\n", __func__, (int)enable);
 #endif
 
     if (enable == true) {
@@ -915,7 +915,7 @@ static void csi_dmareq_rff_enable(struct mx6s_csi_dev *csi_dev)
     if (csi_dev->csi_two_8bit_sensor_mode)
     {
 #if TRACE_CSI_DMAREQ_RFF_ENABLE
-        dev_err(csi_dev->dev,"%s: csi_two_8bit_sensor_mode=true\n", __func__);
+        dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: csi_two_8bit_sensor_mode=true\n", __func__);
 #endif
         cr3 |= BIT_TWO_8BIT_SENSOR;
     }
@@ -923,14 +923,14 @@ static void csi_dmareq_rff_enable(struct mx6s_csi_dev *csi_dev)
     else
     {
 #if TRACE_CSI_DMAREQ_RFF_ENABLE
-        dev_err(csi_dev->dev,"%s: csi_two_8bit_sensor_mode=false\n", __func__);
+        dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: csi_two_8bit_sensor_mode=false\n", __func__);
 #endif
         cr3 &= ~BIT_TWO_8BIT_SENSOR;
     }
 #endif
 
 #if TRACE_CSI_DMAREQ_RFF_ENABLE
-    dev_err(csi_dev->dev,"%s: CSI_CSICR3=0x%08x\n", __func__, (int)cr3);
+    dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: CSI_CSICR3=0x%08x\n", __func__, (int)cr3);
 #endif
 
     __raw_writel(cr3, csi_dev->regbase + CSI_CSICR3);
@@ -969,7 +969,7 @@ static void csi_error_recovery(struct mx6s_csi_dev *csi_dev)
     /* software reset */
 
 #if TRACE_CSI_ERROR_RECOVERY
-    dev_err(csi_dev->dev, "%s: \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: \n", __func__);
 #endif
 
     /* Disable csi  */
@@ -1033,7 +1033,7 @@ static int mx6s_init_controls(struct mx6s_csi_dev *csi)
     if(num_ctrls > MAX_NUM_CTRLS)
     {
       num_ctrls = MAX_NUM_CTRLS;
-      dev_err(csi->dev, "%s: Number of user controls truncated to %d\n", __func__, num_ctrls);
+      dev_err(csi->dev, "[vc-mipi mx6s_capture] %s: Number of user controls truncated to %d\n", __func__, num_ctrls);
     }
 
     ctrl_hdlr = &csi->ctrl_handler;
@@ -1075,7 +1075,7 @@ static int mx6s_init_controls(struct mx6s_csi_dev *csi)
         csi->ctrls[i] = v4l2_ctrl_new_custom(ctrl_hdlr, &ctrl_config_list[i], NULL);
         if (csi->ctrls[i] == NULL)
         {
-            dev_err(csi->dev, "Failed to init %s ctrl\n", ctrl_config_list[i].name);
+            dev_err(csi->dev, "[vc-mipi mx6s_capture] Failed to init %s ctrl\n", ctrl_config_list[i].name);
             continue;
         }
 
@@ -1143,14 +1143,14 @@ static int mx6s_videobuf_setup(struct vb2_queue *vq,
     struct mx6s_csi_dev *csi_dev = vb2_get_drv_priv(vq);
 
 #if TRACE_MX6S_VIDEOBUF_SETUP
-    dev_err(csi_dev->dev, "%s: count=%d, size=%d\n", __func__, *count, sizes[0]);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: count=%d, size=%d\n", __func__, *count, sizes[0]);
 #endif
 
     alloc_devs[0] = csi_dev->dev;
 
     sizes[0] = csi_dev->pix.sizeimage;
 
-    pr_debug("%s: size=%d\n", __func__, sizes[0]);
+    pr_debug("[vc-mipi mx6s_capture] %s: size=%d\n", __func__, sizes[0]);
     if (0 == *count)
         *count = 32;
     if (!*num_planes &&
@@ -1158,7 +1158,7 @@ static int mx6s_videobuf_setup(struct vb2_queue *vq,
         *count = (MAX_VIDEO_MEM * 1024 * 1024) / sizes[0];
 
 #if TRACE_MX6S_VIDEOBUF_SETUP
-    dev_err(csi_dev->dev, "%s: size=%d, count=%d\n", __func__, sizes[0], *count);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: size=%d, count=%d\n", __func__, sizes[0], *count);
 #endif
 
     *num_planes = 1;
@@ -1171,7 +1171,7 @@ static int mx6s_videobuf_prepare(struct vb2_buffer *vb)
     struct mx6s_csi_dev *csi_dev = vb2_get_drv_priv(vb->vb2_queue);
     int ret = 0;
 
-    dev_dbg(csi_dev->dev, "%s (vb=0x%p) 0x%p %lu\n", __func__,
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] %s (vb=0x%p) 0x%p %lu\n", __func__,
         vb, vb2_plane_vaddr(vb, 0), vb2_get_plane_payload(vb, 0));
 
 #ifdef DEBUG
@@ -1204,7 +1204,7 @@ static void mx6s_videobuf_queue(struct vb2_buffer *vb)
     struct mx6s_buffer *buf = container_of(vbuf, struct mx6s_buffer, vb);
     unsigned long flags;
 
-    dev_dbg(csi_dev->dev, "%s (vb=0x%p) 0x%p %lu\n", __func__,
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] %s (vb=0x%p) 0x%p %lu\n", __func__,
         vb, vb2_plane_vaddr(vb, 0), vb2_get_plane_payload(vb, 0));
 
     spin_lock_irqsave(&csi_dev->slock, flags);
@@ -1261,13 +1261,13 @@ static int mx6s_csi_enable(struct mx6s_csi_dev *csi_dev)
     csisw_reset(csi_dev);
 
 #if TRACE_MX6S_CSI_ENABLE
-    dev_err(csi_dev->dev, "%s: pix->field=%d\n", __func__, pix->field);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: pix->field=%d\n", __func__, pix->field);
 #endif
 
     if (pix->field == V4L2_FIELD_INTERLACED)
     {
 #if TRACE_MX6S_CSI_ENABLE
-        dev_err(csi_dev->dev, "%s: pix->field=%d: V4L2_FIELD_INTERLACED\n", __func__, pix->field);
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: pix->field=%d: V4L2_FIELD_INTERLACED\n", __func__, pix->field);
 #endif
         csi_tvdec_enable(csi_dev, true);
     }
@@ -1304,7 +1304,7 @@ static int mx6s_csi_enable(struct mx6s_csi_dev *csi_dev)
                     break;
             }
             if (timeout2 <= 0) {
-                pr_err("timeout when wait for reflash done.\n");
+                pr_err("[vc-mipi mx6s_capture] timeout when wait for reflash done.\n");
                 local_irq_restore(flags);
                 return -ETIME;
             }
@@ -1320,14 +1320,14 @@ static int mx6s_csi_enable(struct mx6s_csi_dev *csi_dev)
             cpu_relax();
     }
     if (timeout <= 0) {
-        pr_err("timeout when wait for SOF\n");
+        pr_err("[vc-mipi mx6s_capture] timeout when wait for SOF\n");
         local_irq_restore(flags);
         return -ETIME;
     }
     local_irq_restore(flags);
 
 #if TRACE_MX6S_CSI_ENABLE
-    dev_err(csi_dev->dev, "%s: Exit\n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Exit\n", __func__);
 #endif
 
     return 0;
@@ -1416,14 +1416,14 @@ static int mx6s_configure_csi(struct mx6s_csi_dev *csi_dev)
 #endif
 
     default:
-        dev_err(csi_dev->dev,"%s: case not supported\n", __func__);
+        dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: case not supported\n", __func__);
         return -EINVAL;
     }
 
 #if TRACE_MX6S_CONFIGURE_CSI
 {
     int pix_fmt = csi_dev->fmt->pixelformat;
-    dev_err(csi_dev->dev, "%s: width=%d pixelformat=0x%08x '%c%c%c%c'\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: width=%d pixelformat=0x%08x '%c%c%c%c'\n", __func__,
                         width,
                         pix_fmt,
                         (char)((pix_fmt      ) & 0xFF),
@@ -1438,12 +1438,12 @@ static int mx6s_configure_csi(struct mx6s_csi_dev *csi_dev)
     int cr;
 
     cr = 0x2B << 2;
-    dev_err(csi_dev->dev, "%s: Write MIPI_CSI_ISP_CONFIG0: val=0x%x\n", __func__, cr);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Write MIPI_CSI_ISP_CONFIG0: val=0x%x\n", __func__, cr);
     csi_write(csi_dev, cr, MIPI_CSI_ISP_CONFIG0);
     cr = 0;
 
     cr = csi_read(csi_dev, MIPI_CSI_ISP_CONFIG0);
-    dev_err(csi_dev->dev, "%s: MIPI_CSI_ISP_CONFIG0: pixel_mode=0x%x data_format=0x%x\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: MIPI_CSI_ISP_CONFIG0: pixel_mode=0x%x data_format=0x%x\n", __func__,
                 (cr >> 12) & 0x3, (cr >> 2) & 0x3F);
 
 
@@ -1489,7 +1489,7 @@ static int mx6s_configure_csi(struct mx6s_csi_dev *csi_dev)
         case V4L2_PIX_FMT_GREY:
         case V4L2_PIX_FMT_SRGGB8:
 #if TRACE_MX6S_CONFIGURE_CSI
-            dev_err(csi_dev->dev, "%s: Set 8-bit raw format\n", __func__);
+            dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Set 8-bit raw format\n", __func__);
 #endif
             cr18 |= BIT_MIPI_DATA_FORMAT_RAW8;
             break;
@@ -1497,22 +1497,22 @@ static int mx6s_configure_csi(struct mx6s_csi_dev *csi_dev)
         case V4L2_PIX_FMT_SRGGB10:
         case V4L2_PIX_FMT_SGBRG10:
 #if TRACE_MX6S_CONFIGURE_CSI
-            dev_err(csi_dev->dev, "%s: Set 10-bit raw format\n", __func__);
+            dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Set 10-bit raw format\n", __func__);
 #endif
             cr18 |= BIT_MIPI_DATA_FORMAT_RAW10;
             break;
         case V4L2_PIX_FMT_Y12:
         case V4L2_PIX_FMT_SRGGB12:
 #if TRACE_MX6S_CONFIGURE_CSI
-            dev_err(csi_dev->dev, "%s: Set 12-bit raw format\n", __func__);
+            dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Set 12-bit raw format\n", __func__);
 #endif
             cr18 |= BIT_MIPI_DATA_FORMAT_RAW12;
             break;
 #endif
 
         default:
-            pr_debug("   fmt not supported\n");
-            dev_err(csi_dev->dev,"%s: fmt not supported\n", __func__);
+            pr_debug("[vc-mipi mx6s_capture]    fmt not supported\n");
+            dev_err(csi_dev->dev,"[vc-mipi mx6s_capture] %s: fmt not supported\n", __func__);
             return -EINVAL;
         }
 
@@ -1521,7 +1521,7 @@ static int mx6s_configure_csi(struct mx6s_csi_dev *csi_dev)
 
 #if TRACE_MX6S_CONFIGURE_CSI
         cr18 = csi_read(csi_dev, CSI_CSICR18);
-        dev_err(csi_dev->dev, "%s: CSI_CSICR18: 0x%08x data_format=0x%x\n", __func__,
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: CSI_CSICR18: 0x%08x data_format=0x%x\n", __func__,
                 cr18, (cr18 >> 25) & 0x3F);
 #endif
 
@@ -1549,7 +1549,7 @@ static int mx6s_start_streaming(struct vb2_queue *vq, unsigned int count)
     unsigned long flags;
 
 #if TRACE_MX6S_START_STREAMING
-    dev_err(csi_dev->dev, "%s: count=%d (>=2)\n", __func__, count);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: count=%d (>=2)\n", __func__, count);
 #endif
 
 #if MX6S_START_STREAMING_DELAY
@@ -1570,7 +1570,7 @@ static int mx6s_start_streaming(struct vb2_queue *vq, unsigned int count)
 
 #if TRACE_MX6S_START_STREAMING
 //    csi_dev->discard_size = csi_dev->pix.sizeimage*2;       // ???
-    dev_err(csi_dev->dev, "%s: discard_size=%d\n", __func__, (int)csi_dev->discard_size);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: discard_size=%d\n", __func__, (int)csi_dev->discard_size);
 #endif
 
 #if FRAME_BUF_ALLOC_METHOD == 0     // original method
@@ -1587,7 +1587,7 @@ static int mx6s_start_streaming(struct vb2_queue *vq, unsigned int count)
 #endif
     if (!csi_dev->discard_buffer)
     {
-        dev_err(csi_dev->dev, "%s: csi_dev->discard_buffer alloc error\n", __func__);
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: csi_dev->discard_buffer alloc error\n", __func__);
         return -ENOMEM;
     }
 
@@ -1629,7 +1629,7 @@ static int mx6s_start_streaming(struct vb2_queue *vq, unsigned int count)
     spin_unlock_irqrestore(&csi_dev->slock, flags);
 
 #if TRACE_MX6S_START_STREAMING
-    dev_err(csi_dev->dev, "%s: Exit\n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Exit\n", __func__);
 #endif
     return mx6s_csi_enable(csi_dev);
 }
@@ -1646,7 +1646,7 @@ static void mx6s_stop_streaming(struct vb2_queue *vq)
     void *b;
 
 #if TRACE_MX6S_STOP_STREAMING
-    dev_err(csi_dev->dev, "%s:...\n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s:...\n", __func__);
 #endif
 
     mx6s_csi_disable(csi_dev);
@@ -1689,7 +1689,7 @@ static void mx6s_stop_streaming(struct vb2_queue *vq)
 #endif
 
 #if TRACE_MX6S_STOP_STREAMING
-    dev_err(csi_dev->dev, "%s: Exit\n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: Exit\n", __func__);
 #endif
 
 }
@@ -1735,17 +1735,17 @@ static void mx6s_csi_frame_done(struct mx6s_csi_dev *csi_dev,
         if (bufnum == 1) {
             phys_fb2 = csi_read(csi_dev, CSI_CSIDMASA_FB2);
             if (phys_fb2 != (u32)phys) {
-                dev_err(csi_dev->dev, "%lx != %x\n", phys,
+                dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %lx != %x\n", phys,
                     phys_fb2);
             }
         } else {
             phys_fb1 = csi_read(csi_dev, CSI_CSIDMASA_FB1);
             if (phys_fb1 != (u32)phys) {
-                dev_err(csi_dev->dev, "%lx != %x\n", phys,
+                dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %lx != %x\n", phys,
                     phys_fb1);
             }
         }
-        dev_dbg(csi_dev->dev, "%s (vb=0x%p) 0x%p %lu\n", __func__, vb,
+        dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] %s (vb=0x%p) 0x%p %lu\n", __func__, vb,
                 vb2_plane_vaddr(vb, 0),
                 vb2_get_plane_payload(vb, 0));
 
@@ -1762,14 +1762,14 @@ static void mx6s_csi_frame_done(struct mx6s_csi_dev *csi_dev,
     csi_dev->nextfb = (bufnum == 0 ? 1 : 0);
 
 #if TRACE_MX6S_CSI_FRAME_DONE
-    dev_err(csi_dev->dev, "%s: bufnum=%d frame_count=%d\n", __func__, bufnum, csi_dev->frame_count);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: bufnum=%d frame_count=%d\n", __func__, bufnum, csi_dev->frame_count);
 #endif
 
     /* Config discard buffer to active_bufs */
     if (list_empty(&csi_dev->capture)) {
         if (list_empty(&csi_dev->discard)) {
             dev_warn(csi_dev->dev,
-                    "%s: trying to access empty discard list\n",
+                    "[vc-mipi mx6s_capture] %s: trying to access empty discard list\n",
                     __func__);
             return;
         }
@@ -1833,7 +1833,7 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
 
     if (list_empty(&csi_dev->active_bufs)) {
         dev_warn(csi_dev->dev,
-                "%s: called while active list is empty\n",
+                "[vc-mipi mx6s_capture] %s: called while active list is empty\n",
                 __func__);
 
         spin_unlock(&csi_dev->slock);
@@ -1841,13 +1841,13 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
     }
 
     if (status & BIT_RFF_OR_INT) {
-        dev_warn(csi_dev->dev, "%s Rx fifo overflow\n", __func__);
+        dev_warn(csi_dev->dev, "[vc-mipi mx6s_capture] %s Rx fifo overflow\n", __func__);
         if (csi_dev->soc->rx_fifo_rst)
             csi_error_recovery(csi_dev);
     }
 
     if (status & BIT_HRESP_ERR_INT) {
-        dev_warn(csi_dev->dev, "%s Hresponse error detected\n",
+        dev_warn(csi_dev->dev, "[vc-mipi mx6s_capture] %s Hresponse error detected\n",
             __func__);
         csi_error_recovery(csi_dev);
     }
@@ -1872,7 +1872,7 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
         csi_write(csi_dev, cr18, CSI_CSICR18);
 
         csi_dev->skipframe = 1;
-        pr_debug("base address switching Change Err.\n");
+        pr_debug("[vc-mipi mx6s_capture] base address switching Change Err.\n");
 //        pr_err("base address switching Change Err.\n");
 
 #if TRACE_MX6S_CSI_IRQ_HANDLER
@@ -1893,14 +1893,14 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
          * when csi work in field0 and field1 will write to
          * new base address.
          * PDM TKT230775 */
-        pr_err("Skip two frames\n");
+        pr_err("[vc-mipi mx6s_capture] Skip two frames\n");
     } else if (status & BIT_DMA_TSF_DONE_FB1) {
         if (csi_dev->nextfb == 0) {
             if (csi_dev->skipframe > 0)
             {
                 csi_dev->skipframe--;
 #if TRACE_MX6S_CSI_IRQ_HANDLER
-                pr_err("adr-change-err 0");
+                pr_err("[vc-mipi mx6s_capture] adr-change-err 0");
 #endif
             }
             else
@@ -1913,14 +1913,14 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
         } else {
 #if TRACE_MX6S_CSI_IRQ_HANDLER
 //            pr_warn("skip frame 0\n");
-            pr_warn("skip 0\n");
+            pr_warn("[vc-mipi mx6s_capture] skip 0\n");
 #endif
 
 #if DUMP_SKIP_FRAME_STAT
             skip_frame_cnt++;
             if(skip_frame_cnt >= stat_cnt)
             {
-              pr_warn("%d skipped frames\n", skip_frame_cnt);
+              pr_warn("[vc-mipi mx6s_capture] %d skipped frames\n", skip_frame_cnt);
               skip_frame_cnt = 0;
             }
 #endif
@@ -1932,7 +1932,7 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
             {
                 csi_dev->skipframe--;
 #if TRACE_MX6S_CSI_IRQ_HANDLER
-                pr_err("adr-change-err 1");
+                pr_err("[vc-mipi mx6s_capture] adr-change-err 1");
 #endif
             }
             else
@@ -1945,13 +1945,13 @@ static irqreturn_t mx6s_csi_irq_handler(int irq, void *data)
         } else {
 #if TRACE_MX6S_CSI_IRQ_HANDLER
 //            pr_warn("skip frame 1\n");
-            pr_warn("skip 1\n");
+            pr_warn("[vc-mipi mx6s_capture] skip 1\n");
 #endif
 #if DUMP_SKIP_FRAME_STAT
             skip_frame_cnt++;
             if(skip_frame_cnt >= stat_cnt)
             {
-              pr_warn("%d skipped frames\n", skip_frame_cnt);
+              pr_warn("[vc-mipi mx6s_capture] %d skipped frames\n", skip_frame_cnt);
               skip_frame_cnt = 0;
             }
 #endif
@@ -2042,7 +2042,7 @@ static ssize_t mx6s_csi_read(struct file *file, char __user *buf,
     struct mx6s_csi_dev *csi_dev = video_drvdata(file);
     int ret;
 
-    dev_dbg(csi_dev->dev, "read called, buf %p\n", buf);
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] read called, buf %p\n", buf);
 #if TRACE_MX6S_CSI_READ
 //    pr_err("%s: count=%d, buf=%p\n", __func__, count, buf);
 #endif
@@ -2052,7 +2052,7 @@ static ssize_t mx6s_csi_read(struct file *file, char __user *buf,
                 file->f_flags & O_NONBLOCK);
 
 #if TRACE_MX6S_CSI_READ
-    dev_err(csi_dev->dev, "%s: count=%d ppos=%d, buf=%p\n", __func__, (int)count, (int)*ppos, buf);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: count=%d ppos=%d, buf=%p\n", __func__, (int)count, (int)*ppos, buf);
 #endif
 
     mutex_unlock(&csi_dev->lock);
@@ -2074,13 +2074,13 @@ static int mx6s_csi_mmap(struct file *file, struct vm_area_struct *vma)
     ret = vb2_mmap(&csi_dev->vb2_vidq, vma);
     mutex_unlock(&csi_dev->lock);
 
-    pr_debug("vma start=0x%08lx, size=%ld, ret=%d\n",
+    pr_debug("[vc-mipi mx6s_capture] vma start=0x%08lx, size=%ld, ret=%d\n",
         (unsigned long)vma->vm_start,
         (unsigned long)vma->vm_end-(unsigned long)vma->vm_start,
         ret);
 
 #if TRACE_MX6S_CSI_MMAP
-    dev_err(csi_dev->dev, "%s: vma start=0x%08lx, size=%ld, ret=%d\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: vma start=0x%08lx, size=%ld, ret=%d\n", __func__,
         (unsigned long)vma->vm_start,
         (unsigned long)vma->vm_end-(unsigned long)vma->vm_start,
         ret);
@@ -2229,13 +2229,13 @@ static int mx6s_vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
     ret = v4l2_subdev_call(sd, pad, enum_mbus_code, NULL, &code);
     if (ret < 0) {
         /* no more formats */
-        dev_dbg(csi_dev->dev, "No more fmt\n");
+        dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] No more fmt\n");
         return -EINVAL;
     }
 
     fmt = format_by_mbus(code.code);
     if (!fmt) {
-        dev_err(csi_dev->dev, "mbus (0x%08x) invalid.\n", code.code);
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] mbus (0x%08x) invalid.\n", code.code);
         return -EINVAL;
     }
 
@@ -2254,7 +2254,7 @@ static int mx6s_vidioc_enum_fmt_vid_cap(struct file *file, void  *priv,
 #if TRACE_MX6S_VIDIOC_ENUM_FMT_VID_CAP
 {
     int pix_fmt = fmt->pixelformat;
-    dev_err(csi_dev->dev, "%s: pix_fmt=0x%08x '%c%c%c%c'\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: pix_fmt=0x%08x '%c%c%c%c'\n", __func__,
                         pix_fmt,
                         (char)((pix_fmt      ) & 0xFF),
                         (char)((pix_fmt >>  8) & 0xFF),
@@ -2298,13 +2298,13 @@ static int mx6s_vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 
     fmt = format_by_fourcc(f->fmt.pix.pixelformat);
     if (!fmt) {
-        dev_err(csi_dev->dev, "Fourcc format (0x%08x) invalid.",
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] Fourcc format (0x%08x) invalid.",
             f->fmt.pix.pixelformat);
         return -EINVAL;
     }
 
     if (f->fmt.pix.width == 0 || f->fmt.pix.height == 0) {
-        dev_err(csi_dev->dev, "width %d, height %d is too small.\n",
+        dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] width %d, height %d is too small.\n",
             f->fmt.pix.width, f->fmt.pix.height);
         return -EINVAL;
     }
@@ -2324,7 +2324,7 @@ static int mx6s_vidioc_try_fmt_vid_cap(struct file *file, void *priv,
 #if TRACE_MX6S_VIDIOC_TRY_FMT_VID_CAP
 {
     int pix_fmt = pix->pixelformat;
-    dev_err(csi_dev->dev, "%s: dx,dy=%d,%d bytesperline=%d sizeimage=%d pixfmt=0x%08x '%c%c%c%c'\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: dx,dy=%d,%d bytesperline=%d sizeimage=%d pixfmt=0x%08x '%c%c%c%c'\n", __func__,
                         pix->width, pix->height,
                         pix->bytesperline, pix->sizeimage,
                         pix_fmt,
@@ -2358,7 +2358,7 @@ static int mx6s_vidioc_s_fmt_vid_cap(struct file *file, void *priv,
     int ret;
 
 #if TRACE_MX6S_VIDIOC_S_FMT_VID_CAP
-    dev_err(csi_dev->dev, "%s:... \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s:... \n", __func__);
 #endif
 
     ret = mx6s_vidioc_try_fmt_vid_cap(file, csi_dev, f);
@@ -2380,13 +2380,13 @@ static int mx6s_vidioc_s_fmt_vid_cap(struct file *file, void *priv,
     csi_dev->pix.pixelformat  = f->fmt.pix.pixelformat;
 #endif
 
-    dev_dbg(csi_dev->dev, "set to pixelformat '%4.6s'\n",
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] set to pixelformat '%4.6s'\n",
             (char *)&csi_dev->fmt->name);
 
 #if TRACE_MX6S_VIDIOC_S_FMT_VID_CAP
 {
     int pix_fmt = csi_dev->pix.pixelformat;
-    dev_err(csi_dev->dev, "%s: sizeimage=%d pixelformat_name='%4.6s' pixfmt=0x%08x '%c%c%c%c'\n", __func__,
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: sizeimage=%d pixelformat_name='%4.6s' pixfmt=0x%08x '%c%c%c%c'\n", __func__,
                         csi_dev->pix.sizeimage, (char *)&csi_dev->fmt->name,
                         pix_fmt,
                         (char)((pix_fmt      ) & 0xFF),
@@ -2413,7 +2413,7 @@ static int mx6s_vidioc_g_fmt_vid_cap(struct file *file, void *priv,
     struct mx6s_csi_dev *csi_dev = video_drvdata(file);
 
 #if TRACE_MX6S_VIDIOC_G_FMT_VID_CAP
-    dev_err(csi_dev->dev, "%s:... \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s:... \n", __func__);
 #endif
 
     WARN_ON(priv != file->private_data);
@@ -2506,7 +2506,7 @@ static int mx6s_vidioc_g_pixelaspect(struct file *file, void *fh,
 
     if (type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
         return -EINVAL;
-    dev_dbg(csi_dev->dev, "G_PIXELASPECT not implemented\n");
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] G_PIXELASPECT not implemented\n");
 
     return 0;
 }
@@ -2518,7 +2518,7 @@ static int mx6s_vidioc_g_selection(struct file *file, void *priv,
 
     if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
         return -EINVAL;
-    dev_dbg(csi_dev->dev, "VIDIOC_G_SELECTION not implemented\n");
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] VIDIOC_G_SELECTION not implemented\n");
 
     return 0;
 }
@@ -2531,7 +2531,7 @@ static int mx6s_vidioc_s_selection(struct file *file, void *priv,
     if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
         return -EINVAL;
 
-    dev_dbg(csi_dev->dev, "VIDIOC_S_SELECTION not implemented\n");
+    dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] VIDIOC_S_SELECTION not implemented\n");
 
     return 0;
 }
@@ -2643,7 +2643,7 @@ static int mx6s_vidioc_queryctrl(struct file *file, void *fh,
 #if TRACE_MX6S_VIDIOC_QUERYCTRL
 {
     struct mx6s_csi_dev *csi_dev = video_drvdata(file);
-    dev_err(csi_dev->dev, "[vc_mipi] %s: \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: \n", __func__);
 }
 #endif
 
@@ -2660,7 +2660,7 @@ static int mx6s_vidioc_query_ext_ctrl(struct file *file, void *fh,
 #if TRACE_MX6S_VIDIOC_QUERY_EXT_CTRL
 {
     struct mx6s_csi_dev *csi_dev = video_drvdata(file);
-    dev_err(csi_dev->dev, "[vc_mipi] %s: \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: \n", __func__);
 }
 #endif
 
@@ -2716,7 +2716,7 @@ static int mx6s_vidioc_querymenu(struct file *file, void *fh,
 #if TRACE_MX6S_VIDIOC_QUERYMENU
 {
     struct mx6s_csi_dev *csi_dev = video_drvdata(file);
-    dev_err(csi_dev->dev, "%s: \n", __func__);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: \n", __func__);
 }
 #endif
 
@@ -2823,7 +2823,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
     if (subdev == NULL)
         return -EINVAL;
 
-    v4l2_info(&csi_dev->v4l2_dev, "Registered sensor subdevice: %s\n",
+    v4l2_info(&csi_dev->v4l2_dev, "[vc-mipi mx6s_capture] Registered sensor subdevice: %s\n",
           subdev->name);
 
     return 0;
@@ -2852,12 +2852,12 @@ static int mx6s_csi_mode_sel(struct mx6s_csi_dev *csi_dev)
 
         node = of_find_node_by_phandle(phandle);
         if (!node) {
-            dev_dbg(csi_dev->dev, "not find gpr node by phandle\n");
+            dev_dbg(csi_dev->dev, "[vc-mipi mx6s_capture] not find gpr node by phandle\n");
             ret = PTR_ERR(node);
         }
         csi_dev->csi_mux.gpr = syscon_node_to_regmap(node);
         if (IS_ERR(csi_dev->csi_mux.gpr)) {
-            dev_err(csi_dev->dev, "failed to get gpr regmap\n");
+            dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] failed to get gpr regmap\n");
             ret = PTR_ERR(csi_dev->csi_mux.gpr);
         }
         of_node_put(node);
@@ -2891,7 +2891,7 @@ static int mx6s_csi_two_8bit_sensor_mode_sel(struct mx6s_csi_dev *csi_dev)
     }
 
 #if TRACE_MX6S_CSI_TWO_8BIT_SENSOR_MODE_SEL
-    dev_err(csi_dev->dev, "%s: csi_two_8bit_sensor_mode = %d\n", __func__, (int)csi_dev->csi_two_8bit_sensor_mode);
+    dev_err(csi_dev->dev, "[vc-mipi mx6s_capture] %s: csi_two_8bit_sensor_mode = %d\n", __func__, (int)csi_dev->csi_two_8bit_sensor_mode);
 #endif
 
 
@@ -2936,7 +2936,7 @@ static int mx6sx_register_subdevs(struct mx6s_csi_dev *csi_dev)
         of_node_put(port);
         if (rem == NULL) {
             v4l2_info(&csi_dev->v4l2_dev,
-                        "Remote device at %s not found\n",
+                        "[vc-mipi mx6s_capture] Remote device at %s not found\n",
                         port->full_name);
             return -1;
         }
@@ -2960,7 +2960,7 @@ static int mx6sx_register_subdevs(struct mx6s_csi_dev *csi_dev)
                     &csi_dev->subdev_notifier);
     if (ret)
         dev_err(csi_dev->dev,
-                    "Error register async notifier regoster\n");
+                    "[vc-mipi mx6s_capture] Error register async notifier regoster\n");
 
     return ret;
 }
@@ -2974,26 +2974,26 @@ static int mx6s_csi_probe(struct platform_device *pdev)
     struct resource *res;
     int ret = 0;
 
-    dev_err(dev, "[vc_mipi] %s: Probing MX6S CSI driver: %s\n", __func__, MX6S_CAM_DRV_NAME);
-    dev_info(dev, "initialising\n");
+    dev_err(dev, "[vc-mipi mx6s_capture] %s: Probing MX6S CSI driver: %s\n", __func__, MX6S_CAM_DRV_NAME);
+    dev_info(dev, "[vc-mipi mx6s_capture] initialising\n");
 
     /* Prepare our private structure */
     csi_dev = devm_kzalloc(dev, sizeof(struct mx6s_csi_dev), GFP_ATOMIC);
     if (!csi_dev) {
-        dev_err(dev, "Can't allocate private structure\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Can't allocate private structure\n");
         return -ENODEV;
     }
 
     res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
     csi_dev->irq = platform_get_irq(pdev, 0);
     if (res == NULL || csi_dev->irq < 0) {
-        dev_err(dev, "Missing platform resources data\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Missing platform resources data\n");
         return -ENODEV;
     }
 
     csi_dev->regbase = devm_ioremap_resource(dev, res);
     if (IS_ERR(csi_dev->regbase)) {
-        dev_err(dev, "Failed platform resources map\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Failed platform resources map\n");
         return -ENODEV;
     }
 
@@ -3004,19 +3004,19 @@ static int mx6s_csi_probe(struct platform_device *pdev)
 
     csi_dev->clk_disp_axi = devm_clk_get(dev, "disp-axi");
     if (IS_ERR(csi_dev->clk_disp_axi)) {
-        dev_err(dev, "Could not get csi axi clock\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Could not get csi axi clock\n");
         return -ENODEV;
     }
 
     csi_dev->clk_disp_dcic = devm_clk_get(dev, "disp_dcic");
     if (IS_ERR(csi_dev->clk_disp_dcic)) {
-        dev_err(dev, "Could not get disp dcic clock\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Could not get disp dcic clock\n");
         return -ENODEV;
     }
 
     csi_dev->clk_csi_mclk = devm_clk_get(dev, "csi_mclk");
     if (IS_ERR(csi_dev->clk_csi_mclk)) {
-        dev_err(dev, "Could not get csi mclk clock\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Could not get csi mclk clock\n");
         return -ENODEV;
     }
 
@@ -3036,15 +3036,15 @@ static int mx6s_csi_probe(struct platform_device *pdev)
 #if CTRL_HANDLER_METHOD == USER_CTRL_METHOD2
     ret = mx6s_init_controls(csi_dev);
     if (ret) {
-        dev_err(dev, "Media controls register failed\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Media controls register failed\n");
         return ret;
     }
-    dev_err(dev, "[vc_mipi] %s: mx6s_init_controls() OK\n", __func__);
+    dev_err(dev, "[vc-mipi mx6s_capture] %s: mx6s_init_controls() OK\n", __func__);
 #endif
 
     ret = v4l2_device_register(dev, &csi_dev->v4l2_dev);
     if (ret < 0) {
-        dev_err(dev, "v4l2_device_register() failed: %d\n", ret);
+        dev_err(dev, "[vc-mipi mx6s_capture] v4l2_device_register() failed: %d\n", ret);
         ret = -ENODEV;
         goto err_v4l2;
     }
@@ -3087,7 +3087,7 @@ static int mx6s_csi_probe(struct platform_device *pdev)
     if (devm_request_irq(dev, csi_dev->irq, mx6s_csi_irq_handler,
                 0, "csi", (void *)csi_dev)) {
         mutex_unlock(&csi_dev->lock);
-        dev_err(dev, "Request CSI IRQ failed.\n");
+        dev_err(dev, "[vc-mipi mx6s_capture] Request CSI IRQ failed.\n");
         ret = -ENODEV;
         goto err_irq;
     }
@@ -3137,13 +3137,13 @@ static int mx6s_csi_remove(struct platform_device *pdev)
 
 static int mx6s_csi_runtime_suspend(struct device *dev)
 {
-    dev_dbg(dev, "csi v4l2 busfreq high release.\n");
+    dev_dbg(dev, "[vc-mipi mx6s_capture] csi v4l2 busfreq high release.\n");
     return 0;
 }
 
 static int mx6s_csi_runtime_resume(struct device *dev)
 {
-    dev_dbg(dev, "csi v4l2 busfreq high request.\n");
+    dev_dbg(dev, "[vc-mipi mx6s_capture] csi v4l2 busfreq high request.\n");
     return 0;
 }
 

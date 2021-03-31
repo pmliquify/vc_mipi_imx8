@@ -221,7 +221,7 @@ static int imx_set_gain(struct i2c_client *client)
     if(priv->digital_gain > priv->sen_pars.gain_max)  priv->digital_gain = priv->sen_pars.gain_max;
 
 #if TRACE_IMX_SET_GAIN
-    dev_err(dev, "%s: Set gain = %d\n",__func__,  priv->digital_gain);
+    dev_err(dev, "[vc-mipi driver] %s: Set gain = %d\n",__func__,  priv->digital_gain);
 #endif
 
     switch(priv->model)
@@ -250,7 +250,7 @@ static int imx_set_gain(struct i2c_client *client)
                         priv->digital_gain       & 0xff);
     }
     if(ret)
-      dev_err(dev, "%s: error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s: error=%d\n", __func__, ret);
     return ret;
 }
 
@@ -300,7 +300,7 @@ static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 
     u32 multiplier = 1000;   // (fps*numerator*1000)/denominator;
 
 #if TRACE_IMX_EXPOSURE_296_297
-    dev_info(&client->dev, "multiplier = %d \n",multiplier);
+    dev_info(&client->dev, "[vc-mipi driver] multiplier = %d \n",multiplier);
 #endif
 
     switch(priv->model)
@@ -332,8 +332,8 @@ static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 
     if(reg) vmax = (vmax << 8) | (reg & 0xff);
 
 #if TRACE_IMX_EXPOSURE_296_297
-    dev_info(&client->dev, "vmax = %08x \n",vmax);
-    dev_info(&client->dev, "vmax = %d \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %08x \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %d \n",vmax);
 #endif
     }
     vMax = vmax; // TEST
@@ -346,8 +346,8 @@ static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 
     if(reg) hmax = (hmax << 8) | reg;
     reg = vc_mipi_common_reg_read(client, 0x7002); // LOW
     if(reg) hmax = (hmax << 8) | reg;
-    dev_info(&client->dev, "hmax = %08x \n",hmax);
-    dev_info(&client->dev, "hmax = %d \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %08x \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %d \n",hmax);
     }
 #endif
 
@@ -375,7 +375,7 @@ static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 
 
 
 #if TRACE_IMX_EXPOSURE_296_297
-        dev_info(&client->dev, "SHS = %d vMax= %d\n",exposure,vMax);
+        dev_info(&client->dev, "[vc-mipi driver] SHS = %d vMax= %d\n",exposure,vMax);
 #endif
 
 #if 1
@@ -411,7 +411,7 @@ static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 
         exposure = 15 + (u32)divresult;
 #endif
 #if TRACE_IMX_EXPOSURE_296_297
-        dev_info(&client->dev, "VMAX = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] VMAX = %d \n",exposure);
 #endif
 
         if(sen_reg(priv, EXPOSURE_HIGH))
@@ -455,7 +455,7 @@ static int imx_exposure_290_327(struct imx *priv)
     {
         // range 1..1123
         exposure = (1124 * 20000 -  (u32)(priv->exposure_time) * 29 * 20 * lf) / 20000;
-        dev_info(&client->dev, "SHS = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] SHS = %d \n",exposure);
 
         ret  = vc_mipi_common_reg_write(client, 0x301A, 0x00);
         ret |= vc_mipi_common_reg_write(client, 0x3019, 0x04);
@@ -469,7 +469,7 @@ static int imx_exposure_290_327(struct imx *priv)
     {
         exposure = ( 1 * 20000 + (u32)(priv->exposure_time) * 29 * 20 * lf ) / 20000;
 
-        dev_info(&client->dev, "VMAX = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] VMAX = %d \n",exposure);
 
         ret  = vc_mipi_common_reg_write(client, 0x3022, 0x00);
         ret |= vc_mipi_common_reg_write(client, 0x3021, 0x00);
@@ -514,7 +514,7 @@ static int imx_exposure_412(struct imx *priv)
     if (priv->exposure_time < 92694)
     {
         exposure = ( ((u32)(priv->exposure_time) * 20000 / 16) - (1932 * 20000 / 5792) ) / 20000;
-        dev_info(&client->dev, "EXP = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] EXP = %d \n",exposure);
 
         ret |= vc_mipi_common_reg_write(client, 0x0202, (exposure >>  8) & 0xff);
         ret |= vc_mipi_common_reg_write(client, 0x0203,  exposure        & 0xff);
@@ -551,7 +551,7 @@ static int imx_exposure_415(struct imx *priv)
     if (priv->exposure_time <= (2250-8)*4*lf)
     {
         exposure = ( 2250 - ( (u32)(priv->exposure_time) * 20000) / (4 * lf * 20000) );
-        dev_info(&client->dev, "EXP = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] EXP = %d \n",exposure);
 
         ret |= vc_mipi_common_reg_write(client, 0x3052, (exposure >> 16) & 0x07);
         ret |= vc_mipi_common_reg_write(client, 0x3051, (exposure >>  8) & 0xff);
@@ -564,7 +564,7 @@ static int imx_exposure_415(struct imx *priv)
     else
     {
         exposure = 9 + ( ( (u32)(priv->exposure_time) / (lf*4) ) );
-        dev_info(&client->dev, "VMAX = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] VMAX = %d \n",exposure);
 
         ret |= vc_mipi_common_reg_write(client, 0x3052, 0x00);
         ret |= vc_mipi_common_reg_write(client, 0x3051, 0x00);
@@ -605,7 +605,7 @@ static int imx_exposure_9281(struct imx *priv)
 
     exposure = (((u32)(priv->exposure_time * 1000) / 9100)) << 4; // calculate in ns - 4 bit shift
 
-    dev_info(&client->dev, "EXPOSURE = %d \n",exposure);
+    dev_info(&client->dev, "[vc-mipi driver] EXPOSURE = %d \n",exposure);
 
     ret  = vc_mipi_common_reg_write(client, 0x3500, (exposure >> 16) & 0x0f);
     ret |= vc_mipi_common_reg_write(client, 0x3501, (exposure >>  8) & 0xff);
@@ -686,8 +686,8 @@ static int imx_exposure_imx183(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
     if(reg) vmax = (vmax << 8) | reg;
     reg = vc_mipi_common_reg_read(client, 0x7004); // LOW
     if(reg) vmax = (vmax << 8) | reg;
-    dev_info(&client->dev, "vmax = %08x \n",vmax);
-    dev_info(&client->dev, "vmax = %d \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %08x \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %d \n",vmax);
     }
     vMax = vmax; // TEST
 
@@ -698,8 +698,8 @@ static int imx_exposure_imx183(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
     if(reg) hmax = (hmax << 8) | reg;
     reg = vc_mipi_common_reg_read(client, 0x7002); // LOW
     if(reg) hmax = (hmax << 8) | reg;
-    dev_info(&client->dev, "hmax = %08x \n",hmax);
-    dev_info(&client->dev, "hmax = %d \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %08x \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %d \n",hmax);
     }
 
     }
@@ -712,7 +712,7 @@ static int imx_exposure_imx183(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
 
         //exposure = (nrLines  -  ((u32)(priv->exposure_time) * 16384 - tOffset)/h1Period);
         exposure = (vMax -  ((u32)(priv->exposure_time) * 16384 - tOffset)/h1Period);
-        dev_info(&client->dev, "SHS = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] SHS = %d \n",exposure);
 
         ret  = vc_mipi_common_reg_write(client, 0x7006, (vMax >> 16) & 0xff);
         ret |= vc_mipi_common_reg_write(client, 0x7005, (vMax >>  8) & 0xff);
@@ -734,7 +734,7 @@ static int imx_exposure_imx183(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
         remainder = (u32)(do_div(divresult,divisor)); // caution: division result value at dividend!
         exposure = 5 + (u32)divresult;
 
-        dev_info(&client->dev, "VMAX = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] VMAX = %d \n",exposure);
 
         if(sen_reg(priv, EXPOSURE_MIDDLE))
             ret  = vc_mipi_common_reg_write(client, sen_reg(priv, EXPOSURE_MIDDLE), 0x00);
@@ -795,8 +795,8 @@ static int imx_exposure_imx252(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
     if(reg) vmax = (vmax << 8) | reg;
     reg = vc_mipi_common_reg_read(client, 0x0210); // LOW
     if(reg) vmax = (vmax << 8) | reg;
-    dev_info(&client->dev, "vmax = %08x \n",vmax);
-    dev_info(&client->dev, "vmax = %d \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %08x \n",vmax);
+    dev_info(&client->dev, "[vc-mipi driver] vmax = %d \n",vmax);
     }
     vMax = vmax; // TEST
 
@@ -807,8 +807,8 @@ static int imx_exposure_imx252(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
     if(reg) hmax = (hmax << 8) | reg;
     reg = vc_mipi_common_reg_read(client, 0x0214); // LOW
     if(reg) hmax = (hmax << 8) | reg;
-    dev_info(&client->dev, "hmax = %08x \n",hmax);
-    dev_info(&client->dev, "hmax = %d \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %08x \n",hmax);
+    dev_info(&client->dev, "[vc-mipi driver] hmax = %d \n",hmax);
     }
 
     }
@@ -821,7 +821,7 @@ static int imx_exposure_imx252(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
 
         //exposure = (nrLines  -  ((u32)(priv->exposure_time) * 16384 - tOffset)/h1Period);
         exposure = (vMax -  ((u32)(priv->exposure_time) * 16384 - tOffset)/h1Period);
-        dev_info(&client->dev, "SHS = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] SHS = %d \n",exposure);
 
         ret  = vc_mipi_common_reg_write(client, 0x0212, (vMax >> 16) & 0xff);
         ret |= vc_mipi_common_reg_write(client, 0x0211, (vMax >>  8) & 0xff);
@@ -843,7 +843,7 @@ static int imx_exposure_imx252(struct imx *priv, s32 expMin0, s32 expMin1, s32 e
         remainder = (u32)(do_div(divresult,divisor)); // caution: division result value at dividend!
         exposure = 5 + (u32)divresult;
 
-        dev_info(&client->dev, "VMAX = %d \n",exposure);
+        dev_info(&client->dev, "[vc-mipi driver] VMAX = %d \n",exposure);
 
         if(sen_reg(priv, EXPOSURE_MIDDLE))
             ret  = vc_mipi_common_reg_write(client, sen_reg(priv, EXPOSURE_MIDDLE), 0x00);
@@ -885,7 +885,7 @@ static int imx_set_exposure(struct i2c_client *client)
         int ret = 0;
 
 #if TRACE_IMX_SET_EXPOSURE
-        dev_err(dev, "%s(): Set exposure=%d: TRIG exposure=%llu (0x%llx)\n", __func__, priv->exposure_time, exposure, exposure);
+        dev_err(dev, "[vc-mipi driver] %s(): Set exposure=%d: TRIG exposure=%llu (0x%llx)\n", __func__, priv->exposure_time, exposure, exposure);
 #endif
 
 
@@ -943,7 +943,7 @@ counter as soon as the current exposure has finished.
     {
 
 #if TRACE_IMX_SET_EXPOSURE
-      dev_err(dev, "%s: Set exposure = %d\n", __func__, priv->exposure_time);
+      dev_err(dev, "[vc-mipi driver] %s: Set exposure = %d\n", __func__, priv->exposure_time);
 #endif
 
       switch(priv->model)
@@ -965,7 +965,7 @@ counter as soon as the current exposure has finished.
             ret = imx_exposure_226(priv);
             if(ret)
             {
-                dev_err(dev, "%s(): imx_exposure_226() err=%d\n", __func__, ret);
+                dev_err(dev, "[vc-mipi driver] %s(): imx_exposure_226() err=%d\n", __func__, ret);
                 return ret;
             }
             break;
@@ -984,7 +984,7 @@ counter as soon as the current exposure has finished.
             ret = imx_exposure_296(priv);
             if(ret)
             {
-                dev_err(dev, "%s(): imx_exposure_296() err=%d\n", __func__, ret);
+                dev_err(dev, "[vc-mipi driver] %s(): imx_exposure_296() err=%d\n", __func__, ret);
                 return ret;
             }
             break;
@@ -994,7 +994,7 @@ counter as soon as the current exposure has finished.
             ret = imx_exposure_297(priv);
             if(ret)
             {
-                dev_err(dev, "%s(): imx_exposure_297() err=%d\n", __func__, ret);
+                dev_err(dev, "[vc-mipi driver] %s(): imx_exposure_297() err=%d\n", __func__, ret);
                 return ret;
             }
             break;
@@ -1028,7 +1028,7 @@ counter as soon as the current exposure has finished.
 //#endif
 
     if(ret)
-      dev_err(dev, "%s: error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s: error=%d\n", __func__, ret);
     return ret;
 }
 
@@ -1054,7 +1054,7 @@ static int imx_set_ctrl(struct v4l2_ctrl *ctrl)
 
 
 #if TRACE_IMX_SET_CTRL
-    dev_err(&client->dev, "%s: cid=0x%x\n", __func__, ctrl->id);
+    dev_err(&client->dev, "[vc-mipi driver] %s: cid=0x%x\n", __func__, ctrl->id);
 #endif
 
     /*
@@ -1069,7 +1069,7 @@ static int imx_set_ctrl(struct v4l2_ctrl *ctrl)
 
       case V4L2_CID_GAIN:
 #if TRACE_IMX_SET_CTRL
-        dev_err(&client->dev, "%s: Set gain=%d\n", __func__, ctrl->val);
+        dev_err(&client->dev, "[vc-mipi driver] %s: Set gain=%d\n", __func__, ctrl->val);
 #endif
         priv->digital_gain = ctrl->val;
         ret = imx_set_gain(client);
@@ -1077,14 +1077,14 @@ static int imx_set_ctrl(struct v4l2_ctrl *ctrl)
 
       case V4L2_CID_EXPOSURE:
 #if TRACE_IMX_SET_CTRL
-        dev_err(&client->dev, "%s: Set exposure=%d\n", __func__, ctrl->val);
+        dev_err(&client->dev, "[vc-mipi driver] %s: Set exposure=%d\n", __func__, ctrl->val);
 #endif
         priv->exposure_time = ctrl->val;
         ret = imx_set_exposure(client);
         break;
 
       default:
-        dev_err(&client->dev, "%s: ctrl(id:0x%x,val:0x%x) is not handled\n", __func__, ctrl->id, ctrl->val);
+        dev_err(&client->dev, "[vc-mipi driver] %s: ctrl(id:0x%x,val:0x%x) is not handled\n", __func__, ctrl->id, ctrl->val);
         ret = -EINVAL;
         break;
     }
@@ -1148,7 +1148,7 @@ static int imx_init_controls(struct imx *priv)
 //    ctrl_hdlr->lock = &priv->mutex;
 
 #if TRACE_IMX_INIT_CONTROLS
-    dev_err(&client->dev, "%s: ...\n", __func__);
+    dev_err(&client->dev, "[vc-mipi driver] %s: ...\n", __func__);
 #endif
 
     for (i = 0; i < num_ctrls; i++)
@@ -1157,7 +1157,7 @@ static int imx_init_controls(struct imx *priv)
         ctrl = v4l2_ctrl_new_custom(ctrl_hdlr, &ctrl_config_list[i], NULL);
         if (ctrl == NULL)
         {
-            dev_err(&client->dev, "%s: Failed to init %s ctrl\n",  __func__, ctrl_config_list[i].name);
+            dev_err(&client->dev, "[vc-mipi driver] %s: Failed to init %s ctrl\n",  __func__, ctrl_config_list[i].name);
             continue;
         }
 
@@ -1174,7 +1174,7 @@ static int imx_init_controls(struct imx *priv)
 
     if (ctrl_hdlr->error) {
         ret = ctrl_hdlr->error;
-        dev_err(&client->dev, "%s: control init failed (%d)\n", __func__, ret);
+        dev_err(&client->dev, "[vc-mipi driver] %s: control init failed (%d)\n", __func__, ret);
         goto error;
     }
 
@@ -1218,7 +1218,7 @@ static void imx_free_controls(struct imx *priv)
 //    int ret = 0;
 //
 //#if TRACE_IMX_G_PARM
-//    dev_err(dev, "%s: v4l2_streamparm type = %d\n", __func__, a->type);
+//    dev_err(dev, "[vc-mipi driver] %s: v4l2_streamparm type = %d\n", __func__, a->type);
 //#endif
 //
 //    switch (a->type) {
@@ -1226,7 +1226,7 @@ static void imx_free_controls(struct imx *priv)
 //    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
 //
 //#if TRACE_IMX_G_PARM
-//    dev_err(dev, "%s: type = V4L2_BUF_TYPE_VIDEO_CAPTURE\n", __func__);
+//    dev_err(dev, "[vc-mipi driver] %s: type = V4L2_BUF_TYPE_VIDEO_CAPTURE\n", __func__);
 //#endif
 //
 //        memset(a, 0, sizeof(*a));
@@ -1244,12 +1244,12 @@ static void imx_free_controls(struct imx *priv)
 //    case V4L2_BUF_TYPE_VBI_OUTPUT:
 //    case V4L2_BUF_TYPE_SLICED_VBI_CAPTURE:
 //    case V4L2_BUF_TYPE_SLICED_VBI_OUTPUT:
-//        dev_err(dev, "%s: Type not supported: %d\n", __func__, a->type);
+//        dev_err(dev, "[vc-mipi driver] %s: Type not supported: %d\n", __func__, a->type);
 //        ret = -EINVAL;
 //        break;
 //
 //    default:
-//        dev_err(dev, "%s: Type is unknown - %d\n", __func__, a->type);
+//        dev_err(dev, "[vc-mipi driver] %s: Type is unknown - %d\n", __func__, a->type);
 //        ret = -EINVAL;
 //        break;
 //    }
@@ -1278,7 +1278,7 @@ static void imx_free_controls(struct imx *priv)
 //    int ret = 0;
 //
 //#if TRACE_IMX_S_PARM
-//    dev_err(dev, "%s: v4l2_streamparm type = %d\n", __func__, a->type);
+//    dev_err(dev, "[vc-mipi driver] %s: v4l2_streamparm type = %d\n", __func__, a->type);
 //#endif
 //
 //
@@ -1296,12 +1296,12 @@ static void imx_free_controls(struct imx *priv)
 //    case V4L2_BUF_TYPE_VBI_OUTPUT:
 //    case V4L2_BUF_TYPE_SLICED_VBI_CAPTURE:
 //    case V4L2_BUF_TYPE_SLICED_VBI_OUTPUT:
-//        dev_err(dev, "%s: Type is not V4L2_BUF_TYPE_VIDEO_CAPTURE but %d\n", __func__, a->type);
+//        dev_err(dev, "[vc-mipi driver] %s: Type is not V4L2_BUF_TYPE_VIDEO_CAPTURE but %d\n", __func__, a->type);
 //        ret = -EINVAL;
 //        break;
 //
 //    default:
-//        dev_err(dev, "%s: Type is unknown - %d\n", __func__, a->type);
+//        dev_err(dev, "[vc-mipi driver] %s: Type is unknown - %d\n", __func__, a->type);
 //        ret = -EINVAL;
 //        break;
 //    }
@@ -1324,8 +1324,8 @@ static int imx_set_fmt(struct v4l2_subdev *sd,
     int capturemode;
 
 #if TRACE_IMX_SET_FMT
-//    dev_err(&client->dev, "%s: Set format\n", __func__);
-//    dev_err(&client->dev, "%s: Set format, fmt=0x%x\n", __func__, (int)fmt);
+//    dev_err(&client->dev, "[vc-mipi driver] %s: Set format\n", __func__);
+//    dev_err(&client->dev, "[vc-mipi driver] %s: Set format, fmt=0x%x\n", __func__, (int)fmt);
 #endif
 
     if (!fmt) {
@@ -1339,7 +1339,7 @@ static int imx_set_fmt(struct v4l2_subdev *sd,
     if (format->which == V4L2_SUBDEV_FORMAT_TRY)
     {
 #if TRACE_IMX_SET_FMT
-        dev_err(&client->dev, "%s: format->which == V4L2_SUBDEV_FORMAT_TRY: exit\n", __func__);
+        dev_err(&client->dev, "[vc-mipi driver] %s: format->which == V4L2_SUBDEV_FORMAT_TRY: exit\n", __func__);
 #endif
         return 0;
     }
@@ -1347,7 +1347,7 @@ static int imx_set_fmt(struct v4l2_subdev *sd,
     priv->fmt = fmt;
 
 #if TRACE_IMX_SET_FMT
-    dev_err(&client->dev, "%s: width,height=%d,%d\n", __func__, mf->width, mf->height);
+    dev_err(&client->dev, "[vc-mipi driver] %s: width,height=%d,%d\n", __func__, mf->width, mf->height);
 #endif
 
     capturemode = get_capturemode(mf->width, mf->height);
@@ -1359,9 +1359,9 @@ static int imx_set_fmt(struct v4l2_subdev *sd,
 #if TRACE_IMX_SET_FMT
 {
         int pix_fmt = priv->pix.pixelformat;
-//        dev_err(&client->dev, "%s: get_capturemode() OK: capturemode=%d, width,height=%d,%d\n", __func__,
+//        dev_err(&client->dev, "[vc-mipi driver] %s: get_capturemode() OK: capturemode=%d, width,height=%d,%d\n", __func__,
 //                       capturemode, priv->pix.width, priv->pix.height);
-        dev_err(&client->dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pixelformat=0x%08x '%c%c%c%c' code=%d, colorspace=%d\n", __func__,
+        dev_err(&client->dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pixelformat=0x%08x '%c%c%c%c' code=%d, colorspace=%d\n", __func__,
                         priv->pix.width, priv->pix.height,
                         priv->pix.bytesperline, priv->pix.sizeimage,
                         pix_fmt,
@@ -1375,9 +1375,9 @@ static int imx_set_fmt(struct v4l2_subdev *sd,
         return 0;
     }
 
-    dev_err(&client->dev, "%s: width,height=%d,%d\n", __func__, mf->width, mf->height);
-    dev_err(&client->dev, "%s: get_capturemode() failed: capturemode=%d\n", __func__, capturemode);
-    dev_err(&client->dev, "%s: Set format failed code=%d, colorspace=%d\n", __func__,
+    dev_err(&client->dev, "[vc-mipi driver] %s: width,height=%d,%d\n", __func__, mf->width, mf->height);
+    dev_err(&client->dev, "[vc-mipi driver] %s: get_capturemode() failed: capturemode=%d\n", __func__, capturemode);
+    dev_err(&client->dev, "[vc-mipi driver] %s: Set format failed code=%d, colorspace=%d\n", __func__,
         fmt->code, fmt->colorspace);
     return -EINVAL;
 }
@@ -1396,13 +1396,13 @@ static int imx_get_fmt(struct v4l2_subdev *sd,
     const struct imx_datafmt *fmt = priv->fmt;
 
 #if TRACE_IMX_GET_FMT
-    dev_err(&client->dev, "%s: Get format\n", __func__);
+    dev_err(&client->dev, "[vc-mipi driver] %s: Get format\n", __func__);
 #endif
 
     if (format->pad)
     {
 #if TRACE_IMX_GET_FMT
-        dev_err(&client->dev, "%s: format->pad: error\n", __func__);
+        dev_err(&client->dev, "[vc-mipi driver] %s: format->pad: error\n", __func__);
 #endif
         return -EINVAL;
     }
@@ -1415,7 +1415,7 @@ static int imx_get_fmt(struct v4l2_subdev *sd,
     mf->height  = priv->pix.height;
 
 #if TRACE_IMX_GET_FMT
-    dev_err(&client->dev, "%s: width,height=%d,%d\n", __func__, priv->pix.width, priv->pix.height);
+    dev_err(&client->dev, "[vc-mipi driver] %s: width,height=%d,%d\n", __func__, priv->pix.width, priv->pix.height);
 #endif
 
     return 0;
@@ -1501,12 +1501,12 @@ static int imx_enum_framesizes(struct v4l2_subdev *sd,
 ////    int i, j, count = 0;
 //
 //#if TRACE_IMX_ENUM_FRAMEINTERVALS
-//    dev_err(dev, "%s: index=%d\n", __func__, fie->index);
+//    dev_err(dev, "[vc-mipi driver] %s: index=%d\n", __func__, fie->index);
 //#endif
 //
 //    if (fie->width == 0 || fie->height == 0 ||
 //        fie->code == 0) {
-//        dev_err(dev, "%s: Please assign pixel format, width and height\n", __func__);
+//        dev_err(dev, "[vc-mipi driver] %s: Please assign pixel format, width and height\n", __func__);
 //        return -EINVAL;
 //    }
 //
@@ -1519,7 +1519,7 @@ static int imx_enum_framesizes(struct v4l2_subdev *sd,
 //    }
 //    else
 //    {
-////        dev_err(dev, "%s: Invalid index=%d\n", __func__, fie->index);
+////        dev_err(dev, "[vc-mipi driver] %s: Invalid index=%d\n", __func__, fie->index);
 //        return -EINVAL;
 //    }
 //
@@ -1545,7 +1545,7 @@ int dump_fpga_regs(struct imx *priv)
 /*............. Setup */
     if(!priv->rom)
     {
-        dev_err(dev, "%s: Error !!! VC FPGA not found !!!\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s: Error !!! VC FPGA not found !!!\n", __func__);
         return -EIO;
     }
 
@@ -1556,13 +1556,13 @@ int dump_fpga_regs(struct imx *priv)
       reg_buf[i++] = reg_read(priv->rom, addr);
     }
 
-    dev_err(dev, "%s: FPGA control registers:\n", __func__);
+    dev_err(dev, "[vc-mipi driver] %s: FPGA control registers:\n", __func__);
 
 /*............. Dump control registers  */
-    dev_err(dev, "0-3   : %02x %02x %02x %02x\n", reg_buf[0],reg_buf[1],reg_buf[2],reg_buf[3]);
-    dev_err(dev, "4-8   : %02x %02x %02x %02x %02x\n", reg_buf[4],reg_buf[5],reg_buf[6],reg_buf[7],reg_buf[8]);
-    dev_err(dev, "9-12  : %02x %02x %02x %02x\n", reg_buf[9],reg_buf[10],reg_buf[11],reg_buf[12]);
-    dev_err(dev, "13-16 : %02x %02x %02x %02x\n", reg_buf[13],reg_buf[14],reg_buf[15],reg_buf[16]);
+    dev_err(dev, "[vc-mipi driver] 0-3   : %02x %02x %02x %02x\n", reg_buf[0],reg_buf[1],reg_buf[2],reg_buf[3]);
+    dev_err(dev, "[vc-mipi driver] 4-8   : %02x %02x %02x %02x %02x\n", reg_buf[4],reg_buf[5],reg_buf[6],reg_buf[7],reg_buf[8]);
+    dev_err(dev, "[vc-mipi driver] 9-12  : %02x %02x %02x %02x\n", reg_buf[9],reg_buf[10],reg_buf[11],reg_buf[12]);
+    dev_err(dev, "[vc-mipi driver] 13-16 : %02x %02x %02x %02x\n", reg_buf[13],reg_buf[14],reg_buf[15],reg_buf[16]);
 
     return err;
 }
@@ -1610,7 +1610,7 @@ static int ov9281_set_mode(struct i2c_client *client)
     {
       priv->sensor_mode = sensor_mode;
 #if TRACE_OV9281_SET_MODE
-      dev_err(dev, "%s(): New sensor_mode=%d (0=10bit, 1=8bit, 2=10bit trig, 3=8bit trig), sensor_ext_trig=%d\n", __func__,
+      dev_err(dev, "[vc-mipi driver] %s(): New sensor_mode=%d (0=10bit, 1=8bit, 2=10bit trig, 3=8bit trig), sensor_ext_trig=%d\n", __func__,
                     sensor_mode, priv->sensor_ext_trig);
 #endif
 
@@ -1618,7 +1618,7 @@ static int ov9281_set_mode(struct i2c_client *client)
       err = vc_mipi_common_rom_init(client, priv->rom, sensor_mode);
       if(err)
       {
-        dev_err(dev, "%s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
         return err;
       }
 
@@ -1626,14 +1626,14 @@ static int ov9281_set_mode(struct i2c_client *client)
 ////      mdelay(300); // wait 300ms : added in vc_mipi_reset()
 //      if(err)
 //      {
-//          dev_err(dev, "%s(): vc_mipi_reset() error=%d\n", __func__, err);
+//          dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_reset() error=%d\n", __func__, err);
 //      }
 //
     } /* if(priv->sensor_mode != sensor_mode) */
 
 #if TRACE_OV9281_SET_MODE
 {
-    dev_err(dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
+    dev_err(dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
                         pix.width, pix.height,
                         pix.bytesperline, pix.sizeimage,
                         pix_fmt,
@@ -1646,21 +1646,21 @@ static int ov9281_set_mode(struct i2c_client *client)
 #endif
 
 #if TRACE_OV9281_SET_MODE
-//    dev_err(dev, "%s(): mode_prop_idx=%d sensor_mode=%d err=%d\n", __func__, s_data->mode_prop_idx, sensor_mode, err);
-//    dev_err(dev, "%s(): sensor_mode=%d (0=10,1=8-bit) err=%d\n", __func__, sensor_mode, err);
+//    dev_err(dev, "[vc-mipi driver] %s(): mode_prop_idx=%d sensor_mode=%d err=%d\n", __func__, s_data->mode_prop_idx, sensor_mode, err);
+//    dev_err(dev, "[vc-mipi driver] %s(): sensor_mode=%d (0=10,1=8-bit) err=%d\n", __func__, sensor_mode, err);
 #endif
 
 // Write mode table:
     err = reg_write_table(client, priv->sen_pars.sensor_mode_table);
     if(err)
     {
-        dev_err(dev, "%s(): reg_write_table() error=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() error=%d\n", __func__, err);
 //        goto exit;
     }
     else
     {
 #if TRACE_OV9281_SET_MODE
-//        dev_err(dev, "%s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
+//        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
 #endif
     }
 
@@ -1739,14 +1739,14 @@ static int imx183_273_set_mode(struct i2c_client *client)
       priv->sensor_mode = sensor_mode;
 
 #if TRACE_IMX183_273_SET_MODE
-      dev_err(dev, "%s(): New sensor_mode=%d (0-2=8/10/12-bit 3-5=8/10/12-bit trig), sensor_ext_trig=%d\n", __func__,
+      dev_err(dev, "[vc-mipi driver] %s(): New sensor_mode=%d (0-2=8/10/12-bit 3-5=8/10/12-bit trig), sensor_ext_trig=%d\n", __func__,
                     sensor_mode, priv->sensor_ext_trig);
 #endif
 
       err = vc_mipi_common_rom_init(client, priv->rom, sensor_mode);
       if(err)
       {
-        dev_err(dev, "%s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
         return err;
       }
 
@@ -1754,14 +1754,14 @@ static int imx183_273_set_mode(struct i2c_client *client)
 ////      mdelay(300); // wait 300ms : added in vc_mipi_reset()
 //      if(err)
 //      {
-//          dev_err(dev, "%s(): vc_mipi_reset() error=%d\n", __func__, err);
+//          dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_reset() error=%d\n", __func__, err);
 //      }
 //
     } /* if(priv->sensor_mode != sensor_mode) */
 
 #if TRACE_IMX183_273_SET_MODE
 {
-    dev_err(dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
+    dev_err(dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
                         pix.width, pix.height,
                         pix.bytesperline, pix.sizeimage,
                         pix_fmt,
@@ -1777,13 +1777,13 @@ static int imx183_273_set_mode(struct i2c_client *client)
     err = reg_write_table(client, priv->sen_pars.sensor_mode_table);
     if(err)
     {
-        dev_err(dev, "%s(): reg_write_table() error=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() error=%d\n", __func__, err);
 //        goto exit;
     }
     else
     {
 #if TRACE_IMX183_273_SET_MODE
-//        dev_err(dev, "%s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
+//        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
 #endif
     }
 
@@ -1824,14 +1824,14 @@ static int imx296_297_set_mode(struct i2c_client *client)
       priv->sensor_mode = sensor_mode;
 
 #if TRACE_IMX296_297_SET_MODE
-      dev_err(dev, "%s(): New sensor_mode=%d (0=10-bit free-run, 1=10-bit trig), sensor_ext_trig=%d\n", __func__,
+      dev_err(dev, "[vc-mipi driver] %s(): New sensor_mode=%d (0=10-bit free-run, 1=10-bit trig), sensor_ext_trig=%d\n", __func__,
                     sensor_mode, priv->sensor_ext_trig);
 #endif
 
       err = vc_mipi_common_rom_init(client, priv->rom, sensor_mode);
       if(err)
       {
-        dev_err(dev, "%s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
         return err;
       }
 
@@ -1839,14 +1839,14 @@ static int imx296_297_set_mode(struct i2c_client *client)
 ////      mdelay(300); // wait 300ms : added in vc_mipi_reset()
 //      if(err)
 //      {
-//          dev_err(dev, "%s(): vc_mipi_reset() error=%d\n", __func__, err);
+//          dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_reset() error=%d\n", __func__, err);
 //      }
 //
     } /* if(priv->sensor_mode != sensor_mode) */
 
 #if TRACE_IMX296_297_SET_MODE
 {
-    dev_err(dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
+    dev_err(dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
                         pix.width, pix.height,
                         pix.bytesperline, pix.sizeimage,
                         pix_fmt,
@@ -1862,13 +1862,13 @@ static int imx296_297_set_mode(struct i2c_client *client)
     err = reg_write_table(client, priv->sen_pars.sensor_mode_table);
     if(err)
     {
-        dev_err(dev, "%s(): reg_write_table() error=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() error=%d\n", __func__, err);
 //        goto exit;
     }
     else
     {
 #if TRACE_IMX296_297_SET_MODE
-//        dev_err(dev, "%s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
+//        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
 #endif
     }
 
@@ -1908,14 +1908,14 @@ static int imx327_415_set_mode(struct i2c_client *client)
     {
       priv->sensor_mode = sensor_mode;
 #if TRACE_IMX327_SET_MODE
-      dev_err(dev, "%s(): New sensor_mode=%d (0,1=2/4-lanes)\n", __func__, sensor_mode);
+      dev_err(dev, "[vc-mipi driver] %s(): New sensor_mode=%d (0,1=2/4-lanes)\n", __func__, sensor_mode);
 #endif
 
 //      err = vc_mipi_reset(tc_dev, sensor_mode);
       err = vc_mipi_common_rom_init(client, priv->rom, sensor_mode);
       if(err)
       {
-        dev_err(dev, "%s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
         return err;
       }
 
@@ -1923,7 +1923,7 @@ static int imx327_415_set_mode(struct i2c_client *client)
 
 #if TRACE_IMX327_SET_MODE
 {
-    dev_err(dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c'\n", __func__,
+    dev_err(dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c'\n", __func__,
                         pix.width, pix.height,
                         pix.bytesperline, pix.sizeimage,
                         pix_fmt,
@@ -1938,13 +1938,13 @@ static int imx327_415_set_mode(struct i2c_client *client)
     err = reg_write_table(client, priv->sen_pars.sensor_mode_table);
     if(err)
     {
-        dev_err(dev, "%s(): reg_write_table() error=%d\n", __func__, err);
+        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() error=%d\n", __func__, err);
 //        goto exit;
     }
     else
     {
 #if TRACE_IMX327_SET_MODE
-//        dev_err(dev, "%s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
+//        dev_err(dev, "[vc-mipi driver] %s(): reg_write_table() OK, cam_mode=%d\n", __func__, priv->cam_mode);
 #endif
     }
 
@@ -2039,7 +2039,7 @@ static int imx_stop_stream(struct i2c_client *client)
 
     ret = vc_mipi_common_trigmode_write(priv->rom, 0, 0, 0, 0, 0); /* disable external trigger counter */
     if (ret)
-        dev_err(dev, "%s: REINIT: Error %d disabling trigger counter\n", __func__, ret);
+        dev_err(dev, "[vc-mipi driver] %s: REINIT: Error %d disabling trigger counter\n", __func__, ret);
 }
 #endif
 
@@ -2048,7 +2048,7 @@ static int imx_stop_stream(struct i2c_client *client)
     priv->streaming = false;
 
 #if TRACE_IMX_STOP_STREAM
-    dev_err(dev, "%s(): err=%d\n", __func__, ret);
+    dev_err(dev, "[vc-mipi driver] %s(): err=%d\n", __func__, ret);
 #endif
 
     return ret;
@@ -2070,7 +2070,7 @@ static int imx_start_stream(struct i2c_client *client)
       ret = imx_stop_stream(client);
       if(ret)
       {
-        dev_err(dev, "%s: imx_stop_stream() error=%d\n", __func__, ret);
+        dev_err(dev, "[vc-mipi driver] %s: imx_stop_stream() error=%d\n", __func__, ret);
 //        goto exit;
       }
     }
@@ -2081,7 +2081,7 @@ static int imx_start_stream(struct i2c_client *client)
     ret = imx_set_mode(client);
     if(ret)
     {
-      dev_err(dev, "%s: imx_set_mode() error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s: imx_set_mode() error=%d\n", __func__, ret);
       goto exit;
     }
 
@@ -2105,7 +2105,7 @@ static int imx_start_stream(struct i2c_client *client)
         }
 
 #if TRACE_IMX_START_STREAM
-        dev_err(dev, "%s(): sensor_ext_trig=%d, exposure=%llu (0x%llx)\n", __func__, priv->sensor_ext_trig, exposure, exposure);
+        dev_err(dev, "[vc-mipi driver] %s(): sensor_ext_trig=%d, exposure=%llu (0x%llx)\n", __func__, priv->sensor_ext_trig, exposure, exposure);
 #endif
 
         addr = 0x0108; // ext trig enable
@@ -2118,7 +2118,7 @@ static int imx_start_stream(struct i2c_client *client)
         data = flash_output_enb; // priv->flash_output; // flash output enable
         ret += reg_write(priv->rom, addr, data);
 #if TRACE_IMX_START_STREAM
-        dev_err(dev, "%s(): flash-output=%d\n", __func__, (int)data);
+        dev_err(dev, "[vc-mipi driver] %s(): flash-output=%d\n", __func__, (int)data);
 #endif
 
 #if VC_EXT_TRIG_SET_EXPOSURE  /* [[[ */
@@ -2143,7 +2143,7 @@ static int imx_start_stream(struct i2c_client *client)
         {
           if(ret)
           {
-            dev_err(dev, "%s(): reg_write() error=%d\n", __func__, ret);
+            dev_err(dev, "[vc-mipi driver] %s(): reg_write() error=%d\n", __func__, ret);
           }
           else
           {
@@ -2167,7 +2167,7 @@ static int imx_start_stream(struct i2c_client *client)
 
     if(ret)
     {
-      dev_err(dev, "%s(): reg_write() error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s(): reg_write() error=%d\n", __func__, ret);
       goto exit;
     }
 
@@ -2186,7 +2186,7 @@ static int imx_start_stream(struct i2c_client *client)
 //............... Exit
 exit:
 #if TRACE_IMX_START_STREAM
-    dev_err(dev, "%s(): err=%d\n", __func__, ret);
+    dev_err(dev, "[vc-mipi driver] %s(): err=%d\n", __func__, ret);
 #endif
 
     return ret;
@@ -2208,7 +2208,7 @@ static int imx_s_stream(struct v4l2_subdev *sd, int enable)
 //#endif
 
 #if TRACE_IMX_S_STREAM
-    dev_err(dev, "%s: enable=%d\n", __func__, enable);
+    dev_err(dev, "[vc-mipi driver] %s: enable=%d\n", __func__, enable);
 #endif
 
     if (enable)
@@ -2216,23 +2216,23 @@ static int imx_s_stream(struct v4l2_subdev *sd, int enable)
         err = imx_start_stream(client);
         if(err)
         {
-          dev_err(dev, "%s: imx_start_stream() error=%d\n", __func__, err);
+          dev_err(dev, "[vc-mipi driver] %s: imx_start_stream() error=%d\n", __func__, err);
         }
 #if IMX_S_STREAM_DUMP_FPGA
-        dev_err(dev, "%s: ----- FPGA dump after start stream -----\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s: ----- FPGA dump after start stream -----\n", __func__);
         dump_fpga_regs(priv);
 #endif
     }
     else
     {
 #if IMX_S_STREAM_DUMP_FPGA
-        dev_err(dev, "%s: ----- FPGA dump before stop stream -----\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s: ----- FPGA dump before stop stream -----\n", __func__);
         dump_fpga_regs(priv);
 #endif
         err = imx_stop_stream(client);
         if(err)
         {
-          dev_err(dev, "%s: imx_stop_stream() error=%d\n", __func__, err);
+          dev_err(dev, "[vc-mipi driver] %s: imx_stop_stream() error=%d\n", __func__, err);
         }
     }
 
@@ -2324,18 +2324,18 @@ static int imx_board_setup(struct imx *priv)
 //    }
 //    else
 //    {
-//        dev_err(dev, "%s: VC Sensor device-tree: Invalid number of data-lanes: %d\n",__func__, priv->num_lanes);
+//        dev_err(dev, "[vc-mipi driver] %s: VC Sensor device-tree: Invalid number of data-lanes: %d\n",__func__, priv->num_lanes);
 //        return -EINVAL;
 //    }
 
 #if TRACE_IMX_BOARD_SETUP
-    dev_err(dev, "%s: VC Sensor device-tree has configured %d data-lanes: sensor_mode=%d\n",__func__, priv->num_lanes, sensor_mode);
+    dev_err(dev, "[vc-mipi driver] %s: VC Sensor device-tree has configured %d data-lanes: sensor_mode=%d\n",__func__, priv->num_lanes, sensor_mode);
 #endif
 
 
 /*............. Read ROM table */
     if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
-        dev_err(dev, "%s(): I2C-Adapter doesn't support I2C_FUNC_SMBUS_BYTE\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s(): I2C-Adapter doesn't support I2C_FUNC_SMBUS_BYTE\n", __func__);
         return -EIO;
     }
 
@@ -2346,7 +2346,7 @@ static int imx_board_setup(struct imx *priv)
         int addr,reg;
 
 #if DUMP_HWD_DESC_ROM_DATA      /* dump Hardware Desriptor ROM data */
-        dev_err(&client->dev, "%s(): Dump Hardware Descriptor ROM data:\n", __func__);
+        dev_err(&client->dev, "[vc-mipi driver] %s(): Dump Hardware Descriptor ROM data:\n", __func__);
 #endif
 
         for (addr=0; addr<sizeof(priv->rom_table); addr++)
@@ -2365,7 +2365,7 @@ static int imx_board_setup(struct imx *priv)
           if(addr & 1)  // odd addr
           {
             sval |= (int)reg << 8;
-            dev_err(dev, "addr=0x%04x reg=0x%04x\n",addr+0x1000-1,sval);
+            dev_err(dev, "[vc-mipi driver] addr=0x%04x reg=0x%04x\n",addr+0x1000-1,sval);
           }
           else
           {
@@ -2376,24 +2376,24 @@ static int imx_board_setup(struct imx *priv)
 
         } /* for (addr=0; addr<sizeof(priv->rom_table); addr++) */
 
-        dev_err(dev, "%s(): VC FPGA found!\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s(): VC FPGA found!\n", __func__);
 
-        dev_err(dev, "[ MAGIC  ] [ %s ]\n",
+        dev_err(dev, "[vc-mipi driver] [ MAGIC  ] [ %s ]\n",
                 priv->rom_table.magic);
 
-        dev_err(dev, "[ MANUF. ] [ %s ] [ MID=0x%04x ]\n",
+        dev_err(dev, "[vc-mipi driver] [ MANUF. ] [ %s ] [ MID=0x%04x ]\n",
                 priv->rom_table.manuf,
                 priv->rom_table.manuf_id);
 
-        dev_err(dev, "[ SENSOR ] [ %s %s ]\n",
+        dev_err(dev, "[vc-mipi driver] [ SENSOR ] [ %s %s ]\n",
                 priv->rom_table.sen_manuf,
                 priv->rom_table.sen_type);
 
-        dev_err(dev, "[ MODULE ] [ ID=0x%04x ] [ REV=0x%04x ]\n",
+        dev_err(dev, "[vc-mipi driver] [ MODULE ] [ ID=0x%04x ] [ REV=0x%04x ]\n",
                 priv->rom_table.mod_id,
                 priv->rom_table.mod_rev);
 
-        dev_err(dev, "[ MODES  ] [ NR=0x%04x ] [ BPM=0x%04x ]\n",
+        dev_err(dev, "[vc-mipi driver] [ MODES  ] [ NR=0x%04x ] [ BPM=0x%04x ]\n",
                 priv->rom_table.nr_modes,
                 priv->rom_table.bytes_per_mode);
 
@@ -2404,12 +2404,12 @@ static int imx_board_setup(struct imx *priv)
             {
                 if( *(priv->rom_table.sen_type+len-1) == 'C' )
                 {
-                    dev_err(dev, "[ COLOR  ] [  %c ]\n",*(priv->rom_table.sen_type+len-1));
+                    dev_err(dev, "[vc-mipi driver] [ COLOR  ] [  %c ]\n",*(priv->rom_table.sen_type+len-1));
                     priv->color = 1;
                 }
                 else
                 {
-                    dev_err(dev, "[ MONO   ] [ B/W ]\n");
+                    dev_err(dev, "[vc-mipi driver] [ MONO   ] [ B/W ]\n");
                     priv->color = 0;
                 }
             } //TODO else
@@ -2444,10 +2444,10 @@ static int imx_board_setup(struct imx *priv)
 #if DUMP_ROM_TABLE_REGS
 {
     int i;
-    dev_err(dev, "ROM table register dump:\n");
+    dev_err(dev, "[vc-mipi driver] ROM table register dump:\n");
     for(i=0; i<56; i+=2)
     {
-      dev_err(dev, "0x%02x: 0x%02x 0x%02x\n", i, (int)priv->rom_table.regs[i], (int)priv->rom_table.regs[i+1]);
+      dev_err(dev, "[vc-mipi driver] 0x%02x: 0x%02x 0x%02x\n", i, (int)priv->rom_table.regs[i], (int)priv->rom_table.regs[i+1]);
     }
 }
 #endif
@@ -2528,13 +2528,13 @@ static int imx_board_setup(struct imx *priv)
 
         if(priv->model == SEN_MODEL_UNKNOWN)
         {
-          dev_err(dev, "%s(): Unknown sensor model=0x%04x, err=%d\n", __func__, priv->rom_table.mod_id, -EIO);
+          dev_err(dev, "[vc-mipi driver] %s(): Unknown sensor model=0x%04x, err=%d\n", __func__, priv->rom_table.mod_id, -EIO);
           return -EIO;
         }
         else
         {
 #if TRACE_IMX_BOARD_SETUP
-          dev_err(dev, "%s(): Detected sensor model: '%s'\n", __func__, priv->model_name);
+          dev_err(dev, "[vc-mipi driver] %s(): Detected sensor model: '%s'\n", __func__, priv->model_name);
 #endif
         }
 
@@ -2543,7 +2543,7 @@ static int imx_board_setup(struct imx *priv)
         err = vc_mipi_common_rom_init(client, priv->rom, sensor_mode);
         if(err)
         {
-          dev_err(dev, "%s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
+          dev_err(dev, "[vc-mipi driver] %s(): vc_mipi_common_rom_init() err=%d\n", __func__, err);
           return err;
         }
 
@@ -2552,19 +2552,19 @@ static int imx_board_setup(struct imx *priv)
         int i;
         int reg_val[10];
 
-        dev_err(dev, "%s(): Module controller registers (0x10):\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s(): Module controller registers (0x10):\n", __func__);
 
 //        addr = 0x100;
         i = 0;
         for(addr=0x100; addr<=0x108; addr++)
         {
           reg_val[i] = reg_read(priv->rom, addr);
-//          dev_err(&client->dev, "0x%04x: %02x\n", addr, reg_val[i]);
+//          dev_err(&client->dev, "[vc-mipi driver] 0x%04x: %02x\n", addr, reg_val[i]);
           i++;
         }
 
-        dev_err(dev, "0x100-103: %02x %02x %02x %02x\n", reg_val[0],reg_val[1],reg_val[2],reg_val[3]);
-        dev_err(dev, "0x104-108: %02x %02x %02x %02x %02x\n", reg_val[4],reg_val[5],reg_val[6],reg_val[7],reg_val[8]);
+        dev_err(dev, "[vc-mipi driver] 0x100-103: %02x %02x %02x %02x\n", reg_val[0],reg_val[1],reg_val[2],reg_val[3]);
+        dev_err(dev, "[vc-mipi driver] 0x104-108: %02x %02x %02x %02x %02x\n", reg_val[4],reg_val[5],reg_val[6],reg_val[7],reg_val[8]);
 
 }
 #endif
@@ -2573,7 +2573,7 @@ static int imx_board_setup(struct imx *priv)
 
     else
     {
-        dev_err(dev, "%s(): Error !!! VC FPGA not found !!!\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s(): Error !!! VC FPGA not found !!!\n", __func__);
         return -EIO;
     }
 
@@ -2598,7 +2598,7 @@ static int imx_param_setup(struct imx *priv)
     int ret = 0;
 
 #if TRACE_IMX_PARAM_SETUP
-//    dev_err(dev, "%s: ...\n", __func__);
+//    dev_err(dev, "[vc-mipi driver] %s: ...\n", __func__);
 #endif
 
     switch(priv->model)
@@ -2982,7 +2982,7 @@ static int imx_param_setup(struct imx *priv)
             1);                             /* int step );         [in] control's step value  */
     if(ret)
     {
-      dev_err(dev, "%s: mx6s_set_ctrl_range() gain error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s: mx6s_set_ctrl_range() gain error=%d\n", __func__, ret);
       goto done;
     }
 
@@ -2994,38 +2994,38 @@ static int imx_param_setup(struct imx *priv)
             1);                             /* int step );         [in] control's step value  */
     if(ret)
     {
-      dev_err(dev, "%s: mx6s_set_ctrl_range() exp error=%d\n", __func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s: mx6s_set_ctrl_range() exp error=%d\n", __func__, ret);
       goto done;
     }
 #endif
 
 #if TRACE_IMX_PARAM_SETUP
-    dev_err(dev, "%s: num_lanes=%d\n", __func__, priv->num_lanes);
+    dev_err(dev, "[vc-mipi driver] %s: num_lanes=%d\n", __func__, priv->num_lanes);
 #endif
 
 #if DUMP_V4L2_CID_PARAMS
-    dev_err(dev, "V4L2_CID_BRIGHTNESS         = 0x%08x\n",V4L2_CID_BRIGHTNESS         );
-    dev_err(dev, "V4L2_CID_CONTRAST           = 0x%08x\n",V4L2_CID_CONTRAST           );
-    dev_err(dev, "V4L2_CID_SATURATION         = 0x%08x\n",V4L2_CID_SATURATION         );
-    dev_err(dev, "V4L2_CID_HUE                = 0x%08x\n",V4L2_CID_HUE                );
-    dev_err(dev, "V4L2_CID_AUDIO_VOLUME       = 0x%08x\n",V4L2_CID_AUDIO_VOLUME       );
-    dev_err(dev, "V4L2_CID_AUDIO_BALANCE      = 0x%08x\n",V4L2_CID_AUDIO_BALANCE      );
-    dev_err(dev, "V4L2_CID_AUDIO_BASS         = 0x%08x\n",V4L2_CID_AUDIO_BASS         );
-    dev_err(dev, "V4L2_CID_AUDIO_TREBLE       = 0x%08x\n",V4L2_CID_AUDIO_TREBLE       );
-    dev_err(dev, "V4L2_CID_AUDIO_MUTE         = 0x%08x\n",V4L2_CID_AUDIO_MUTE         );
-    dev_err(dev, "V4L2_CID_AUDIO_LOUDNESS     = 0x%08x\n",V4L2_CID_AUDIO_LOUDNESS     );
-    dev_err(dev, "V4L2_CID_BLACK_LEVEL        = 0x%08x\n",V4L2_CID_BLACK_LEVEL        );
-    dev_err(dev, "V4L2_CID_AUTO_WHITE_BALANCE = 0x%08x\n",V4L2_CID_AUTO_WHITE_BALANCE );
-    dev_err(dev, "V4L2_CID_DO_WHITE_BALANCE   = 0x%08x\n",V4L2_CID_DO_WHITE_BALANCE   );
-    dev_err(dev, "V4L2_CID_RED_BALANCE        = 0x%08x\n",V4L2_CID_RED_BALANCE        );
-    dev_err(dev, "V4L2_CID_BLUE_BALANCE       = 0x%08x\n",V4L2_CID_BLUE_BALANCE       );
-    dev_err(dev, "V4L2_CID_GAMMA              = 0x%08x\n",V4L2_CID_GAMMA              );
-    dev_err(dev, "V4L2_CID_WHITENESS          = 0x%08x\n",V4L2_CID_WHITENESS          );
-    dev_err(dev, "V4L2_CID_EXPOSURE           = 0x%08x\n",V4L2_CID_EXPOSURE           );
-    dev_err(dev, "V4L2_CID_AUTOGAIN           = 0x%08x\n",V4L2_CID_AUTOGAIN           );
-    dev_err(dev, "V4L2_CID_GAIN               = 0x%08x\n",V4L2_CID_GAIN               );
-    dev_err(dev, "V4L2_CID_HFLIP              = 0x%08x\n",V4L2_CID_HFLIP              );
-    dev_err(dev, "V4L2_CID_VFLIP              = 0x%08x\n",V4L2_CID_VFLIP              );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_BRIGHTNESS         = 0x%08x\n",V4L2_CID_BRIGHTNESS         );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_CONTRAST           = 0x%08x\n",V4L2_CID_CONTRAST           );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_SATURATION         = 0x%08x\n",V4L2_CID_SATURATION         );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_HUE                = 0x%08x\n",V4L2_CID_HUE                );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_VOLUME       = 0x%08x\n",V4L2_CID_AUDIO_VOLUME       );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_BALANCE      = 0x%08x\n",V4L2_CID_AUDIO_BALANCE      );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_BASS         = 0x%08x\n",V4L2_CID_AUDIO_BASS         );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_TREBLE       = 0x%08x\n",V4L2_CID_AUDIO_TREBLE       );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_MUTE         = 0x%08x\n",V4L2_CID_AUDIO_MUTE         );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUDIO_LOUDNESS     = 0x%08x\n",V4L2_CID_AUDIO_LOUDNESS     );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_BLACK_LEVEL        = 0x%08x\n",V4L2_CID_BLACK_LEVEL        );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUTO_WHITE_BALANCE = 0x%08x\n",V4L2_CID_AUTO_WHITE_BALANCE );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_DO_WHITE_BALANCE   = 0x%08x\n",V4L2_CID_DO_WHITE_BALANCE   );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_RED_BALANCE        = 0x%08x\n",V4L2_CID_RED_BALANCE        );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_BLUE_BALANCE       = 0x%08x\n",V4L2_CID_BLUE_BALANCE       );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_GAMMA              = 0x%08x\n",V4L2_CID_GAMMA              );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_WHITENESS          = 0x%08x\n",V4L2_CID_WHITENESS          );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_EXPOSURE           = 0x%08x\n",V4L2_CID_EXPOSURE           );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_AUTOGAIN           = 0x%08x\n",V4L2_CID_AUTOGAIN           );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_GAIN               = 0x%08x\n",V4L2_CID_GAIN               );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_HFLIP              = 0x%08x\n",V4L2_CID_HFLIP              );
+    dev_err(dev, "[vc-mipi driver] V4L2_CID_VFLIP              = 0x%08x\n",V4L2_CID_VFLIP              );
 #endif
 
 done:
@@ -3169,8 +3169,8 @@ static int imx_set_pixel_format(struct imx *priv)
     struct device *dev = &priv->i2c_client->dev;
     int pix_fmt = pix.pixelformat;
 
-//    dev_err(dev, "%s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
-    dev_err(dev, "width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt='%c%c%c%c', sensor_mode=%d\n",
+//    dev_err(dev, "[vc-mipi driver] %s: width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt=0x%08x '%c%c%c%c', sensor_mode=%d\n", __func__,
+    dev_err(dev, "[vc-mipi driver] width,height=%d,%d bytesperline=%d sizeimage=%d pix_fmt='%c%c%c%c', sensor_mode=%d\n",
                         pix.width, pix.height,
                         pix.bytesperline, pix.sizeimage,
                         (char)((pix_fmt      ) & 0xFF),
@@ -3205,20 +3205,20 @@ static int imx_probe(struct i2c_client *client,
     struct imx *priv;
 
 #if TRACE_IMX_PROBE
-    dev_err(dev, "%s(): Probing v4l2 sensor at addr 0x%0x - %s/%s\n", __func__, client->addr, __DATE__, __TIME__);
+    dev_err(dev, "[vc-mipi driver] %s(): Probing v4l2 sensor at addr 0x%0x - %s/%s\n", __func__, client->addr, __DATE__, __TIME__);
 #endif
 
     priv = devm_kzalloc(dev, sizeof(struct imx), GFP_KERNEL);
     if (!priv)
     {
-        dev_err(dev, "%s: devm_kzalloc error\n", __func__);
+        dev_err(dev, "[vc-mipi driver] %s: devm_kzalloc error\n", __func__);
         return -ENOMEM;
     }
 
 //    ret = of_property_read_u32(dev->of_node, "csi_id",
 //                    &(priv->csi));
 //    if (ret) {
-//        dev_err(dev, "csi id missing or invalid\n");
+//        dev_err(dev, "[vc-mipi driver] csi id missing or invalid\n");
 //        return ret;
 //    }
 
@@ -3244,14 +3244,14 @@ static int imx_probe(struct i2c_client *client,
     ret = imx_board_setup(priv);
     if(ret)
     {
-        dev_err(dev, "%s: imx_board_setup() ret=%d\n", __func__, ret);
+        dev_err(dev, "[vc-mipi driver] %s: imx_board_setup() ret=%d\n", __func__, ret);
         return -EIO;
     }
 
     ret = imx_param_setup(priv);
     if(ret)
     {
-        dev_err(dev, "%s: imx_param_setup() ret=%d\n", __func__, ret);
+        dev_err(dev, "[vc-mipi driver] %s: imx_param_setup() ret=%d\n", __func__, ret);
         return -EIO;
     }
 
@@ -3261,7 +3261,7 @@ static int imx_probe(struct i2c_client *client,
 //#if 0  // ???
 //    ret = imx_init_device(priv);
 //    if (ret < 0) {
-//        dev_err(dev, "%s: Camera init failed\n", __func__);
+//        dev_err(dev, "[vc-mipi driver] %s: Camera init failed\n", __func__);
 ////        clk_disable_unprepare(priv->sensor_clk);
 ////        imx_power_down(priv, 1);
 //        return ret;
@@ -3281,7 +3281,7 @@ static int imx_probe(struct i2c_client *client,
     ret = imx_init_controls(priv);
     if (ret)
     {
-        dev_err(&client->dev, "imx_init_controls error=%d\n", ret);
+        dev_err(&client->dev, "[vc-mipi driver] imx_init_controls error=%d\n", ret);
         imx_free_controls(priv);
         goto err_out;
     }
@@ -3301,7 +3301,7 @@ static int imx_probe(struct i2c_client *client,
     ret = v4l2_async_register_subdev(&priv->subdev);
     if(ret < 0)
     {
-        dev_err(&client->dev, "%s: Async register failed, ret=%d\n", __func__, ret);
+        dev_err(&client->dev, "[vc-mipi driver] %s: Async register failed, ret=%d\n", __func__, ret);
         goto err_out;
     }
 
@@ -3309,7 +3309,7 @@ static int imx_probe(struct i2c_client *client,
     ret = imx_set_pixel_format(priv);
     if(ret)
     {
-        dev_err(&client->dev, "%s: imx_set_pixel_format() failed, ret=%d\n", __func__, ret);
+        dev_err(&client->dev, "[vc-mipi driver] %s: imx_set_pixel_format() failed, ret=%d\n", __func__, ret);
         goto err_out;
     }
 
@@ -3326,13 +3326,13 @@ err_out:
 //#if !IMX_PROBE_DIS_ERR
 //    imx_stop_stream(priv);
 //#endif
-//    dev_err(dev, "Camera is found\n");
+//    dev_err(dev, "[vc-mipi driver] Camera is found\n");
 
 #if TRACE_IMX_PROBE
     if(!ret)
-      dev_err(dev, "%s(): Probed VC MIPI sensor '%s' - %s/%s\n",__func__, priv->model_name, __DATE__, __TIME__);
+      dev_err(dev, "[vc-mipi driver] %s(): Probed VC MIPI sensor '%s' - %s/%s\n",__func__, priv->model_name, __DATE__, __TIME__);
     else
-      dev_err(dev, "%s(): Probing VC MIPI sensor failed: rc=%d\n",__func__, ret);
+      dev_err(dev, "[vc-mipi driver] %s(): Probing VC MIPI sensor failed: rc=%d\n",__func__, ret);
 #endif
 
     return ret;
