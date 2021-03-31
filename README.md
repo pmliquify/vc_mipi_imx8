@@ -6,13 +6,6 @@
 #i2cdetect -y 2  
 #i2cget -a 2 0x10 0x01 b
 
-
-# Standard DTB File in U-Boot für Apalis/Ixora
-imx8qm-apalis-v1.1-eval.dtb
-# Alternativen 
-imx8qm-apalis-v1.1-ixora-v1.1.dtb
-
-
 root@apalis-imx8:~# i2cdetect -l
 i2c-3	i2c       	5a810000.i2c                    	I2C adapter
 i2c-4	i2c       	5a820000.i2c                    	I2C adapter

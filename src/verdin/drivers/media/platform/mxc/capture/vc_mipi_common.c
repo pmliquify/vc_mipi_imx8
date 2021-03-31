@@ -67,7 +67,7 @@ int reg_read(struct i2c_client *client, const u16 addr)
 
     ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
     if (ret < 0) {
-        dev_err(&client->dev, "Reading register %x from %x failed\n",
+        dev_err(&client->dev, "[vc-mipi driver common] Reading register %x from %x failed\n",
              addr, client->addr);
         return ret;
     }
@@ -105,7 +105,7 @@ int vc_mipi_common_rom_init(struct i2c_client *client, struct i2c_client *rom, i
 
     if(!rom)
     {
-        dev_err(&client->dev, "%s: ERROR: VC FPGA not present !!!\n", __func__);
+        dev_err(&client->dev, "[vc-mipi driver common] %s: ERROR: VC FPGA not present !!!\n", __func__);
         err = -EIO;
     }
 
@@ -122,7 +122,7 @@ int vc_mipi_common_rom_init(struct i2c_client *client, struct i2c_client *rom, i
         addr = 0x0101; // status
         reg = reg_read(rom, addr);
 #if TRACE_VC_MIPI_COMMON_ROM_INIT
-        dev_err(&client->dev, "VC_SEN_MODE=%d PowerOFF STATUS=0x%02x\n",_sensor_mode,reg);
+        dev_err(&client->dev, "[vc-mipi driver common] VC_SEN_MODE=%d PowerOFF STATUS=0x%02x\n",_sensor_mode,reg);
 #endif
         return 0;
     }
@@ -154,7 +154,7 @@ int vc_mipi_common_rom_init(struct i2c_client *client, struct i2c_client *rom, i
 
         if(reg & 0x01)
         {
-            dev_err(&client->dev, "%s: !!! ERROR !!! setting VC_SEN_MODE=%d STATUS=0x%02x try=%d\n",__func__,_sensor_mode,reg,try);
+            dev_err(&client->dev, "[vc-mipi driver common] %s: !!! ERROR !!! setting VC_SEN_MODE=%d STATUS=0x%02x try=%d\n",__func__,_sensor_mode,reg,try);
             err = -EIO;
         }
 
@@ -164,11 +164,11 @@ int vc_mipi_common_rom_init(struct i2c_client *client, struct i2c_client *rom, i
 
 #if TRACE_VC_MIPI_COMMON_ROM_INIT
 //    dev_err(&client->dev, "%s: VC_SEN_MODE=%d PowerOn STATUS=0x%02x try=%d\n",__func__, _sensor_mode,reg,try);
-    dev_err(&client->dev, "%s: sensor_mode=%d STATUS=0x%02x try=%d err=%d\n", __func__, _sensor_mode, reg, try, err);
+    dev_err(&client->dev, "[vc-mipi driver common] %s: sensor_mode=%d STATUS=0x%02x try=%d err=%d\n", __func__, _sensor_mode, reg, try, err);
 #else
     if(err)
     {
-      dev_err(&client->dev, "%s: sensor_mode=%d STATUS=0x%02x try=%d ERROR=%d\n", __func__, _sensor_mode, reg, try, err);
+      dev_err(&client->dev, "[vc-mipi driver common] %s: sensor_mode=%d STATUS=0x%02x try=%d ERROR=%d\n", __func__, _sensor_mode, reg, try, err);
     }
 #endif
 
