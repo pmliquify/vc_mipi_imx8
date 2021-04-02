@@ -4,7 +4,11 @@
  * Copyright (C) 2014-2017 Mentor Graphics Inc.
  */
 #include "imx226.h"
+<<<<<<< HEAD
 #include "vc_mipi_mod.h"
+=======
+#include "vc_mipi_ctrl.h"
+>>>>>>> f63d0a334b984b82c19b81dd4a31d1dee8691afc
 
 #define TRACE printk("        TRACE [vc-mipi] imx226.c --->  %s : %d", __FUNCTION__, __LINE__);
 //#define TRACE
