@@ -226,16 +226,10 @@ struct imx226_ctrls {
 
 struct imx226_dev {
 	struct i2c_client *i2c_client;
-
-	//========================================
-	struct i2c_client *i2c_client_mod;
-	struct vc_mipi_hw_desc hw_desc;
-	//========================================
-
 	struct v4l2_subdev sd;
 	struct media_pad pad;
 	struct v4l2_fwnode_endpoint ep; /* the parsed DT endpoint info */
-	struct clk *xclk; /* system clock to imx226 */
+	struct clk *xclk; /* system clock to OV5640 */
 	u32 xclk_freq;
 
 	struct regulator_bulk_data supplies[IMX226_NUM_SUPPLIES];

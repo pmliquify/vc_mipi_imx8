@@ -92,12 +92,20 @@
 	// blocks.  External devices are represented as child nodes of their respective
 	// bus controller nodes, e.g. I2C.
 	imx_mipi@1a {
-		compatible = "vc,imx226";
-		clocks = <&xtal24m>;
- 		clock-names = "xclk";
-
+		compatible = "vc,vc_mipi";
 		reg = <0x1a>;
 		status = "okay";
+
+		clocks = <&xtal24m>;
+		clock-names = "xclk";
+		csi_id = <0>;
+		mclk = <24000000>;
+		mclk_source = <0>;
+		mipi_csi;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio1>, <&pinctrl_gpio2>;
+		powerdown-gpios = <&lsio_gpio0 9 GPIO_ACTIVE_HIGH>;	/* Apalis GPIO2 */
+		reset-gpios = <&lsio_gpio0 8 GPIO_ACTIVE_LOW>;		/* Apalis GPIO1 */
 
 		port {
 			imx_mipi_1_ep: endpoint {

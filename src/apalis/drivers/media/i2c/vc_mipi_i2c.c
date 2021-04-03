@@ -1,6 +1,6 @@
 
 #include <linux/device.h>
-#include "vc_mipi_utils.h"
+#include "vc_mipi_i2c.h"
 
 
 int reg_read(struct i2c_client *client, const u16 addr)

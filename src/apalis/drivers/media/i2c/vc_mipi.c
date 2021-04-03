@@ -3,55 +3,56 @@
  * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2014-2017 Mentor Graphics Inc.
  */
-#include "imx226.h"
-#include "imx226_sd.h"
+#include "vc_mipi.h"
+#include "vc_mipi_sd.h"
+#include "vc_mipi_mod.h"
 
-#define TRACE printk("        TRACE [vc-mipi] imx226.c --->  %s : %d", __FUNCTION__, __LINE__);
+#define TRACE printk("        TRACE [vc-mipi] vc_mipi.c --->  %s : %d", __FUNCTION__, __LINE__);
 //#define TRACE
 
-const struct v4l2_subdev_core_ops imx226_core_ops = {
-	.s_power = imx226_s_power,
+const struct v4l2_subdev_core_ops vc_mipi_core_ops = {
+	.s_power = vc_mipi_s_power,
 	.log_status = v4l2_ctrl_subdev_log_status,
 	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
 	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
 };
 
-const struct v4l2_subdev_video_ops imx226_video_ops = {
-	.g_frame_interval = imx226_g_frame_interval,
-	.s_frame_interval = imx226_s_frame_interval,
-	.s_stream = imx226_s_stream,
+const struct v4l2_subdev_video_ops vc_mipi_video_ops = {
+	.g_frame_interval = vc_mipi_g_frame_interval,
+	.s_frame_interval = vc_mipi_s_frame_interval,
+	.s_stream = vc_mipi_s_stream,
 };
 
-const struct v4l2_subdev_pad_ops imx226_pad_ops = {
-	.enum_mbus_code = imx226_enum_mbus_code,
-	.get_fmt = imx226_get_fmt,
-	.set_fmt = imx226_set_fmt,
-	.enum_frame_size = imx226_enum_frame_size,
-	.enum_frame_interval = imx226_enum_frame_interval,
+const struct v4l2_subdev_pad_ops vc_mipi_pad_ops = {
+	.enum_mbus_code = vc_mipi_enum_mbus_code,
+	.get_fmt = vc_mipi_get_fmt,
+	.set_fmt = vc_mipi_set_fmt,
+	.enum_frame_size = vc_mipi_enum_frame_size,
+	.enum_frame_interval = vc_mipi_enum_frame_interval,
 };
 
-const struct v4l2_subdev_ops imx226_subdev_ops = {
-	.core = &imx226_core_ops,
-	.video = &imx226_video_ops,
-	.pad = &imx226_pad_ops,
+const struct v4l2_subdev_ops vc_mipi_subdev_ops = {
+	.core = &vc_mipi_core_ops,
+	.video = &vc_mipi_video_ops,
+	.pad = &vc_mipi_pad_ops,
 };
 
-static int imx226_link_setup(struct media_entity *entity,
+static int vc_mipi_link_setup(struct media_entity *entity,
 			   const struct media_pad *local,
 			   const struct media_pad *remote, u32 flags)
 {
 	return 0;
 }
 
-static const struct media_entity_operations imx226_sd_media_ops = {
-	.link_setup = imx226_link_setup,
+static const struct media_entity_operations vc_mipi_sd_media_ops = {
+	.link_setup = vc_mipi_link_setup,
 };
 
-static int imx226_probe(struct i2c_client *client)
+static int vc_mipi_probe(struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
 	struct fwnode_handle *endpoint;
-	struct imx226_dev *sensor;
+	struct vc_mipi_dev *sensor;
 	// struct v4l2_mbus_framefmt *fmt;
 	// u32 rotation;
 	int ret;
@@ -78,10 +79,10 @@ static int imx226_probe(struct i2c_client *client)
 	// fmt->height = 480;
 	// fmt->field = V4L2_FIELD_NONE;
 	// sensor->frame_interval.numerator = 1;
-	// sensor->frame_interval.denominator = imx226_framerates[imx226_30_FPS];
-	// sensor->current_fr = imx226_30_FPS;
+	// sensor->frame_interval.denominator = vc_mipi_framerates[vc_mipi_30_FPS];
+	// sensor->current_fr = vc_mipi_30_FPS;
 	// sensor->current_mode =
-	// 	&imx226_mode_data[IMX226_MODE_VGA_640_480];
+	// 	&vc_mipi_mode_data[IMX226_MODE_VGA_640_480];
 	// sensor->last_mode = sensor->current_mode;
 
 	// sensor->ae_target = 52;
@@ -97,7 +98,7 @@ static int imx226_probe(struct i2c_client *client)
 	// 	case 0:
 	// 		break;
 	// 	default:
-	// 		dev_warn(dev, "[vc-mipi imx226] %u degrees rotation is not supported, ignoring...\n",
+	// 		dev_warn(dev, "[vc-mipi vc_mipi] %u degrees rotation is not supported, ignoring...\n",
 	// 			 rotation);
 	// 	}
 	// }
@@ -105,28 +106,28 @@ static int imx226_probe(struct i2c_client *client)
 	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(&client->dev),
 						  NULL);
 	if (!endpoint) {
-		dev_err(dev, "[vc-mipi imx226] endpoint node not found\n");
+		dev_err(dev, "[vc-mipi vc_mipi] endpoint node not found\n");
 		return -EINVAL;
 	}
 
 	ret = v4l2_fwnode_endpoint_parse(endpoint, &sensor->ep);
 	fwnode_handle_put(endpoint);
 	if (ret) {
-		dev_err(dev, "[vc-mipi imx226] Could not parse endpoint\n");
+		dev_err(dev, "[vc-mipi vc_mipi] Could not parse endpoint\n");
 		return ret;
 	}
 
 	// /* get system clock (xclk) */
 	// sensor->xclk = devm_clk_get(dev, "xclk");
 	// if (IS_ERR(sensor->xclk)) {
-	// 	dev_err(dev, "[vc-mipi imx226] failed to get xclk\n");
+	// 	dev_err(dev, "[vc-mipi vc_mipi] failed to get xclk\n");
 	// 	return PTR_ERR(sensor->xclk);
 	// }
 
 	// sensor->xclk_freq = clk_get_rate(sensor->xclk);
 	// if (sensor->xclk_freq < IMX226_XCLK_MIN ||
 	//     sensor->xclk_freq > IMX226_XCLK_MAX) {
-	// 	dev_err(dev, "[vc-mipi imx226] xclk frequency out of range: %d Hz\n",
+	// 	dev_err(dev, "[vc-mipi vc_mipi] xclk frequency out of range: %d Hz\n",
 	// 		sensor->xclk_freq);
 	// 	return -EINVAL;
 	// }
@@ -143,83 +144,99 @@ static int imx226_probe(struct i2c_client *client)
 	// if (IS_ERR(sensor->reset_gpio))
 	// 	return PTR_ERR(sensor->reset_gpio);
 
-	v4l2_i2c_subdev_init(&sensor->sd, client, &imx226_subdev_ops);
+	v4l2_i2c_subdev_init(&sensor->sd, client, &vc_mipi_subdev_ops);
 
 	sensor->sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
 			    V4L2_SUBDEV_FL_HAS_EVENTS;
 	sensor->pad.flags = MEDIA_PAD_FL_SOURCE;
-	sensor->sd.entity.ops = &imx226_sd_media_ops;
+	sensor->sd.entity.ops = &vc_mipi_sd_media_ops;
 	sensor->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 	ret = media_entity_pads_init(&sensor->sd.entity, 1, &sensor->pad);
 	if (ret)
 		return ret;
 
-	// ret = imx226_get_regulators(sensor);
+	// ret = vc_mipi_get_regulators(sensor);
 	// if (ret)
 	// 	return ret;
 
 	mutex_init(&sensor->lock);
 
-	// ret = imx226_check_chip_id(sensor);
+	//---------------------------------------------------------------------
+
+	ret = vc_mipi_mod_setup(sensor);
+	if(ret) {
+		goto entity_cleanup;
+	}
+
+	// ret = imx_param_setup(priv);
+    	// if(ret)
+    	// {
+        // 	dev_err(dev, "[vc-mipi driver] %s: imx_param_setup() ret=%d\n", __func__, ret);
+        // 	return -EIO;
+    	// }
+
+	//---------------------------------------------------------------------
+
+	// ret = vc_mipi_check_chip_id(sensor);
 	// if (ret)
 	// 	goto entity_cleanup;
 
-	ret = imx226_init_controls(sensor);
+	ret = vc_mipi_init_controls(sensor);
 	if (ret)
 		goto entity_cleanup;
 
 	ret = v4l2_async_register_subdev_sensor_common(&sensor->sd);
-	if (ret)
-		goto free_ctrls;
+	// if (ret)
+	// 	goto free_ctrls;
 
 	return 0;
 
-free_ctrls:
-	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+// free_ctrls:
+// 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
 entity_cleanup:
 	media_entity_cleanup(&sensor->sd.entity);
 	mutex_destroy(&sensor->lock);
 	return ret;
 }
 
-static int imx226_remove(struct i2c_client *client)
+static int vc_mipi_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
-	struct imx226_dev *sensor = to_imx226_dev(sd);
+	struct vc_mipi_dev *sensor = to_vc_mipi_dev(sd);
 
 	TRACE
 	
 	v4l2_async_unregister_subdev(&sensor->sd);
 	media_entity_cleanup(&sensor->sd.entity);
-	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+	// v4l2_ctrl_handler_free(&sensor->ctrls.handler);
 	mutex_destroy(&sensor->lock);
 
 	return 0;
 }
 
-static const struct i2c_device_id imx226_id[] = {
-	{"imx226", 0},
+static const struct i2c_device_id vc_mipi_id[] = {
+	{"vc_mipi", 0},
 	{},
 };
-MODULE_DEVICE_TABLE(i2c, imx226_id);
+MODULE_DEVICE_TABLE(i2c, vc_mipi_id);
 
-static const struct of_device_id imx226_dt_ids[] = {
-	{ .compatible = "vc,imx226" },
+static const struct of_device_id vc_mipi_dt_ids[] = {
+	{ .compatible = "vc,vc_mipi" },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, imx226_dt_ids);
+MODULE_DEVICE_TABLE(of, vc_mipi_dt_ids);
 
-static struct i2c_driver imx226_i2c_driver = {
+static struct i2c_driver vc_mipi_i2c_driver = {
 	.driver = {
-		.name  = "imx226",
-		.of_match_table	= imx226_dt_ids,
+		.name  = "vc-mipi",
+		.of_match_table	= vc_mipi_dt_ids,
 	},
-	.id_table = imx226_id,
-	.probe_new = imx226_probe,
-	.remove   = imx226_remove,
+	.id_table = vc_mipi_id,
+	.probe_new = vc_mipi_probe,
+	.remove   = vc_mipi_remove,
 };
 
-module_i2c_driver(imx226_i2c_driver);
+module_i2c_driver(vc_mipi_i2c_driver);
 
 MODULE_DESCRIPTION("IMX226 MIPI Camera Subdev Driver");
 MODULE_LICENSE("GPL");
