@@ -5,4 +5,4 @@ SRC_DIR=$WORKING_DIR/src/apalis
 TARGET_NAME=apalis-imx8
 TARGET_SHELL="ssh root@$TARGET_NAME"
 #DTB_FILE=imx8qm-apalis-v1.1-eval.dtb
-DTO_FILE=apalis-imx8_imx226_overlay
+DTO_FILE=apalis-imx8_vc_mipi_overlay

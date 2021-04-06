@@ -1,9 +1,9 @@
-
-#include <linux/device.h>
 #include "vc_mipi_i2c.h"
+#include <linux/device.h>
+#include <linux/delay.h>
 
 
-int reg_read(struct i2c_client *client, const u16 addr)
+int i2c_read_reg(struct i2c_client *client, const u16 addr)
 {
     u8 buf[2] = {addr >> 8, addr & 0xff};
     int ret;
@@ -31,7 +31,7 @@ int reg_read(struct i2c_client *client, const u16 addr)
     return buf[0];
 }
 
-int reg_write(struct i2c_client *client, const u16 addr, const u8 data)
+int i2c_write_reg(struct i2c_client *client, const u16 addr, const u8 data)
 {
     struct i2c_adapter *adap = client->adapter;
     struct i2c_msg msg;

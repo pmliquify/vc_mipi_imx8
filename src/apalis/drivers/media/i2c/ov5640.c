@@ -258,15 +258,11 @@ struct ov5640_dev {
 
 static inline struct ov5640_dev *to_ov5640_dev(struct v4l2_subdev *sd)
 {
-	TRACE
-
 	return container_of(sd, struct ov5640_dev, sd);
 }
 
 static inline struct v4l2_subdev *ctrl_to_sd(struct v4l2_ctrl *ctrl)
 {
-	TRACE
-	
 	return &container_of(ctrl->handler, struct ov5640_dev,
 			     ctrls.handler)->sd;
 }
@@ -643,62 +639,62 @@ static int ov5640_init_slave_id(struct ov5640_dev *sensor)
 
 static int ov5640_write_reg(struct ov5640_dev *sensor, u16 reg, u8 val)
 {
-	struct i2c_client *client = sensor->i2c_client;
-	struct i2c_msg msg;
-	u8 buf[3];
-	int ret;
+	// struct i2c_client *client = sensor->i2c_client;
+	// struct i2c_msg msg;
+	// u8 buf[3];
+	// int ret;
 
-	TRACE
+	// TRACE
 	
-	buf[0] = reg >> 8;
-	buf[1] = reg & 0xff;
-	buf[2] = val;
+	// buf[0] = reg >> 8;
+	// buf[1] = reg & 0xff;
+	// buf[2] = val;
 
-	msg.addr = client->addr;
-	msg.flags = client->flags;
-	msg.buf = buf;
-	msg.len = sizeof(buf);
+	// msg.addr = client->addr;
+	// msg.flags = client->flags;
+	// msg.buf = buf;
+	// msg.len = sizeof(buf);
 
-	ret = i2c_transfer(client->adapter, &msg, 1);
-	if (ret < 0) {
-		dev_err(&client->dev, "[vc-mipi ov5640] %s: error: reg=%x, val=%x\n",
-			__func__, reg, val);
-		return ret;
-	}
+	// ret = i2c_transfer(client->adapter, &msg, 1);
+	// if (ret < 0) {
+	// 	dev_err(&client->dev, "[vc-mipi ov5640] %s: error: reg=%x, val=%x\n",
+	// 		__func__, reg, val);
+	// 	return ret;
+	// }
 
 	return 0;
 }
 
 static int ov5640_read_reg(struct ov5640_dev *sensor, u16 reg, u8 *val)
 {
-	struct i2c_client *client = sensor->i2c_client;
-	struct i2c_msg msg[2];
-	u8 buf[2];
-	int ret;
+	// struct i2c_client *client = sensor->i2c_client;
+	// struct i2c_msg msg[2];
+	// u8 buf[2];
+	// int ret;
 
-	TRACE
+	// TRACE
 	
-	buf[0] = reg >> 8;
-	buf[1] = reg & 0xff;
+	// buf[0] = reg >> 8;
+	// buf[1] = reg & 0xff;
 
-	msg[0].addr = client->addr;
-	msg[0].flags = client->flags;
-	msg[0].buf = buf;
-	msg[0].len = sizeof(buf);
+	// msg[0].addr = client->addr;
+	// msg[0].flags = client->flags;
+	// msg[0].buf = buf;
+	// msg[0].len = sizeof(buf);
 
-	msg[1].addr = client->addr;
-	msg[1].flags = client->flags | I2C_M_RD;
-	msg[1].buf = buf;
-	msg[1].len = 1;
+	// msg[1].addr = client->addr;
+	// msg[1].flags = client->flags | I2C_M_RD;
+	// msg[1].buf = buf;
+	// msg[1].len = 1;
 
-	ret = i2c_transfer(client->adapter, msg, 2);
-	if (ret < 0) {
-		dev_err(&client->dev, "[vc-mipi ov5640] %s: error: reg=%x\n",
-			__func__, reg);
-		return ret;
-	}
+	// ret = i2c_transfer(client->adapter, msg, 2);
+	// if (ret < 0) {
+	// 	dev_err(&client->dev, "[vc-mipi ov5640] %s: error: reg=%x\n",
+	// 		__func__, reg);
+	// 	return ret;
+	// }
 
-	*val = buf[0];
+	// *val = buf[0];
 	return 0;
 }
 
@@ -707,7 +703,7 @@ static int ov5640_read_reg16(struct ov5640_dev *sensor, u16 reg, u16 *val)
 	u8 hi, lo;
 	int ret;
 
-	TRACE
+	// TRACE
 	
 	ret = ov5640_read_reg(sensor, reg, &hi);
 	if (ret)
@@ -724,7 +720,7 @@ static int ov5640_write_reg16(struct ov5640_dev *sensor, u16 reg, u16 val)
 {
 	int ret;
 
-	TRACE
+	// TRACE
 	
 	ret = ov5640_write_reg(sensor, reg, val >> 8);
 	if (ret)
@@ -739,7 +735,7 @@ static int ov5640_mod_reg(struct ov5640_dev *sensor, u16 reg,
 	u8 readval;
 	int ret;
 
-	TRACE
+	// TRACE
 	
 	ret = ov5640_read_reg(sensor, reg, &readval);
 	if (ret)
@@ -2268,11 +2264,11 @@ static int ov5640_s_power(struct v4l2_subdev *sd, int on)
 	 * If the power count is modified from 0 to != 0 or from != 0 to 0,
 	 * update the power state.
 	 */
-	if (sensor->power_count == !on) {
-		ret = ov5640_set_power(sensor, !!on);
-		if (ret)
-			goto out;
-	}
+	// if (sensor->power_count == !on) {
+	// 	ret = ov5640_set_power(sensor, !!on);
+	// 	if (ret)
+	// 		goto out;
+	// }
 
 	/* Update the power count. */
 	sensor->power_count += on ? 1 : -1;
@@ -3333,9 +3329,9 @@ static int ov5640_probe(struct i2c_client *client)
 
 	mutex_init(&sensor->lock);
 
-	ret = ov5640_check_chip_id(sensor);
-	if (ret)
-		goto entity_cleanup;
+	// ret = ov5640_check_chip_id(sensor);
+	// if (ret)
+	// 	goto entity_cleanup;
 
 	ret = ov5640_init_controls(sensor);
 	if (ret)

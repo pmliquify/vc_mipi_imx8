@@ -1,9 +1,9 @@
-#ifndef _VC_MIPI_UTILS
-#define _VC_MIPI_UTILS
+#ifndef _VC_MIPI_I2C_H
+#define _VC_MIPI_I2C_H
 
-#include "vc_mipi.h"
+#include <linux/i2c.h>
 
-int reg_read(struct i2c_client *client, const u16 addr);
-int reg_write(struct i2c_client *client, const u16 addr, const u8 data);
+int i2c_read_reg(struct i2c_client *client, const u16 addr);
+int i2c_write_reg(struct i2c_client *client, const u16 addr, const u8 data);
 
-#endif // _VC_MIPI_UTILS
+#endif // _VC_MIPI_I2C_H

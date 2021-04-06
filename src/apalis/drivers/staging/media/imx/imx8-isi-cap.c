@@ -29,7 +29,7 @@
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
 
-//#define TRACE printk("        TRACE [vc-mipi] imx8-isi-cap.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE printk("        TRACE [vc-mipi] imx8-isi-cap.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
 
 #define sd_to_cap_dev(ptr)	container_of(ptr, struct mxc_isi_cap_dev, sd)
@@ -673,7 +673,7 @@ static struct media_pad
 	struct media_pad *sink_pad, *source_pad;
 	int i;
 
-	TRACE
+	// TRACE
 
 	while (1) {
 		source_pad = NULL;
@@ -702,7 +702,7 @@ static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_isi_cap_dev *isi_cap
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
+	// TRACE
 
 	/* Get remote source pad */
 	source_pad = mxc_isi_get_remote_source_pad(isi_cap);

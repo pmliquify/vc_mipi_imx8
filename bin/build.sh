@@ -1,5 +1,7 @@
 #/bin/bash
 #
+clear
+
 . config/configure.sh $1
 
 ./patch.sh

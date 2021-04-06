@@ -27,8 +27,6 @@
 #include <media/v4l2-fwnode.h>
 #include <media/v4l2-subdev.h>
 
-#include "vc_mipi_types.h"
-
 /* min/typical/max system clock (xclk) frequencies */
 #define IMX226_XCLK_MIN  6000000
 #define IMX226_XCLK_MAX 54000000

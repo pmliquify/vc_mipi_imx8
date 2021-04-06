@@ -5,7 +5,7 @@
  */
 #include "imx8-isi-hw.h"
 
-//#define TRACE printk("        TRACE [vc-mipi] imx8-isi-core.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE printk("        TRACE [vc-mipi] imx8-isi-core.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
 
 static const struct soc_device_attribute imx8_soc[] = {
@@ -36,9 +36,9 @@ static const struct of_device_id mxc_isi_of_match[];
 
 struct mxc_isi_dev *mxc_isi_get_hostdata(struct platform_device *pdev)
 {
-	TRACE
-
 	struct mxc_isi_dev *mxc_isi;
+
+	TRACE
 
 	if (!pdev || !pdev->dev.parent)
 		return NULL;
@@ -57,11 +57,11 @@ struct mxc_isi_dev *mxc_isi_get_hostdata(struct platform_device *pdev)
 
 struct device *mxc_isi_dev_get_parent(struct platform_device *pdev)
 {
-	TRACE
-
 	struct device *dev = &pdev->dev;
 	struct device_node *parent;
 	struct platform_device *parent_pdev;
+
+	TRACE
 
 	if (!pdev)
 		return NULL;
@@ -80,12 +80,12 @@ struct device *mxc_isi_dev_get_parent(struct platform_device *pdev)
 
 static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 {
-	TRACE
-
 	struct mxc_isi_dev *mxc_isi = priv;
 	struct device *dev = &mxc_isi->pdev->dev;
 	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	u32 status;
+
+	TRACE
 
 	spin_lock(&mxc_isi->slock);
 
@@ -126,9 +126,9 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 
 static int disp_mix_sft_rstn(struct reset_control *reset, bool enable)
 {
-	TRACE
-
 	int ret;
+
+	TRACE
 
 	if (!reset)
 		return 0;
@@ -140,9 +140,9 @@ static int disp_mix_sft_rstn(struct reset_control *reset, bool enable)
 
 static int disp_mix_clks_enable(struct reset_control *reset, bool enable)
 {
-	TRACE
-
 	int ret;
+
+	TRACE
 
 	if (!reset)
 		return 0;
@@ -154,9 +154,9 @@ static int disp_mix_clks_enable(struct reset_control *reset, bool enable)
 
 static int mxc_imx8_clk_get(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct device *dev = &mxc_isi->pdev->dev;
+
+	TRACE
 
 	mxc_isi->clk = devm_clk_get(dev, NULL);
 
@@ -170,10 +170,10 @@ static int mxc_imx8_clk_get(struct mxc_isi_dev *mxc_isi)
 
 static int mxc_imx8_clk_enable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct device *dev = &mxc_isi->pdev->dev;
 	int ret;
+
+	TRACE
 
 	ret = clk_prepare_enable(mxc_isi->clk);
 	if (ret < 0) {
@@ -266,9 +266,9 @@ static struct mxc_isi_plat_data mxc_imx8_data = {
 
 static int mxc_imx8mn_clk_get(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct device *dev = &mxc_isi->pdev->dev;
+
+	TRACE
 
 	mxc_isi->clk_disp_axi = devm_clk_get(dev, "[vc-mipi isi-core] disp_axi");
 	if (IS_ERR(mxc_isi->clk_disp_axi)) {
@@ -299,10 +299,10 @@ static int mxc_imx8mn_clk_get(struct mxc_isi_dev *mxc_isi)
 
 static int mxc_imx8mn_clk_enable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct device *dev = &mxc_isi->pdev->dev;
 	int ret;
+
+	TRACE
 
 	ret = clk_prepare_enable(mxc_isi->clk_disp_axi);
 	if (ret < 0) {
@@ -363,11 +363,11 @@ static struct mxc_isi_plat_data mxc_imx8mn_data = {
 
 static int mxc_isi_parse_dt(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct device *dev = &mxc_isi->pdev->dev;
 	struct device_node *node = dev->of_node;
 	int ret = 0;
+
+	TRACE
 
 	mxc_isi->id = of_alias_get_id(node, "isi");
 	mxc_isi->chain_buf = of_property_read_bool(node, "fsl,chain_buf");
@@ -386,9 +386,9 @@ static int mxc_isi_parse_dt(struct mxc_isi_dev *mxc_isi)
 
 static int mxc_isi_clk_get(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
+
+	TRACE
 
 	if (!ops && !ops->clk_get)
 		return -EINVAL;
@@ -398,9 +398,9 @@ static int mxc_isi_clk_get(struct mxc_isi_dev *mxc_isi)
 
 static int mxc_isi_clk_enable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
+
+	TRACE
 
 	if (!ops && !ops->clk_enable)
 		return -EINVAL;
@@ -410,9 +410,9 @@ static int mxc_isi_clk_enable(struct mxc_isi_dev *mxc_isi)
 
 static void mxc_isi_clk_disable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
+
+	TRACE
 
 	if (!ops && !ops->clk_disable)
 		return;
@@ -422,8 +422,6 @@ static void mxc_isi_clk_disable(struct mxc_isi_dev *mxc_isi)
 
 static int mxc_isi_of_parse_resets(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	int ret;
 	struct device *dev = &mxc_isi->pdev->dev;
 	struct device_node *np = dev->of_node;
@@ -432,6 +430,8 @@ static int mxc_isi_of_parse_resets(struct mxc_isi_dev *mxc_isi)
 	struct reset_control *rstc;
 	const char *compat;
 	uint32_t len, rstc_num = 0;
+
+	TRACE
 
 	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
 					 0, &args);
@@ -472,11 +472,11 @@ static int mxc_isi_of_parse_resets(struct mxc_isi_dev *mxc_isi)
 static int mxc_isi_soc_match(struct mxc_isi_dev *mxc_isi,
 			     const struct soc_device_attribute *data)
 {
-	TRACE
-
 	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	struct mxc_isi_set_thd *set_thd = mxc_isi->pdata->set_thd;
 	const struct soc_device_attribute *match;
+
+	TRACE
 
 	match = soc_device_match(data);
 	if (!match)
@@ -502,13 +502,13 @@ static int mxc_isi_soc_match(struct mxc_isi_dev *mxc_isi,
 
 static int mxc_isi_probe(struct platform_device *pdev)
 {
-	TRACE
-
 	struct device *dev = &pdev->dev;
 	struct mxc_isi_dev *mxc_isi;
 	struct resource *res;
 	const struct of_device_id *of_id;
 	int ret = 0;
+
+	TRACE
 
 
 	mxc_isi = devm_kzalloc(dev, sizeof(*mxc_isi), GFP_KERNEL);
@@ -612,9 +612,9 @@ err:
 
 static int mxc_isi_remove(struct platform_device *pdev)
 {
-	TRACE
-
 	struct device *dev = &pdev->dev;
+
+	TRACE
 
 	pm_runtime_disable(dev);
 
@@ -623,9 +623,9 @@ static int mxc_isi_remove(struct platform_device *pdev)
 
 static int mxc_isi_pm_suspend(struct device *dev)
 {
-	TRACE
-
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
+
+	TRACE
 
 	if (mxc_isi->is_streaming) {
 		dev_warn(dev, "[vc-mipi isi-core] running, prevent entering suspend.\n");
@@ -643,9 +643,9 @@ static int mxc_isi_pm_resume(struct device *dev)
 
 static int mxc_isi_runtime_suspend(struct device *dev)
 {
-	TRACE
-
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
+
+	TRACE
 
 	disp_mix_clks_enable(mxc_isi->clk_enable, false);
 	mxc_isi_clk_disable(mxc_isi);
@@ -655,10 +655,10 @@ static int mxc_isi_runtime_suspend(struct device *dev)
 
 static int mxc_isi_runtime_resume(struct device *dev)
 {
-	TRACE
-
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
 	int ret;
+
+	TRACE
 
 	ret = mxc_isi_clk_enable(mxc_isi);
 	if (ret) {

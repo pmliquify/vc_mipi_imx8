@@ -1,5 +1,6 @@
-#include "vc_mipi_mod.h"
+#include "vc_mipi_module.h"
 #include "vc_mipi_i2c.h"
+#include <linux/delay.h>
 
 //#define TRACE printk("        TRACE [vc-mipi] vc_mipi_mod.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
@@ -33,27 +34,27 @@ struct i2c_client* vc_mipi_mod_get_client(struct i2c_adapter *adapter, u8 addr)
     return i2c_new_probed_device(adapter, &info, addr_list, NULL);
 }
 
-int vc_mipi_mod_sensor_power_down(struct vc_mipi_dev *sensor) 
+int vc_mipi_mod_module_power_down(struct vc_mipi_module *module) 
 {
         TRACE
-        return reg_write(sensor->i2c_client_mod, MOD_REG_RESET, REG_RESET_PWR_DOWN);
+        return i2c_write_reg(module->client_mod, MOD_REG_RESET, REG_RESET_PWR_DOWN);
 }
 
-int vc_mipi_mod_sensor_power_up(struct vc_mipi_dev *sensor) 
+int vc_mipi_mod_module_power_up(struct vc_mipi_module *module) 
 {
         TRACE
-        return reg_write(sensor->i2c_client_mod, MOD_REG_RESET, REG_RESET_PWR_DOWN);
+        return i2c_write_reg(module->client_mod, MOD_REG_RESET, REG_RESET_PWR_DOWN);
 }
 
-int vc_mipi_mod_get_status(struct vc_mipi_dev *sensor) 
+int vc_mipi_mod_get_status(struct vc_mipi_module *module) 
 {
         TRACE
-        return reg_read(sensor->i2c_client_mod, MOD_REG_STATUS);
+        return i2c_read_reg(module->client_mod, MOD_REG_STATUS);
 }
 
-int vc_mipi_mod_wait_until_sensor_is_ready(struct vc_mipi_dev *sensor) 
+int vc_mipi_mod_wait_until_module_is_ready(struct vc_mipi_module *module) 
 {
-        struct i2c_client* client = sensor->i2c_client;
+        struct i2c_client* client = module->client_mod;
         struct device* dev = &client->dev;
         int status;
         int try;
@@ -64,7 +65,7 @@ int vc_mipi_mod_wait_until_sensor_is_ready(struct vc_mipi_dev *sensor)
         try = 0;
         while(status == REG_STATUS_NO_COM && try < 10) {
                 mdelay(100);
-                status = vc_mipi_mod_get_status(sensor);
+                status = vc_mipi_mod_get_status(module);
                 try++;
         }
         if(status == REG_STATUS_ERROR) {
@@ -73,47 +74,47 @@ int vc_mipi_mod_wait_until_sensor_is_ready(struct vc_mipi_dev *sensor)
         return status;
 }
 
-int vc_mipi_mod_set_mode(struct vc_mipi_dev *sensor, int mode)
+int vc_mipi_mod_set_mode(struct vc_mipi_module *module, int mode)
 {
         TRACE
-        return reg_write(sensor->i2c_client_mod, MOD_REG_MODE, mode);
+        return i2c_write_reg(module->client_mod, MOD_REG_MODE, mode);
 } 
 
-int vc_mipi_mod_reset_sensor(struct vc_mipi_dev *sensor, int mode)
+int vc_mipi_mod_reset_module(struct vc_mipi_module *module, int mode)
 {
         int ret;
         
         TRACE
 
-        ret = vc_mipi_mod_sensor_power_down(sensor);
+        ret = vc_mipi_mod_module_power_down(module);
         if (ret) {
                 return -EIO;
         }
-        // TODO: Check what if sensor_mode < 0
+        // TODO: Check what if module_mode < 0
         mdelay(200);
         // TODO: Check status and print it!?
-        // TODO: Check if it is neccessary to set mode when sensor is down.
-        ret = vc_mipi_mod_set_mode(sensor, mode);
+        // TODO: Check if it is neccessary to set mode when module is down.
+        ret = vc_mipi_mod_set_mode(module, mode);
         if (ret) {
                 return -EIO;
         }
-        ret = vc_mipi_mod_sensor_power_up(sensor);
+        ret = vc_mipi_mod_module_power_up(module);
         if (ret) {
                 return -EIO;
         }
-        ret = vc_mipi_mod_wait_until_sensor_is_ready(sensor);
+        ret = vc_mipi_mod_wait_until_module_is_ready(module);
         if (ret) {
                 return -EIO;
         }
         return 0;
 }
 
-int vc_mipi_mod_setup(struct vc_mipi_dev *sensor)
+int vc_mipi_mod_setup(struct vc_mipi_module *module)
 {
-        struct i2c_client* client = sensor->i2c_client;
+        struct i2c_client* client = module->client_sen;
         struct i2c_adapter* adapter = client->adapter;
         struct device* dev = &client->dev;
-        struct vc_mipi_mod_desc* mod_desc = &sensor->mod_desc;
+        struct vc_mipi_mod_desc* mod_desc = &module->desc;
         int ret;
 
         TRACE
@@ -123,13 +124,13 @@ int vc_mipi_mod_setup(struct vc_mipi_dev *sensor)
                 return -EIO;
         }
 
-        sensor->i2c_client_mod = vc_mipi_mod_get_client(adapter, 0x10);
-        if (sensor->i2c_client_mod) {
+        module->client_mod = vc_mipi_mod_get_client(adapter, 0x10);
+        if (module->client_mod) {
                 int addr,reg;
                 for (addr=0; addr<sizeof(*mod_desc); addr++) {
-                        reg = reg_read(sensor->i2c_client_mod, addr+0x1000);
+                        reg = i2c_read_reg(module->client_mod, addr+0x1000);
                         if (reg < 0) {
-                                i2c_unregister_device(sensor->i2c_client_mod);
+                                i2c_unregister_device(module->client_mod);
                                 return -EIO;
                         }
                         *((char *)(mod_desc)+addr)=(char)reg;
@@ -141,7 +142,7 @@ int vc_mipi_mod_setup(struct vc_mipi_dev *sensor)
         }
 
         dev_info(dev, "[vc-mipi driver] Reset VC MIPI Sensor");
-        ret = vc_mipi_mod_reset_sensor(sensor, 0); // TODO: Set sensor mode in last parameter.
+        ret = vc_mipi_mod_reset_module(module, 0); // TODO: Set module mode in last parameter.
         if (ret) {
                 return -EIO;
         }
@@ -149,9 +150,9 @@ int vc_mipi_mod_setup(struct vc_mipi_dev *sensor)
         return 0;
 }
 
-int vc_mipi_mod_is_color_sensor(struct vc_mipi_dev *sensor)
+int vc_mipi_mod_is_color_module(struct vc_mipi_module *module)
 {
-        struct vc_mipi_mod_desc* mod_desc = &sensor->mod_desc;
+        struct vc_mipi_mod_desc* mod_desc = &module->desc;
 
         TRACE
 

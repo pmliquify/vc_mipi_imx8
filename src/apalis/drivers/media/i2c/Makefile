@@ -111,17 +111,12 @@ obj-$(CONFIG_VIDEO_OV2659)	+= ov2659.o
 obj-$(CONFIG_VIDEO_TC358743)	+= tc358743.o
 obj-$(CONFIG_VIDEO_IMX214)	+= imx214.o
 
-obj-$(CONFIG_VIDEO_IMX226) 	+= imx226.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= imx226_sd.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= imx226_sd_utils.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= imx226_utils.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= imx226_i2c.o
-
-obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_sd.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_mod.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_param.o
+obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_driver.o
+obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_subdev.o
 obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_i2c.o
+obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_module.o
+obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_ctrls.o
+#obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_param.o
 
 obj-$(CONFIG_VIDEO_IMX258)	+= imx258.o
 obj-$(CONFIG_VIDEO_IMX274)	+= imx274.o

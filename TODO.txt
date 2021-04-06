@@ -1,0 +1,61 @@
+# --- OPEN --------------------------------------------------------------------
+
+# Funktionsliste
+static int get_capturemode(int width, int height)
+static struct imx *to_imx(const struct i2c_client *client)
+static const struct imx_datafmt *imx_find_datafmt(u32 code)
+
+# Gain (Controls Helper)
+static int imx_set_gain(struct i2c_client *client)
+
+# Exposure (Controls Helper)
+static int imx_exposure_296_297(struct imx *priv, s32 expMin0, s32 expMin1, s32 expMax, s32 nrLines, s32 tOffset, s32 h1Period, s32 vMax)
+static int imx_exposure_290_327(struct imx *priv)
+static int imx_exposure_412(struct imx *priv)
+static int imx_exposure_415(struct imx *priv)
+static int imx_exposure_9281(struct imx *priv)
+static int imx_exposure_imx183(struct imx *priv, s32 expMin0, s32 expMin1, s32 expMax, s32 nrLines, s32 tOffset, s32 h1Period, s32 vMax)
+static int imx_exposure_imx252(struct imx *priv, s32 expMin0, s32 expMin1, s32 expMax, s32 nrLines, s32 tOffset, s32 h1Period, s32 vMax)
+static int imx_set_exposure(struct i2c_client *client)
+
+# MBus (Framework)
+int dump_fpga_regs(struct imx *priv)
+
+# Mode
+static int ov9281_set_mode(struct i2c_client *client)
+static int imx183_273_set_mode(struct i2c_client *client)
+static int imx296_297_set_mode(struct i2c_client *client)
+static int imx327_415_set_mode(struct i2c_client *client)
+static int imx_set_mode(struct i2c_client *client)
+
+# Stream
+static int imx_stop_stream(struct i2c_client *client)
+static int imx_start_stream(struct i2c_client *client)
+
+
+# --- DONE --------------------------------------------------------------------
+
+# Subdevice (Core)
+static int imx_s_power(struct v4l2_subdev *sd, int on)
+# Subdevice (Video)
+static int imx_s_stream(struct v4l2_subdev *sd, int enable)
+# Subdevice (Pad)
+static int imx_enum_mbus_code(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_mbus_code_enum *code)
+static int imx_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format);
+static int imx_get_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format);
+static int imx_enum_framesizes(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_frame_size_enum *fse)
+
+# Controls (Framework)
+static int imx_set_ctrl(struct v4l2_ctrl *ctrl)
+static int imx_init_controls(struct imx *priv)
+static void imx_free_controls(struct imx *priv)
+
+# Probe ROM
+static struct i2c_client * imx_probe_vc_rom(struct i2c_adapter *adapter, u8 addr)
+static int imx_board_setup(struct imx *priv)
+static int imx_param_setup(struct imx *priv)
+static int imx_set_pixel_format(struct imx *priv)
+
+# Driver 
+static int imx_probe(struct i2c_client *client, const struct i2c_device_id *id)
+static int imx_remove(struct i2c_client *client)
