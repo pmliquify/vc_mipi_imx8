@@ -1,0 +1,99 @@
+---------------------------------------------------------------------------------------------------
+Toradex Verdin i.MX8MM
+                                                                        fsl,imx6s-csi            
+                                                fsl,imx8mm-mipi-csi     fsl,imx6sl-csi
+                                                fsl,imx7d-mipi-csi      fsl,imx8mq-csi 
+
+vc_mipi_imx.c                                   mxc_mipi_csi.c          mx6s_capture.c
+
+---------------------------------------------------------------------------------------------------
+Toradex Apalis i.MX8QM
+
+build/v4l-utils/contrib/test/ioctl_64.h
+build/linux-toradex/include/linux/errno.h
+build/linux-toradex/include/uapi/asm-generic/errno-base.h
+build/linux-toradex/drivers/media/v4l2-core/v4l2-ioctl.c
+
+
+apalis-imx8_vc_mipi_overlay.dts          imx8-ss-img.dtsi
+   <&i2c3>                                 <cameradev>
+      |                                         |
+      |                            +------------+-----------+
+      |            CSI-2           |                        |
+<imx_mipi@1a>port <--- -> port<mipi_csi_1>               <isi_4>  -- cap_device -->
+
+---------------------------------------------------------------------------------------------------
+
+                                  imx8-media-dev.c PFD
+                               mxc-md bus@58000000:camera
+                                      mx8-img-md 
+                                           |
+                   +-----------------------+-----------------------+
+                   |                       |                       |
+                   |                       |    fsl,imx8-isi       |
+                   |                       |    fsl,imx8mn-isi     |    imx-isi-capture
+                   |                       |                       |
+[vc-mipi 5-001a]   <=   [mxc-mipi-csi2.1]  <=   [mxc_isi.4]        <=   [mxc_isi.4.capture]
+vc_mipi_driver.c        imx8-mipi-csi2.c PFD    imx8-isi-core.c PFD     imx8-isi-cap.c PFD
+              I2C_SD                 V4L2_SD    imx8-isi-hw.c                ^     V4L2_SD
+                        Behandelt               imx8-isi-m2m.c PFD           |
+                        subdev ops selbst                              ? v4l2-ioctl.c (ioctl_64.h)
+                        nicht!                                         ? v4l2-dev.c (core driver)
+ Kernel Space                                                            /dev/video0
+---------------------------------------------------------------------------------------------------
+ User Space                                                            ^ v4l2-ctl-common.cpp
+                                                                       | v4l2-ctl.cpp
+                                                                       | $ v4l2-ctl -c gain=1
+
+
+root@apalis-imx8:~# v4l2-ctl -c gain=1
+[   43.239072]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_get_hostdata : 41
+[   43.239357]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_runtime_resume : 661
+[   43.247099]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_clk_enable : 403
+[   43.255077]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_imx8_clk_enable : 176
+[   43.262713]         TRACE [vc-mipi] imx8-isi-core.c --->  disp_mix_sft_rstn : 131
+[   43.270419]         TRACE [vc-mipi] imx8-isi-core.c --->  disp_mix_clks_enable : 145
+[   43.277954]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_s_power : 944
+[   43.285742]         TRACE [vc-mipi] vc_mipi_subdev.c --->  vc_mipi_s_power : 27
+[   43.293355] dummy 5-0010: [vc-mipi driver] vc_mipi_s_power: On=1
+[   43.306770] vc-mipi 5-001a: [vc-mipi driver] vc_mipi_set_ctrl: Set Gain=0
+[   43.313634] vc-mipi 5-001a: [vc-mipi driver] vc_mipi_set_ctrl: Set Exposure=0
+
+[   43.320824] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCAP, 0xee5f01f4) -> 0
+[   43.320837] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERY_EXT_CTRL, 0xee5efe70) -> ENOTTY
+[   43.328532]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   43.336243] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_TRY_EXT_CTRLS, 0xee5efdc8) -> ENOTTY
+[   43.344034]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_try_ext_ctrls : 915
+[   43.351725] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efe28) -> ENOTTY
+[   43.359853]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   43.367549] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_G_SELECTION, 0xee5efde8) -> EINVAL
+[   43.375329] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCAP, 0xee5f0080) -> 0
+[   43.383216] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERY_EXT_CTRL, 0xee5efd88) -> ENOTTY
+[   43.390914]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   43.398609] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   43.406378]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+...
+[   43.971163] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   43.978949]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   43.986654] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   43.994431]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.002126] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   44.009906]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.017600] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   44.025372]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.033064] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   44.040840]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.048538] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   44.056317]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.064008] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+[   44.071789]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.079479] [vc-mipi] v4l2-ioctl.c video_ioctl2(0x6e340e00, CMD64_VIDIOC_QUERYCTRL, 0xee5efc70) -> ENOTTY
+unknown control 'gain'
+[   44.087265]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_queryctrl : 858
+[   44.100007]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_get_hostdata : 41
+[   44.112836]         TRACE [vc-mipi] imx8-mipi-csi2.c --->  mipi_csi2_s_power : 944
+[   44.120522]         TRACE [vc-mipi] vc_mipi_subdev.c --->  vc_mipi_s_power : 27
+[   44.128126] dummy 5-0010: [vc-mipi driver] vc_mipi_s_power: On=0
+[   44.141506]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_runtime_suspend : 648
+[   44.141508]         TRACE [vc-mipi] imx8-isi-core.c --->  disp_mix_clks_enable : 145
+root@apalis-imx8:~#

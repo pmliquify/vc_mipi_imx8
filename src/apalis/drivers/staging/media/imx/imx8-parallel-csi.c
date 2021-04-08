@@ -33,6 +33,9 @@
 
 #include "imx8-common.h"
 
+#define TRACE printk("        TRACE [vc-mipi] imx8-parallel-csi.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE
+
 #define MXC_PARALLEL_CSI_DRIVER_NAME	"mxc-parallel-csi"
 #define MXC_PARALLEL_CSI_SUBDEV_NAME	MXC_PARALLEL_CSI_DRIVER_NAME
 
@@ -207,6 +210,8 @@ static int mxc_pcsi_clk_get(struct mxc_parallel_csi_dev *pcsidev)
 {
 	struct device *dev = &pcsidev->pdev->dev;
 
+	TRACE
+
 	pcsidev->clk_pixel = devm_clk_get(dev, "[vc-mipi parallel-csi] pixel");
 	if (IS_ERR(pcsidev->clk_pixel)) {
 		dev_info(dev, "[vc-mipi parallel-csi] failed to get parallel csi pixel clk\n");
@@ -226,6 +231,8 @@ static int mxc_pcsi_attach_pd(struct mxc_parallel_csi_dev *pcsidev)
 {
 	struct device *dev = &pcsidev->pdev->dev;
 	struct device_link *link;
+
+	TRACE
 
 	pcsidev->pd_pi = dev_pm_domain_attach_by_name(dev, "[vc-mipi parallel-csi] pd_pi");
 	if (IS_ERR(pcsidev->pd_pi)) {
@@ -265,6 +272,8 @@ static int mxc_pcsi_clk_enable(struct mxc_parallel_csi_dev *pcsidev)
 	struct device *dev = &pcsidev->pdev->dev;
 	int ret;
 
+	TRACE
+
 	if (pcsidev->clk_enable)
 		return 0;
 
@@ -286,6 +295,8 @@ static int mxc_pcsi_clk_enable(struct mxc_parallel_csi_dev *pcsidev)
 
 static void mxc_pcsi_clk_disable(struct mxc_parallel_csi_dev *pcsidev)
 {
+	TRACE
+
 	if (!pcsidev->clk_enable)
 		return;
 
@@ -299,6 +310,8 @@ static void mxc_pcsi_sw_reset(struct mxc_parallel_csi_dev *pcsidev)
 {
 	u32 val;
 
+	TRACE
+
 	/* Softwaret Reset */
 	val = CSI_CTRL_REG_SOFTRST;
 	writel(val, pcsidev->csr_regs + CSI_CTRL_REG_SET);
@@ -310,6 +323,8 @@ static void mxc_pcsi_sw_reset(struct mxc_parallel_csi_dev *pcsidev)
 static void mxc_pcsi_csr_config(struct mxc_parallel_csi_dev *pcsidev)
 {
 	u32 val;
+
+	TRACE
 
 	/* Software Reset */
 	mxc_pcsi_sw_reset(pcsidev);
@@ -357,6 +372,8 @@ static void mxc_pcsi_config_ctrl_reg1(struct mxc_parallel_csi_dev *pcsidev)
 	struct device *dev = &pcsidev->pdev->dev;
 	u32 val;
 
+	TRACE
+
 	if (pcsidev->format.width <= 0 || pcsidev->format.height <= 0) {
 		dev_dbg(dev, "[vc-mipi parallel-csi] %s width/height invalid\n", __func__);
 		return;
@@ -372,6 +389,8 @@ static void mxc_pcsi_enable_csi(struct mxc_parallel_csi_dev *pcsidev)
 {
 	u32 val;
 
+	TRACE
+
 	/* Enable CSI */
 	val = CSI_CTRL_REG_CSI_EN;
 	writel(val, pcsidev->csr_regs + CSI_CTRL_REG_SET);
@@ -384,6 +403,8 @@ static void mxc_pcsi_enable_csi(struct mxc_parallel_csi_dev *pcsidev)
 static void mxc_pcsi_disable_csi(struct mxc_parallel_csi_dev *pcsidev)
 {
 	u32 val;
+
+	TRACE
 
 	/* Enable Sync Force */
 	val = (CSI_CTRL_REG_HSYNC_FORCE_EN | CSI_CTRL_REG_VSYNC_FORCE_EN);
@@ -404,6 +425,8 @@ mxc_pcsi_get_remote_sensor_pad(struct mxc_parallel_csi_dev *pcsidev)
 	struct v4l2_subdev *subdev = &pcsidev->sd;
 	struct media_pad *sink_pad, *source_pad;
 	int i;
+
+	TRACE
 
 	while (1) {
 		source_pad = NULL;
@@ -433,6 +456,8 @@ static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_parallel_csi_dev *pc
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+
 	/* Get remote source pad */
 	source_pad = mxc_pcsi_get_remote_sensor_pad(pcsidev);
 	if (!source_pad) {
@@ -457,6 +482,8 @@ static int mxc_pcsi_get_sensor_fmt(struct mxc_parallel_csi_dev *pcsidev)
 	struct media_pad *source_pad;
 	struct v4l2_subdev_format src_fmt;
 	int ret;
+
+	TRACE
 
 	/* Get remote source pad */
 	source_pad = mxc_pcsi_get_remote_sensor_pad(pcsidev);
@@ -499,6 +526,8 @@ static int mxc_pcsi_enum_framesizes(struct v4l2_subdev *sd,
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+
 	sen_sd = mxc_get_remote_subdev(pcsidev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -513,6 +542,8 @@ static int mxc_pcsi_enum_frame_interval(struct v4l2_subdev *sd,
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+
 	sen_sd = mxc_get_remote_subdev(pcsidev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -526,6 +557,8 @@ static int mxc_pcsi_get_fmt(struct v4l2_subdev *sd,
 {
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_mbus_framefmt *mf = &fmt->format;
+
+	TRACE
 
 	mxc_pcsi_get_sensor_fmt(pcsidev);
 
@@ -543,6 +576,8 @@ static int mxc_pcsi_set_fmt(struct v4l2_subdev *sd,
 	struct v4l2_subdev *sen_sd;
 	struct media_pad *source_pad;
 	int ret;
+
+	TRACE
 
 	/* Get remote source pad */
 	source_pad = mxc_pcsi_get_remote_sensor_pad(pcsidev);
@@ -571,6 +606,8 @@ static int mxc_pcsi_s_power(struct v4l2_subdev *sd, int on)
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+
 	sen_sd = mxc_get_remote_subdev(pcsidev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -583,6 +620,8 @@ static int mxc_pcsi_g_frame_interval(struct v4l2_subdev *sd,
 {
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_subdev *sen_sd;
+
+	TRACE
 
 	sen_sd = mxc_get_remote_subdev(pcsidev, __func__);
 	if (!sen_sd)
@@ -597,6 +636,8 @@ static int mxc_pcsi_s_frame_interval(struct v4l2_subdev *sd,
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+
 	sen_sd = mxc_get_remote_subdev(pcsidev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -608,6 +649,8 @@ static int mxc_pcsi_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct mxc_parallel_csi_dev *pcsidev = sd_to_mxc_pcsi_dev(sd);
 	struct device *dev = &pcsidev->pdev->dev;
+
+	TRACE
 
 	dev_dbg(dev, "[vc-mipi parallel-csi] %s: enable = %d\n", __func__, enable);
 
@@ -637,6 +680,8 @@ static int mxc_pcsi_link_setup(struct media_entity *entity,
 {
 	struct v4l2_subdev *sd = media_entity_to_v4l2_subdev(entity);
 	struct platform_device *pdev = v4l2_get_subdevdata(sd);
+
+	TRACE
 
 	if (local->flags & MEDIA_PAD_FL_SOURCE) {
 		switch (local->index) {
@@ -691,6 +736,8 @@ static int mxc_parallel_csi_probe(struct platform_device *pdev)
 	struct resource *mem_res;
 	struct mxc_parallel_csi_dev *pcsidev;
 	int ret;
+
+	TRACE
 
 	pcsidev = devm_kzalloc(dev, sizeof(*pcsidev), GFP_KERNEL);
 	if (!pcsidev)
@@ -755,6 +802,8 @@ static int mxc_parallel_csi_remove(struct platform_device *pdev)
 	struct mxc_parallel_csi_dev *pcsidev =
 			(struct mxc_parallel_csi_dev *)platform_get_drvdata(pdev);
 
+	TRACE
+
 	media_entity_cleanup(&pcsidev->sd.entity);
 	pm_runtime_disable(&pdev->dev);
 
@@ -763,17 +812,23 @@ static int mxc_parallel_csi_remove(struct platform_device *pdev)
 
 static int parallel_csi_pm_suspend(struct device *dev)
 {
+	TRACE
+
 	return pm_runtime_force_suspend(dev);
 }
 
 static int parallel_csi_pm_resume(struct device *dev)
 {
+	TRACE
+
 	return pm_runtime_force_resume(dev);
 }
 
 static int parallel_csi_runtime_suspend(struct device *dev)
 {
 	struct mxc_parallel_csi_dev *pcsidev = dev_get_drvdata(dev);
+
+	TRACE
 
 	mxc_pcsi_clk_disable(pcsidev);
 
@@ -784,6 +839,8 @@ static int parallel_csi_runtime_resume(struct device *dev)
 {
 	struct mxc_parallel_csi_dev *pcsidev = dev_get_drvdata(dev);
 	int ret;
+
+	TRACE
 
 	ret = mxc_pcsi_clk_enable(pcsidev);
 	if (ret < 0)

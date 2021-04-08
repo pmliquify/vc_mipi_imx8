@@ -3,9 +3,9 @@
 #include <linux/delay.h>
 
 
-int i2c_read_reg(struct i2c_client *client, const u16 addr)
+int i2c_read_reg(struct i2c_client *client, const __u16 addr)
 {
-    u8 buf[2] = {addr >> 8, addr & 0xff};
+    __u8 buf[2] = {addr >> 8, addr & 0xff};
     int ret;
     struct i2c_msg msgs[] = {
         {
@@ -31,11 +31,11 @@ int i2c_read_reg(struct i2c_client *client, const u16 addr)
     return buf[0];
 }
 
-int i2c_write_reg(struct i2c_client *client, const u16 addr, const u8 data)
+int i2c_write_reg(struct i2c_client *client, const __u16 addr, const __u8 data)
 {
     struct i2c_adapter *adap = client->adapter;
     struct i2c_msg msg;
-    u8 tx[3];
+    __u8 tx[3];
     int ret;
 
     msg.addr = client->addr;

@@ -41,6 +41,7 @@
 #include <linux/reset.h>
 
 #define TRACE printk("        TRACE [vc-mipi] imx8-mipi-csi2-sam.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE
 
 #define CSIS_DRIVER_NAME		"mxc-mipi-csi2-sam"
 #define CSIS_SUBDEV_NAME		"mxc-mipi-csi2"
@@ -413,8 +414,6 @@ static const struct csis_pix_format mipi_csis_formats[] = {
 
 static void dump_csis_regs(struct csi_state *state, const char *label)
 {
-	TRACE
-
 	struct {
 		u32 offset;
 		const char * const name;
@@ -445,6 +444,8 @@ static void dump_csis_regs(struct csi_state *state, const char *label)
 	};
 	u32 i;
 
+	TRACE
+
 	v4l2_dbg(2, debug, &state->sd, "[vc-mipi mipi-csi2-sam] --- %s ---\n", label);
 
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
@@ -455,8 +456,6 @@ static void dump_csis_regs(struct csi_state *state, const char *label)
 
 static void dump_gasket_regs(struct csi_state *state, const char *label)
 {
-	TRACE
-	
 	struct {
 		u32 offset;
 		const char * const name;
@@ -467,6 +466,8 @@ static void dump_gasket_regs(struct csi_state *state, const char *label)
 	};
 	u32 i, cfg;
 
+	TRACE
+	
 	v4l2_dbg(2, debug, &state->sd, "--- %s ---\n", label);
 
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
@@ -491,12 +492,12 @@ static inline struct csi_state *notifier_to_mipi_dev(struct v4l2_async_notifier 
 
 static struct media_pad *csis_get_remote_sensor_pad(struct csi_state *state)
 {
-	TRACE
-	
 	struct v4l2_subdev *subdev = &state->sd;
 	struct media_pad *sink_pad, *source_pad;
 	int i;
 
+	TRACE
+	
 	while (1) {
 		source_pad = NULL;
 		for (i = 0; i < subdev->entity.num_pads; i++) {
@@ -521,11 +522,11 @@ static struct media_pad *csis_get_remote_sensor_pad(struct csi_state *state)
 static struct v4l2_subdev *csis_get_remote_subdev(struct csi_state *state,
 						  const char * const label)
 {
-	TRACE
-	
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad */
 	source_pad = csis_get_remote_sensor_pad(state);
 	if (!source_pad) {
@@ -545,10 +546,10 @@ static struct v4l2_subdev *csis_get_remote_subdev(struct csi_state *state,
 
 static const struct csis_pix_format *find_csis_format(u32 code)
 {
-	TRACE
-	
 	int i;
 
+	TRACE
+	
 	for (i = 0; i < ARRAY_SIZE(mipi_csis_formats); i++)
 		if (code == mipi_csis_formats[i].code)
 			return &mipi_csis_formats[i];
@@ -557,10 +558,10 @@ static const struct csis_pix_format *find_csis_format(u32 code)
 
 static void mipi_csis_clean_irq(struct csi_state *state)
 {
-	TRACE
-	
 	u32 status;
 
+	TRACE
+	
 	status = mipi_csis_read(state, MIPI_CSIS_INTSRC);
 	mipi_csis_write(state, MIPI_CSIS_INTSRC, status);
 
@@ -570,10 +571,10 @@ static void mipi_csis_clean_irq(struct csi_state *state)
 
 static void mipi_csis_enable_interrupts(struct csi_state *state, bool on)
 {
-	TRACE
-	
 	u32 val;
 
+	TRACE
+	
 	mipi_csis_clean_irq(state);
 
 	val = mipi_csis_read(state, MIPI_CSIS_INTMSK);
@@ -586,10 +587,10 @@ static void mipi_csis_enable_interrupts(struct csi_state *state, bool on)
 
 static void mipi_csis_sw_reset(struct csi_state *state)
 {
-	TRACE
-	
 	u32 val;
 
+	TRACE
+	
 	val = mipi_csis_read(state, MIPI_CSIS_CMN_CTRL);
 	val |= MIPI_CSIS_CMN_CTRL_RESET;
 	mipi_csis_write(state, MIPI_CSIS_CMN_CTRL, val);
@@ -613,10 +614,10 @@ static int mipi_csis_phy_init(struct csi_state *state)
 
 static void mipi_csis_phy_reset_mx8mn(struct csi_state *state)
 {
-	TRACE
-	
 	struct reset_control *reset = state->mipi_reset;
 
+	TRACE
+	
 	reset_control_assert(reset);
 	usleep_range(10, 20);
 
@@ -626,10 +627,10 @@ static void mipi_csis_phy_reset_mx8mn(struct csi_state *state)
 
 static void mipi_csis_system_enable(struct csi_state *state, int on)
 {
-	TRACE
-	
 	u32 val, mask;
 
+	TRACE
+	
 	val = mipi_csis_read(state, MIPI_CSIS_CMN_CTRL);
 	if (on)
 		val |= MIPI_CSIS_CMN_CTRL_ENABLE;
@@ -649,11 +650,11 @@ static void mipi_csis_system_enable(struct csi_state *state, int on)
 /* Called with the state.lock mutex held */
 static void __mipi_csis_set_format(struct csi_state *state)
 {
-	TRACE
-	
 	struct v4l2_mbus_framefmt *mf = &state->format;
 	u32 val;
 
+	TRACE
+	
 	v4l2_dbg(1, debug, &state->sd, "[vc-mipi mipi-csi2-sam] fmt: %#x, %d x %d\n",
 		 mf->code, mf->width, mf->height);
 
@@ -677,10 +678,10 @@ static void __mipi_csis_set_format(struct csi_state *state)
 
 static void mipi_csis_set_hsync_settle(struct csi_state *state)
 {
-	TRACE
-	
 	u32 val;
 
+	TRACE
+	
 	val = mipi_csis_read(state, MIPI_CSIS_DPHYCTRL);
 	val &= ~MIPI_CSIS_DPHYCTRL_HSS_MASK;
 	val |= (state->hs_settle << 24) | (state->clk_settle << 22);
@@ -689,10 +690,10 @@ static void mipi_csis_set_hsync_settle(struct csi_state *state)
 
 static void mipi_csis_set_params(struct csi_state *state)
 {
-	TRACE
-	
 	u32 val;
 
+	TRACE
+	
 	val = mipi_csis_read(state, MIPI_CSIS_CMN_CTRL);
 	val &= ~MIPI_CSIS_CMN_CTRL_LANE_NR_MASK;
 	val |= (state->num_lanes - 1) << MIPI_CSIS_CMN_CTRL_LANE_NR_OFFSET;
@@ -733,11 +734,11 @@ static void mipi_csis_set_params(struct csi_state *state)
 
 static int mipi_csis_clk_enable(struct csi_state *state)
 {
-	TRACE
-	
 	struct device *dev = state->dev;
 	int ret;
 
+	TRACE
+	
 	ret = clk_prepare_enable(state->mipi_clk);
 	if (ret) {
 		dev_err(dev, "[vc-mipi mipi-csi2-sam] enable mipi_clk failed!\n");
@@ -770,11 +771,11 @@ static void mipi_csis_clk_disable(struct csi_state *state)
 
 static int mipi_csis_clk_get(struct csi_state *state)
 {
-	TRACE
-	
 	struct device *dev = &state->pdev->dev;
 	int ret = true;
 
+	TRACE
+	
 	state->mipi_clk = devm_clk_get(dev, "[vc-mipi mipi-csi2-sam] mipi_clk");
 	if (IS_ERR(state->mipi_clk)) {
 		dev_err(dev, "[vc-mipi mipi-csi2-sam] Could not get mipi csi clock\n");
@@ -809,10 +810,10 @@ static int mipi_csis_clk_get(struct csi_state *state)
 
 static int disp_mix_sft_rstn(struct reset_control *reset, bool enable)
 {
-	TRACE
-	
 	int ret;
 
+	TRACE
+	
 	if (!reset)
 		return 0;
 
@@ -823,10 +824,10 @@ static int disp_mix_sft_rstn(struct reset_control *reset, bool enable)
 
 static int disp_mix_clks_enable(struct reset_control *reset, bool enable)
 {
-	TRACE
-	
 	int ret;
 
+	TRACE
+	
 	if (!reset)
 		return 0;
 
@@ -837,14 +838,14 @@ static int disp_mix_clks_enable(struct reset_control *reset, bool enable)
 
 static void disp_mix_gasket_config(struct csi_state *state)
 {
-	TRACE
-	
 	struct regmap *gasket = state->gasket;
 	struct csis_pix_format const *fmt = state->csis_fmt;
 	struct v4l2_mbus_framefmt *mf = &state->format;
 	s32 fmt_val = -EINVAL;
 	u32 val;
 
+	TRACE
+	
 	switch (fmt->code) {
 	case MEDIA_BUS_FMT_RGB888_1X24:
 		fmt_val = GASKET_0_CTRL_DATA_TYPE_RGB888;
@@ -878,10 +879,10 @@ static void disp_mix_gasket_config(struct csi_state *state)
 
 static void disp_mix_gasket_enable(struct csi_state *state, bool enable)
 {
-	TRACE
-	
 	struct regmap *gasket = state->gasket;
 
+	TRACE
+	
 	if (enable)
 		regmap_update_bits(gasket, DISP_MIX_GASKET_0_CTRL,
 					GASKET_0_CTRL_ENABLE,
@@ -919,11 +920,11 @@ static void mipi_csis_stop_stream(struct csi_state *state)
 
 static void mipi_csis_clear_counters(struct csi_state *state)
 {
-	TRACE
-	
 	unsigned long flags;
 	int i;
 
+	TRACE
+	
 	spin_lock_irqsave(&state->slock, flags);
 	for (i = 0; i < MIPI_CSIS_NUM_EVENTS; i++)
 		state->events[i].counter = 0;
@@ -932,11 +933,11 @@ static void mipi_csis_clear_counters(struct csi_state *state)
 
 static void mipi_csis_log_counters(struct csi_state *state, bool non_errors)
 {
-	TRACE
-	
 	int i = non_errors ? MIPI_CSIS_NUM_EVENTS : MIPI_CSIS_NUM_EVENTS - 4;
 	unsigned long flags;
 
+	TRACE
+	
 	spin_lock_irqsave(&state->slock, flags);
 
 	for (i--; i >= 0; i--) {
@@ -966,11 +967,11 @@ static const struct media_entity_operations mipi_csi2_sd_media_ops = {
  */
 static int mipi_csis_s_power(struct v4l2_subdev *mipi_sd, int on)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad subdev */
 	sen_sd = csis_get_remote_subdev(state, __func__);
 	if (!sen_sd) {
@@ -983,10 +984,10 @@ static int mipi_csis_s_power(struct v4l2_subdev *mipi_sd, int on)
 
 static int mipi_csis_s_stream(struct v4l2_subdev *mipi_sd, int enable)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 
+	TRACE
+	
 	v4l2_dbg(1, debug, mipi_sd, "[vc-mipi mipi-csi2-sam] %s: %d, state: 0x%x\n",
 		 __func__, enable, state->flags);
 
@@ -1010,8 +1011,6 @@ static int mipi_csis_set_fmt(struct v4l2_subdev *mipi_sd,
 			     struct v4l2_subdev_pad_config *cfg,
 			     struct v4l2_subdev_format *format)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
 	struct csis_pix_format const *csis_fmt;
@@ -1019,6 +1018,8 @@ static int mipi_csis_set_fmt(struct v4l2_subdev *mipi_sd,
 	struct v4l2_subdev *sen_sd;
 	int ret;
 
+	TRACE
+	
 	/* Get remote source pad */
 	source_pad = csis_get_remote_sensor_pad(state);
 	if (!source_pad) {
@@ -1054,14 +1055,14 @@ static int mipi_csis_get_fmt(struct v4l2_subdev *mipi_sd,
 			     struct v4l2_subdev_pad_config *cfg,
 			     struct v4l2_subdev_format *format)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_mbus_framefmt *mf = &state->format;
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
 	int ret;
 
+	TRACE
+	
 	/* Get remote source pad */
 	source_pad = csis_get_remote_sensor_pad(state);
 	if (!source_pad) {
@@ -1090,11 +1091,11 @@ static int mipi_csis_get_fmt(struct v4l2_subdev *mipi_sd,
 static int mipi_csis_s_rx_buffer(struct v4l2_subdev *mipi_sd, void *buf,
 			       unsigned int *size)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	unsigned long flags;
 
+	TRACE
+	
 	*size = min_t(unsigned int, *size, MIPI_CSIS_PKTDATA_SIZE);
 
 	spin_lock_irqsave(&state->slock, flags);
@@ -1108,11 +1109,11 @@ static int mipi_csis_s_rx_buffer(struct v4l2_subdev *mipi_sd, void *buf,
 static int mipi_csis_s_frame_interval(struct v4l2_subdev *mipi_sd,
 				struct v4l2_subdev_frame_interval *interval)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad subdev */
 	sen_sd = csis_get_remote_subdev(state, __func__);
 	if (!sen_sd) {
@@ -1126,11 +1127,11 @@ static int mipi_csis_s_frame_interval(struct v4l2_subdev *mipi_sd,
 static int mipi_csis_g_frame_interval(struct v4l2_subdev *mipi_sd,
 				struct v4l2_subdev_frame_interval *interval)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad subdev */
 	sen_sd = csis_get_remote_subdev(state, __func__);
 	if (!sen_sd) {
@@ -1145,11 +1146,11 @@ static int mipi_csis_enum_framesizes(struct v4l2_subdev *mipi_sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_frame_size_enum *fse)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad subdev */
 	sen_sd = csis_get_remote_subdev(state, __func__);
 	if (!sen_sd) {
@@ -1164,11 +1165,11 @@ static int mipi_csis_enum_frameintervals(struct v4l2_subdev *mipi_sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_frame_interval_enum *fie)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 	struct v4l2_subdev *sen_sd;
 
+	TRACE
+	
 	/* Get remote source pad subdev */
 	sen_sd = csis_get_remote_subdev(state, __func__);
 	if (!sen_sd) {
@@ -1181,10 +1182,10 @@ static int mipi_csis_enum_frameintervals(struct v4l2_subdev *mipi_sd,
 
 static int mipi_csis_log_status(struct v4l2_subdev *mipi_sd)
 {
-	TRACE
-	
 	struct csi_state *state = mipi_sd_to_csi_state(mipi_sd);
 
+	TRACE
+	
 	mutex_lock(&state->lock);
 	mipi_csis_log_counters(state, true);
 	if (debug) {
@@ -1223,13 +1224,13 @@ static struct v4l2_subdev_ops mipi_csis_subdev_ops = {
 
 static irqreturn_t mipi_csis_irq_handler(int irq, void *dev_id)
 {
-	TRACE
-	
 	struct csi_state *state = dev_id;
 	struct csis_pktbuf *pktbuf = &state->pkt_buf;
 	unsigned long flags;
 	u32 status;
 
+	TRACE
+	
 	status = mipi_csis_read(state, MIPI_CSIS_INTSRC);
 
 	spin_lock_irqsave(&state->slock, flags);
@@ -1268,10 +1269,10 @@ static irqreturn_t mipi_csis_irq_handler(int irq, void *dev_id)
 static int mipi_csis_parse_dt(struct platform_device *pdev,
 			    struct csi_state *state)
 {
-	TRACE
-	
 	struct device_node *node = pdev->dev.of_node;
 
+	TRACE
+	
 	state->index = of_alias_get_id(node, "csi");
 
 	if (of_property_read_u32(node, "clock-frequency", &state->clk_frequency))
@@ -1304,11 +1305,11 @@ static int mipi_csis_subdev_init(struct v4l2_subdev *mipi_sd,
 		struct platform_device *pdev,
 		const struct v4l2_subdev_ops *ops)
 {
-	TRACE
-	
 	struct csi_state *state = platform_get_drvdata(pdev);
 	int ret = 0;
 
+	TRACE
+	
 	v4l2_subdev_init(mipi_sd, ops);
 	mipi_sd->owner = THIS_MODULE;
 	snprintf(mipi_sd->name, sizeof(mipi_sd->name), "%s.%d",
@@ -1330,8 +1331,6 @@ static int mipi_csis_subdev_init(struct v4l2_subdev *mipi_sd,
 
 static int mipi_csis_of_parse_resets(struct csi_state *state)
 {
-	TRACE
-	
 	int ret;
 	struct device *dev = state->dev;
 	struct device_node *np = dev->of_node;
@@ -1341,6 +1340,8 @@ static int mipi_csis_of_parse_resets(struct csi_state *state)
 	const char *compat;
 	uint32_t len, rstc_num = 0;
 
+	TRACE
+	
 	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
 					 0, &args);
 	if (ret)
@@ -1382,8 +1383,6 @@ static int mipi_csis_of_parse_resets(struct csi_state *state)
 
 static int mipi_csis_probe(struct platform_device *pdev)
 {
-	TRACE
-	
 	struct device *dev = &pdev->dev;
 	struct v4l2_subdev *mipi_sd;
 	struct resource *mem_res;
@@ -1392,6 +1391,8 @@ static int mipi_csis_probe(struct platform_device *pdev)
 	mipi_csis_phy_reset_t phy_reset_fn;
 	int ret = -ENOMEM;
 
+	TRACE
+	
 	state = devm_kzalloc(dev, sizeof(*state), GFP_KERNEL);
 	if (!state)
 		return -ENOMEM;
@@ -1512,10 +1513,10 @@ static int mipi_csis_system_suspend(struct device *dev)
 
 static int mipi_csis_system_resume(struct device *dev)
 {
-	TRACE
-	
 	int ret;
 
+	TRACE
+	
 	ret = pm_runtime_force_resume(dev);
 	if (ret < 0) {
 		dev_err(dev, "[vc-mipi mipi-csi2-sam] force resume %s failed!\n", dev_name(dev));
@@ -1527,11 +1528,11 @@ static int mipi_csis_system_resume(struct device *dev)
 
 static int mipi_csis_runtime_suspend(struct device *dev)
 {
-	TRACE
-	
 	struct csi_state *state = dev_get_drvdata(dev);
 	int ret;
 
+	TRACE
+	
 	ret = regulator_disable(state->mipi_phy_regulator);
 	if (ret < 0)
 		return ret;
@@ -1543,11 +1544,11 @@ static int mipi_csis_runtime_suspend(struct device *dev)
 
 static int mipi_csis_runtime_resume(struct device *dev)
 {
-	TRACE
-	
 	struct csi_state *state = dev_get_drvdata(dev);
 	int ret;
 
+	TRACE
+	
 	ret = regulator_enable(state->mipi_phy_regulator);
 	if (ret < 0)
 		return ret;
@@ -1567,10 +1568,10 @@ static int mipi_csis_runtime_resume(struct device *dev)
 
 static int mipi_csis_remove(struct platform_device *pdev)
 {
-	TRACE
-	
 	struct csi_state *state = platform_get_drvdata(pdev);
 
+	TRACE
+	
 	media_entity_cleanup(&state->sd.entity);
 	pm_runtime_disable(&pdev->dev);
 

@@ -115,8 +115,7 @@ obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_driver.o
 obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_subdev.o
 obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_i2c.o
 obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_module.o
-obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_ctrls.o
-#obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_param.o
+obj-$(CONFIG_VIDEO_IMX226) 	+= vc_mipi_sensor.o
 
 obj-$(CONFIG_VIDEO_IMX258)	+= imx258.o
 obj-$(CONFIG_VIDEO_IMX274)	+= imx274.o

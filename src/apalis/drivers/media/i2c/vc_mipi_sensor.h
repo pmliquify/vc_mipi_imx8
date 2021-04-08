@@ -1,5 +1,9 @@
-#ifndef _VC_MIPI_SEN_H
-#define _VC_MIPI_SEN_H
+#ifndef _VC_MIPI_SENSOR_H
+#define _VC_MIPI_SENSOR_H
 
+#include <linux/i2c.h>
 
-#endif _VC_MIPI_SEN_H
+int vc_mipi_sen_set_exposure(struct i2c_client *client, int value);
+int vc_mipi_sen_set_gain(struct i2c_client *client, int value);
+
+#endif // _VC_MIPI_SENSOR_H

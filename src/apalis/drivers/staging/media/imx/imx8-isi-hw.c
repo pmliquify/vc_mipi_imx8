@@ -8,7 +8,7 @@
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
 
-//#define TRACE printk("        TRACE [vc-mipi] imx8-isi-hw.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE printk("        TRACE [vc-mipi] imx8-isi-hw.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
 
 #define	ISI_DOWNSCALE_THRESHOLD		0x4000

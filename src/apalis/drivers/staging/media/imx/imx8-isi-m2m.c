@@ -30,6 +30,7 @@
 #include "imx8-common.h"
 
 #define TRACE printk("        TRACE [vc-mipi] imx8-isi-m2m.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE
 
 #define to_isi_buffer(x)	\
 	container_of((x), struct mxc_isi_buffer, v4l2_buf)

@@ -3,8 +3,8 @@
  * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
  * Copyright (C) 2014-2017 Mentor Graphics Inc.
  */
-#ifndef _VC_MIPI_DEVICE_H
-#define _VC_MIPI_DEVICE_H
+#ifndef _VC_MIPI_DRIVER_H
+#define _VC_MIPI_DRIVER_H
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
@@ -12,7 +12,6 @@
 #include <linux/ctype.h>
 #include <linux/device.h>
 #include <linux/gpio/consumer.h>
-#include <linux/i2c.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/of_device.h>
@@ -27,7 +26,6 @@
 #include <media/v4l2-subdev.h>
 
 #include "vc_mipi_module.h"
-#include "vc_mipi_ctrls.h"
 
 
 struct vc_mipi_driver {
@@ -35,9 +33,8 @@ struct vc_mipi_driver {
 	struct media_pad pad;
 	struct v4l2_fwnode_endpoint ep; 	/* the parsed DT endpoint info */
 	struct mutex lock;			/* lock to protect all members below */
-	
+
 	struct vc_mipi_module module;
-	struct vc_mipi_ctrls ctrls;
 
 // 	struct sensor_params sen_pars;
 // 	struct v4l2_pix_format pix;
@@ -62,4 +59,4 @@ static inline struct vc_mipi_driver *to_vc_mipi_driver(struct v4l2_subdev *sd)
 	return container_of(sd, struct vc_mipi_driver, sd);
 }
 
-#endif // _VC_MIPI_DEVICE_H
+#endif // _VC_MIPI_DRIVER_H

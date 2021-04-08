@@ -27,7 +27,7 @@ static int vc_mipi_probe(struct i2c_client *client)
 	struct vc_mipi_driver *driver;
 	int ret;
 
-	TRACE
+	// TRACE
 
 	driver = devm_kzalloc(dev, sizeof(*driver), GFP_KERNEL);
 	if (!driver)
@@ -47,7 +47,9 @@ static int vc_mipi_probe(struct i2c_client *client)
 		return ret;
 	}
 
-	vc_mipi_subdev_init(&driver->sd, client);
+	ret = vc_mipi_subdev_init(&driver->sd, client);
+	if (ret)
+		goto entity_cleanup;
 
 	driver->sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
 			    V4L2_SUBDEV_FL_HAS_EVENTS;
@@ -73,10 +75,6 @@ static int vc_mipi_probe(struct i2c_client *client)
         // 	return -EIO;
     	// }
 
-	ret = vc_mipi_ctrls_init(&driver->sd, &driver->ctrls, dev);
-	if (ret)
-		goto entity_cleanup;
-
 	ret = v4l2_async_register_subdev_sensor_common(&driver->sd);
 	if (ret)
 		goto free_ctrls;
@@ -84,7 +82,7 @@ static int vc_mipi_probe(struct i2c_client *client)
 	return 0;
 
 free_ctrls:
-	v4l2_ctrl_handler_free(&driver->ctrls.handler);
+	v4l2_ctrl_handler_free(driver->sd.ctrl_handler);
 entity_cleanup:
 	media_entity_cleanup(&driver->sd.entity);
 	mutex_destroy(&driver->lock);
@@ -100,14 +98,14 @@ static int vc_mipi_remove(struct i2c_client *client)
 	
 	v4l2_async_unregister_subdev(&driver->sd);
 	media_entity_cleanup(&driver->sd.entity);
-	v4l2_ctrl_handler_free(&driver->ctrls.handler);
+	v4l2_ctrl_handler_free(driver->sd.ctrl_handler);
 	mutex_destroy(&driver->lock);
 
 	return 0;
 }
 
 static const struct i2c_device_id vc_mipi_id[] = {
-	{"vc_mipi", 0},
+	{"vc_mipi-sen", 0},
 	{},
 };
 MODULE_DEVICE_TABLE(i2c, vc_mipi_id);
@@ -120,7 +118,7 @@ MODULE_DEVICE_TABLE(of, vc_mipi_dt_ids);
 
 static struct i2c_driver vc_mipi_i2c_driver = {
 	.driver = {
-		.name  = "vc-mipi",
+		.name  = "vc-mipi-sen",
 		.of_match_table	= vc_mipi_dt_ids,
 	},
 	.id_table = vc_mipi_id,

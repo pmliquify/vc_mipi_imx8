@@ -2,36 +2,36 @@
 #include "vc_mipi_i2c.h"
 #include <linux/delay.h>
 
-//#define TRACE printk("        TRACE [vc-mipi] vc_mipi_mod.c --->  %s : %d", __FUNCTION__, __LINE__);
+//#define TRACE printk("        TRACE [vc-mipi] vc_mipi_module.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
+
 
 void vc_mipi_dump_reg_value(struct device* dev, int addr, int reg) 
 {
         int sval = 0;   // short 2-byte value
         if (addr & 1) { // odd addr
             sval |= (int)reg << 8;
-            dev_err(dev, "[vc-mipi driver] addr=0x%04x reg=0x%04x\n",addr+0x1000-1,sval);
+            dev_err(dev, "[vc-mipi module] addr=0x%04x reg=0x%04x\n",addr+0x1000-1,sval);
         }     
 }
 
 void vc_mipi_dump_hw_desc(struct device* dev, struct vc_mipi_mod_desc* mod_desc)
 {
-        dev_info(dev, "[vc-mipi driver] VC MIPI Module - Hardware Descriptor\n");
-        dev_info(dev, "[vc-mipi driver] [ MAGIC  ] [ %s ]\n", mod_desc->magic);
-        dev_info(dev, "[vc-mipi driver] [ MANUF. ] [ %s ] [ MID=0x%04x ]\n", mod_desc->manuf, mod_desc->manuf_id);
-        dev_info(dev, "[vc-mipi driver] [ SENSOR ] [ %s %s ]\n", mod_desc->sen_manuf, mod_desc->sen_type);
-        dev_info(dev, "[vc-mipi driver] [ MODULE ] [ ID=0x%04x ] [ REV=0x%04x ]\n", mod_desc->mod_id, mod_desc->mod_rev);
-        dev_info(dev, "[vc-mipi driver] [ MODES  ] [ NR=0x%04x ] [ BPM=0x%04x ]\n", mod_desc->nr_modes, mod_desc->bytes_per_mode);
+        dev_info(dev, "[vc-mipi module] VC MIPI Module - Hardware Descriptor\n");
+        dev_info(dev, "[vc-mipi module] [ MAGIC  ] [ %s ]\n", mod_desc->magic);
+        dev_info(dev, "[vc-mipi module] [ MANUF. ] [ %s ] [ MID=0x%04x ]\n", mod_desc->manuf, mod_desc->manuf_id);
+        dev_info(dev, "[vc-mipi module] [ SENSOR ] [ %s %s ]\n", mod_desc->sen_manuf, mod_desc->sen_type);
+        dev_info(dev, "[vc-mipi module] [ MODULE ] [ ID=0x%04x ] [ REV=0x%04x ]\n", mod_desc->mod_id, mod_desc->mod_rev);
+        dev_info(dev, "[vc-mipi module] [ MODES  ] [ NR=0x%04x ] [ BPM=0x%04x ]\n", mod_desc->nr_modes, mod_desc->bytes_per_mode);
 }
 
 struct i2c_client* vc_mipi_mod_get_client(struct i2c_adapter *adapter, u8 addr)
 {
-    struct i2c_board_info info = {
-        I2C_BOARD_INFO("dummy", addr),
-    };
-    unsigned short addr_list[2] = { addr, I2C_CLIENT_END };
-
-    return i2c_new_probed_device(adapter, &info, addr_list, NULL);
+        struct i2c_board_info info = {
+                I2C_BOARD_INFO("i2c", addr),
+                };
+        unsigned short addr_list[2] = { addr, I2C_CLIENT_END };
+        return i2c_new_probed_device(adapter, &info, addr_list, NULL);
 }
 
 int vc_mipi_mod_module_power_down(struct vc_mipi_module *module) 
@@ -69,7 +69,7 @@ int vc_mipi_mod_wait_until_module_is_ready(struct vc_mipi_module *module)
                 try++;
         }
         if(status == REG_STATUS_ERROR) {
-                dev_err(dev, "[vc-mipi driver] %s(): Internal Error!", __func__);
+                dev_err(dev, "[vc-mipi module] %s(): Internal Error!", __func__);
         }
         return status;
 }
@@ -114,17 +114,20 @@ int vc_mipi_mod_setup(struct vc_mipi_module *module)
         struct i2c_client* client = module->client_sen;
         struct i2c_adapter* adapter = client->adapter;
         struct device* dev = &client->dev;
+        struct device* dev_mod;
         struct vc_mipi_mod_desc* mod_desc = &module->desc;
         int ret;
 
         TRACE
 
         if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
-                dev_err(dev, "[vc-mipi driver] %s(): I2C-Adapter doesn't support I2C_FUNC_SMBUS_BYTE\n", __FUNCTION__);
+                dev_err(dev, "[vc-mipi module] %s(): I2C-Adapter doesn't support I2C_FUNC_SMBUS_BYTE\n", __FUNCTION__);
                 return -EIO;
         }
 
-        module->client_mod = vc_mipi_mod_get_client(adapter, 0x10);
+        // TODO: Load module address from DT.
+        module->client_mod = vc_mipi_mod_get_client(adapter, 0x10); 
+        dev_mod = &module->client_mod->dev;
         if (module->client_mod) {
                 int addr,reg;
                 for (addr=0; addr<sizeof(*mod_desc); addr++) {
@@ -138,15 +141,15 @@ int vc_mipi_mod_setup(struct vc_mipi_module *module)
                         //vc_mipi_dump_reg_value(dev, addr, reg);
                 }
 
-                vc_mipi_dump_hw_desc(dev, mod_desc);
+                vc_mipi_dump_hw_desc(dev_mod, mod_desc);
         }
 
-        dev_info(dev, "[vc-mipi driver] Reset VC MIPI Sensor");
+        dev_info(dev_mod, "[vc-mipi module] Reset VC MIPI Sensor");
         ret = vc_mipi_mod_reset_module(module, 0); // TODO: Set module mode in last parameter.
         if (ret) {
                 return -EIO;
         }
-        dev_info(dev, "[vc-mipi driver] VC MIPI Sensor succesfully initialized.");
+        dev_info(dev_mod, "[vc-mipi module] VC MIPI Sensor succesfully initialized.");
         return 0;
 }
 
