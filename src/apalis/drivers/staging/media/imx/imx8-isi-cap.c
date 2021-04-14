@@ -29,93 +29,105 @@
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
 
-// #define TRACE printk("        TRACE [vc-mipi] imx8-isi-cap.c --->  %s : %d", __FUNCTION__, __LINE__);
-#define TRACE
+#define TRACE printk("        TRACE [vc-mipi] imx8-isi-cap.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE
 
 #define sd_to_cap_dev(ptr)	container_of(ptr, struct mxc_isi_cap_dev, sd)
 
 struct mxc_isi_fmt mxc_isi_out_formats[] = {
 	{
-		.name		= "UYVY-16",
-		.fourcc		= V4L2_PIX_FMT_UYVY,
-		.depth		= { 16 },
-		.color		= MXC_ISI_OUT_FMT_YUV422_1P8P,
+		// Copied from Verdin driver
+		.name		= "Gray8 (GREY)",		// wird durch mxc_isi_cap_enum_fmt abgefragt
+		.fourcc		= V4L2_PIX_FMT_GREY,		// wird durch mxc_isi_cap_enum_fmt abgefragt
+		.mbus_code  	= MEDIA_BUS_FMT_Y8_1X8,
+		// New
+		.depth		= { 8 },
+		.color		= MXC_ISI_OUT_FMT_RAW8,
 		.memplanes	= 1,
 		.colplanes	= 1,
-		.mbus_code  = MEDIA_BUS_FMT_UYVY8_2X8,
-	}, {
-		.name		= "RGB565",
-		.fourcc		= V4L2_PIX_FMT_RGB565,
-		.depth		= { 16 },
-		.color		= MXC_ISI_OUT_FMT_RGB565,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code  = MEDIA_BUS_FMT_RGB565_1X16,
-	}, {
-		.name		= "RGB24",
-		.fourcc		= V4L2_PIX_FMT_RGB24,
-		.depth		= { 24 },
-		.color		= MXC_ISI_OUT_FMT_BGR32P,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code  = MEDIA_BUS_FMT_RGB888_1X24,
-	}, {
-		.name		= "BGR24",
-		.fourcc		= V4L2_PIX_FMT_BGR24,
-		.depth		= { 24 },
-		.color		= MXC_ISI_OUT_FMT_RGB32P,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code  = MEDIA_BUS_FMT_BGR888_1X24,
-	}, {
-		.name		= "YUYV-16",
-		.fourcc		= V4L2_PIX_FMT_YUYV,
-		.depth		= { 16 },
-		.color		= MXC_ISI_OUT_FMT_YUV422_1P8P,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code	= MEDIA_BUS_FMT_YUYV8_1X16,
-	}, {
-		.name		= "YUV32 (X-Y-U-V)",
-		.fourcc		= V4L2_PIX_FMT_YUV32,
-		.depth		= { 32 },
-		.color		= MXC_ISI_OUT_FMT_YUV444_1P8,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code	= MEDIA_BUS_FMT_AYUV8_1X32,
-	}, {
-		.name		= "NV12 (YUYV)",
-		.fourcc		= V4L2_PIX_FMT_NV12,
-		.depth		= { 8, 8 },
-		.color		= MXC_ISI_OUT_FMT_YUV420_2P8P,
-		.memplanes	= 2,
-		.colplanes	= 2,
-		.mbus_code	= MEDIA_BUS_FMT_YUYV8_1X16,
-	}, {
-		.name		= "YUV444M (Y-U-V)",
-		.fourcc		= V4L2_PIX_FMT_YUV444M,
-		.depth		= { 8, 8, 8 },
-		.color		= MXC_ISI_OUT_FMT_YUV444_3P8P,
-		.memplanes	= 3,
-		.colplanes	= 3,
-		.mbus_code	= MEDIA_BUS_FMT_YUV8_1X24,
-	}, {
-		.name		= "xBGR32",
-		.fourcc		= V4L2_PIX_FMT_XBGR32,
-		.depth		= { 32 },
-		.color		= MXC_ISI_OUT_FMT_XRGB32,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code	= MEDIA_BUS_FMT_RGB888_1X24,
-	}, {
-		.name		= "ABGR32",
-		.fourcc		= V4L2_PIX_FMT_ABGR32,
-		.depth		= { 32 },
-		.color		= MXC_ISI_OUT_FMT_ARGB32,
-		.memplanes	= 1,
-		.colplanes	= 1,
-		.mbus_code	= MEDIA_BUS_FMT_RGB888_1X24,
 	}
+
+	// {
+	// 	.name		= "UYVY-16",
+	// 	.fourcc		= V4L2_PIX_FMT_UYVY,
+	// 	.depth		= { 16 },
+	// 	.color		= MXC_ISI_OUT_FMT_YUV422_1P8P,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code  = MEDIA_BUS_FMT_UYVY8_2X8,
+	// }, {
+	// 	.name		= "RGB565",
+	// 	.fourcc		= V4L2_PIX_FMT_RGB565,
+	// 	.depth		= { 16 },
+	// 	.color		= MXC_ISI_OUT_FMT_RGB565,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code  = MEDIA_BUS_FMT_RGB565_1X16,
+	// }, {
+	// 	.name		= "RGB24",
+	// 	.fourcc		= V4L2_PIX_FMT_RGB24,
+	// 	.depth		= { 24 },
+	// 	.color		= MXC_ISI_OUT_FMT_BGR32P,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code  = MEDIA_BUS_FMT_RGB888_1X24,
+	// }, {
+	// 	.name		= "BGR24",
+	// 	.fourcc		= V4L2_PIX_FMT_BGR24,
+	// 	.depth		= { 24 },
+	// 	.color		= MXC_ISI_OUT_FMT_RGB32P,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code  = MEDIA_BUS_FMT_BGR888_1X24,
+	// }, {
+	// 	.name		= "YUYV-16",
+	// 	.fourcc		= V4L2_PIX_FMT_YUYV,
+	// 	.depth		= { 16 },
+	// 	.color		= MXC_ISI_OUT_FMT_YUV422_1P8P,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code	= MEDIA_BUS_FMT_YUYV8_1X16,
+	// }, {
+	// 	.name		= "YUV32 (X-Y-U-V)",
+	// 	.fourcc		= V4L2_PIX_FMT_YUV32,
+	// 	.depth		= { 32 },
+	// 	.color		= MXC_ISI_OUT_FMT_YUV444_1P8,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code	= MEDIA_BUS_FMT_AYUV8_1X32,
+	// }, {
+	// 	.name		= "NV12 (YUYV)",
+	// 	.fourcc		= V4L2_PIX_FMT_NV12,
+	// 	.depth		= { 8, 8 },
+	// 	.color		= MXC_ISI_OUT_FMT_YUV420_2P8P,
+	// 	.memplanes	= 2,
+	// 	.colplanes	= 2,
+	// 	.mbus_code	= MEDIA_BUS_FMT_YUYV8_1X16,
+	// }, {
+	// 	.name		= "YUV444M (Y-U-V)",
+	// 	.fourcc		= V4L2_PIX_FMT_YUV444M,
+	// 	.depth		= { 8, 8, 8 },
+	// 	.color		= MXC_ISI_OUT_FMT_YUV444_3P8P,
+	// 	.memplanes	= 3,
+	// 	.colplanes	= 3,
+	// 	.mbus_code	= MEDIA_BUS_FMT_YUV8_1X24,
+	// }, {
+	// 	.name		= "xBGR32",
+	// 	.fourcc		= V4L2_PIX_FMT_XBGR32,
+	// 	.depth		= { 32 },
+	// 	.color		= MXC_ISI_OUT_FMT_XRGB32,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code	= MEDIA_BUS_FMT_RGB888_1X24,
+	// }, {
+	// 	.name		= "ABGR32",
+	// 	.fourcc		= V4L2_PIX_FMT_ABGR32,
+	// 	.depth		= { 32 },
+	// 	.color		= MXC_ISI_OUT_FMT_ARGB32,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// 	.mbus_code	= MEDIA_BUS_FMT_RGB888_1X24,
+	// }
 };
 
 /*
@@ -719,6 +731,8 @@ static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_isi_cap_dev *isi_cap
 		return NULL;
 	}
 
+	//printk("[vc-mipi] sen_sd: %s", sen_sd->name);
+
 	return sen_sd;
 }
 
@@ -842,6 +856,7 @@ static int mxc_isi_cap_enum_fmt(struct file *file, void *priv,
 	struct mxc_isi_fmt *fmt;
 
 	TRACE
+	// dev_info(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
 
 	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
 	if (f->index >= (int)ARRAY_SIZE(mxc_isi_out_formats))
@@ -941,6 +956,8 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	if (!src_sd)
 		return -EINVAL;
 
+	printk("[vc-mipi] src_sd = %s\n", src_sd->name);
+
 	src_fmt.pad = source_pad->index;
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
 	src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_2X8;
@@ -985,6 +1002,8 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
 	struct mxc_isi_frame *dst_f = &isi_cap->dst_f;
 	struct mxc_isi_fmt *fmt;
+	struct v4l2_subdev *sd;
+	int ret;
 	int bpl;
 	int i;
 
@@ -1003,6 +1022,8 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	if (vb2_is_busy(&isi_cap->vb2_q))
 		return -EBUSY;
 
+	printk("[vc-mipi] Step1: Check format with output support format list.");
+
 	/* Check out put format */
 	for (i = 0; i < ARRAY_SIZE(mxc_isi_out_formats); i++) {
 		fmt = &mxc_isi_out_formats[i];
@@ -1019,6 +1040,8 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	/* update out put frame size and formate */
 	if (pix->height <= 0 || pix->width <= 0)
 		return -EINVAL;
+
+	printk("[vc-mipi] Step2: Update output frame information.\n");
 
 	dst_f->fmt = fmt;
 	dst_f->height = pix->height;
@@ -1055,6 +1078,60 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 
 	memcpy(&isi_cap->pix, pix, sizeof(*pix));
 	set_frame_bounds(dst_f, pix->width, pix->height);
+
+	// struct v4l2_pix_format_mplane {
+	// 	__u32				width;
+	// 	__u32				height;
+	// 	__u32				pixelformat;
+	// 	__u32				field;
+	// 	__u32				colorspace;
+
+	// 	struct v4l2_plane_pix_format	plane_fmt[VIDEO_MAX_PLANES];
+	// 	__u8				num_planes;
+	// 	__u8				flags;
+	// 	union {
+	// 		__u8				ycbcr_enc;
+	// 		__u8				hsv_enc;
+	// 	};
+	// 	__u8				quantization;
+	// 	__u8				xfer_func;
+	// 	__u8				reserved[7];
+	// } __attribute__ ((packed));
+	printk("[vc-mipi] width=%u, height=%u, pixelformat=%u, field=%u\n", 
+		pix->width, pix->height, pix->pixelformat, pix->field);
+	printk("[vc-mipi] num_planes=%u, flags=%u, quantization=%u\n", 
+		pix->num_planes, pix->flags, pix->quantization);
+
+// 	struct mxc_isi_frame {
+// 		u32	o_width;
+// 		u32	o_height;
+// 		u32	c_width;
+// 		u32	c_height;
+// 		u32	h_off;
+// 		u32	v_off;
+// 		u32	width;
+// 		u32	height;
+// 		unsigned int	sizeimage[MXC_MAX_PLANES];
+// 		unsigned int	bytesperline[MXC_MAX_PLANES];
+// 		struct mxc_isi_fmt	*fmt;
+// }	;
+	printk("[vc-mipi] o_width=%u, o_height=%u, c_width=%u, c_height=%u\n", 
+		dst_f->o_width, dst_f->o_height, dst_f->c_width, dst_f->c_height);
+	printk("[vc-mipi] Step3: Checkout the format whether is supported by remote subdev\n");
+
+	/* Step3: Checkout the format whether is supported by remote subdev
+	 *	 Step3.1: If Yes, call remote subdev set_fmt.
+	 *	 Step3.2: If NO, call remote subdev get_fmt.
+	 * Step4: Update input frame information.
+	 * Step5: Update mxc isi channel configuration.
+	 */
+	// sd = mxc_get_remote_subdev(isi_cap, __func__);
+	// if (!sd)
+	// 	return -EINVAL;
+
+	// ret = v4l2_subdev_call(sd, pad, enum_frame_interval, NULL, &fie);
+	// if (ret)
+	// 	return ret;
 
 	return 0;
 }
@@ -1349,7 +1426,7 @@ static int mxc_vidioc_queryctrl(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
+	// TRACE
 
 	sd = mxc_get_remote_subdev(isi_cap, __func__);
 	if (!sd)
@@ -1366,7 +1443,7 @@ static int mxc_vidioc_query_ext_ctrl(struct file *file, void *fh,
 	};
 	int ret;
 
-	TRACE
+	// TRACE
 
 	ret = mxc_vidioc_queryctrl(file, fh, &qc);
 
@@ -1949,6 +2026,8 @@ static int isi_cap_probe(struct platform_device *pdev)
 		dev_info(dev, "[vc-mipi isi-cap] deferring %s device registration\n", dev_name(dev));
 		return -EPROBE_DEFER;
 	}
+
+	//printk("[vc-mipi] pdev: %s, parent: %s, mxc_isi: %s", pdev->name, dev->parent->name, mxc_isi->pdev->name);
 
 	isi_cap->pdev = pdev;
 	isi_cap->id = mxc_isi->id;

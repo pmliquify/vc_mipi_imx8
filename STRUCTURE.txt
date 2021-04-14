@@ -24,28 +24,109 @@ apalis-imx8_vc_mipi_overlay.dts          imx8-ss-img.dtsi
 
 ---------------------------------------------------------------------------------------------------
 
-                                  imx8-media-dev.c PFD
-                               mxc-md bus@58000000:camera
-                                      mx8-img-md 
-                                           |
-                   +-----------------------+-----------------------+
-                   |                       |                       |
-                   |                       |    fsl,imx8-isi       |
-                   |                       |    fsl,imx8mn-isi     |    imx-isi-capture
-                   |                       |                       |
-[vc-mipi 5-001a]   <=   [mxc-mipi-csi2.1]  <=   [mxc_isi.4]        <=   [mxc_isi.4.capture]
-vc_mipi_driver.c        imx8-mipi-csi2.c PFD    imx8-isi-core.c PFD     imx8-isi-cap.c PFD
-              I2C_SD                 V4L2_SD    imx8-isi-hw.c                ^     V4L2_SD
-                        Behandelt               imx8-isi-m2m.c PFD           |
-                        subdev ops selbst                              ? v4l2-ioctl.c (ioctl_64.h)
-                        nicht!                                         ? v4l2-dev.c (core driver)
- Kernel Space                                                            /dev/video0
+                                        imx8-media-dev.c PFD
+                                     mxc-md bus@58000000:camera
+                                            mx8-img-md 
+                                                |
+                        +-----------------------+-----------------------+
+                        |                       |                       |
+                        |                       |    fsl,imx8-isi       |
+                        |                       |    fsl,imx8mn-isi     |    imx-isi-capture
+                        |                       |                       |
+[vc-mipi-cam 5-001a]   <=>  [mxc-mipi-csi2.1]  <=>  [mxc_isi.4]        <=>  [mxc_isi.4.capture]
+vc_mipi_driver.c            imx8-mipi-csi2.c PFD    imx8-isi-core.c PFD     imx8-isi-cap.c PFD
+              I2C_SD                     V4L2_SD    imx8-isi-hw.c                ^     V4L2_SD
+                            Behandelt               imx8-isi-m2m.c PFD           |
+                            subdev ops selbst
+                            nicht!
+
+                              
+
+
+
+                                                                           ? v4l2-ioctl.c (ioctl_64.h)
+                                                                           ? v4l2-dev.c (core driver)                           
+ Kernel Space                                                                /dev/video0
 ---------------------------------------------------------------------------------------------------
- User Space                                                            ^ v4l2-ctl-common.cpp
-                                                                       | v4l2-ctl.cpp
-                                                                       | $ v4l2-ctl -c gain=1
+ User Space                                                                  ^ v4l2-ctl-common.cpp
+                                                                             | v4l2-ctl.cpp
+                                                                             | $ v4l2-ctl -c gain=1
 
 
+
+----------------------------------------------------------------------------------------------------
+Bootsequenz 
+
+[    2.108594]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_probe : 1003
+[    2.108603]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_register_platform_entities : 888
+[    2.115856]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_register_platform_entity : 853
+[    2.115858]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_parse_isi_entity : 642
+[    2.129274]         TRACE [vc-mipi] imx8-media-dev.c --->  register_isi_entity : 761
+[    2.129277]         TRACE [vc-mipi] imx8-media-dev.c --->  get_subdev_by_node : 731
+[    2.146581] mxc-md bus@58000000:camera: [vc-mipi media-dev] deferring cap_device device registration
+[    2.180579] mxc-isi 58140000.isi: [vc-mipi isi-core] mxc_isi.4 registered successfully
+[    2.194796]         TRACE [vc-mipi] imx8-isi-cap.c --->  isi_cap_probe : 1938
+[    2.234828] mxc-mipi-csi2 58247000.csi: [vc-mipi mipi-csi2] lanes: 2, name: mxc-mipi-csi2.1
+[    2.935346] i2c 5-0010: [vc-mipi module] VC MIPI Module - Hardware Descriptor
+[    2.942516] i2c 5-0010: [vc-mipi module] [ MAGIC  ] [ mipi-module ]
+[    2.948805] i2c 5-0010: [vc-mipi module] [ MANUF. ] [ Vision Components ] [ MID=0x0427 ]
+[    2.956935] i2c 5-0010: [vc-mipi module] [ SENSOR ] [ SONY IMX226C ]
+[    2.963313] i2c 5-0010: [vc-mipi module] [ MODULE ] [ ID=0x0226 ] [ REV=0x0008 ]
+[    2.970743] i2c 5-0010: [vc-mipi module] [ MODES  ] [ NR=0x000c ] [ BPM=0x0010 ]
+[    2.978161] i2c 5-0010: [vc-mipi module] Reset VC MIPI Sensor
+[    4.225185] i2c 5-0010: [vc-mipi module] VC MIPI Sensor succesfully initialized.
+[    4.232604]         TRACE [vc-mipi] vc_mipi_driver.c --->  vc_mipi_param_setup : 115
+[    4.783749]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_probe : 1003
+[    4.783757]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_register_platform_entities : 888
+[    4.791016]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_register_platform_entity : 853
+[    4.799999]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_parse_isi_entity : 642
+[    4.800006]         TRACE [vc-mipi] imx8-media-dev.c --->  register_isi_entity : 761
+[    4.823649]         TRACE [vc-mipi] imx8-media-dev.c --->  get_subdev_by_node : 731
+[    4.831846]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_subdev_registered : 1886
+[    4.839534] isi-capture 58140000.isi:cap_device: [vc-mipi isi-cap] mxc_isi_subdev_registered
+[    4.847734]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_register_cap_device : 1806
+[    4.847738] isi-capture 58140000.isi:cap_device: [vc-mipi isi-cap] mxc_isi_register_cap_device
+[    4.856368] mx8-img-md: [vc-mipi isi-cap] Registered mxc_isi.4.capture as /dev/video0
+[    4.864232]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_register_platform_entity : 853
+[    4.864234]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_parse_csi_entity : 683
+[    4.873078]         TRACE [vc-mipi] imx8-media-dev.c --->  register_mipi_csi2_entity : 791
+[    4.881202]         TRACE [vc-mipi] imx8-media-dev.c --->  get_subdev_by_node : 731
+[    4.889567]         TRACE [vc-mipi] imx8-media-dev.c --->  register_sensor_entities : 924
+[    4.897289]         TRACE [vc-mipi] imx8-media-dev.c --->  notifier_to_mxc_md : 126
+[    4.905487]         TRACE [vc-mipi] imx8-media-dev.c --->  subdev_notifier_bound : 562
+
+[    4.913158] mx8-img-md: [vc-mipi media-dev] Registered sensor subdevice: vc-mipi-cam 5-001a (1)
+[    4.929805]         TRACE [vc-mipi] imx8-media-dev.c --->  notifier_to_mxc_md : 126
+[    4.929807]         TRACE [vc-mipi] imx8-media-dev.c --->  subdev_notifier_complete : 592
+
+
+   [    4.937495]         TRACE [vc-mipi] imx8-media-dev.c --->  mxc_md_create_links : 313
+   STEP 1
+         [    4.945691]         TRACE [vc-mipi] imx8-media-dev.c --->  find_entity_by_name : 166      <- SRC   mxc_isi.4
+         [    4.953450]         TRACE [vc-mipi] imx8-media-dev.c --->  find_entity_by_name : 166      <- SNK   mxc_isi.4.capture
+               [    4.961229]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_link_setup : 1534
+         [    4.969012] mx8-img-md: [vc-mipi media-dev] created link [mxc_isi.4] => [mxc_isi.4.capture]
+
+   STEP 2
+         [    4.984966]         TRACE [vc-mipi] imx8-media-dev.c --->  find_entity_by_name : 166      <- SRC   mxc-mipi-csi2.1
+         [    4.984968]         TRACE [vc-mipi] imx8-media-dev.c --->  find_entity_by_name : 166      <- SNK   mxc_isi.4
+               [    4.992745]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_link_setup : 1534
+         [    5.000541] mx8-img-md: [vc-mipi media-dev] created link [mxc-mipi-csi2.1] => [mxc_isi.4]
+
+   STEP 3
+         [    5.016407]         TRACE [vc-mipi] imx8-media-dev.c --->  find_entity_by_name : 166      <- SNK  mxc-mipi-csi2.1 
+         [    5.016412] mx8-img-md: [vc-mipi media-dev] created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
+   END
+         [    5.033207] mxc-md bus@58000000:camera: [vc-mipi media-dev] mxc_md_create_links
+
+
+[    8.408916]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_capture_open : 736
+[    8.414825]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_cap_querycap : 828
+[    8.432345]         TRACE [vc-mipi] imx8-isi-cap.c --->  mxc_isi_capture_release : 781
+
+
+
+----------------------------------------------------------------------------------------------------
 root@apalis-imx8:~# v4l2-ctl -c gain=1
 [   43.239072]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_get_hostdata : 41
 [   43.239357]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_runtime_resume : 661
@@ -97,3 +178,39 @@ unknown control 'gain'
 [   44.141506]         TRACE [vc-mipi] imx8-isi-core.c --->  mxc_isi_runtime_suspend : 648
 [   44.141508]         TRACE [vc-mipi] imx8-isi-core.c --->  disp_mix_clks_enable : 145
 root@apalis-imx8:~#
+
+
+
+
+root@apalis-imx8:~# v4l2-ctl --get-fmt-video
+Format Video Capture Multiplanar:
+        Width/Height      : 0/0
+        Pixel Format      : 'UYVY' (UYVY 4:2:2)
+        Field             : None
+        Number of planes  : 1
+        Flags             : 
+        Colorspace        : JPEG
+        Transfer Function : Default
+        YCbCr/HSV Encoding: Default
+        Quantization      : Default
+        Plane 0           :
+           Bytes per Line : 0
+           Size Image     : 0
+
+
+
+root@apalis-imx8:~# v4l2-ctl --get-fmt-video
+For[m 1at13 V4.i2de4o34 8C8ap]t iursie -Mcauplttiuplrae n5a8r:140000.isi:cap_device: [vc-mipi isi-cap] mxc_isi_cap_enum_fmt
+
+        Width/Height      : 0/0
+        Pixel Format      : 'GREY' (8-bit Greyscale)
+        Field             : None
+        Number of planes  : 1
+        Flags             : 
+        Colorspace        : JPEG
+        Transfer Function : Default
+        YCbCr/HSV Encoding: Default
+        Quantization      : Default
+        Plane 0           :
+           Bytes per Line : 0
+           Size Image     : 0

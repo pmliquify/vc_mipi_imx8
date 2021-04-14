@@ -47,7 +47,7 @@
 &mipi_csi_1 { 
 	#address-cells = <1>;
 	#size-cells = <0>;
-	/delete-property/virtual-channel;
+	// /delete-property/virtual-channel;
 	status = "okay";
 
 	/* Camera 1 MIPI CSI-2 (CSIS0) */
@@ -93,7 +93,6 @@
 	// bus controller nodes, e.g. I2C.
 	imx_mipi@1a {
 		compatible = "vc,vc_mipi";
-		// compatible = "vc,imx226";
 
 		reg = <0x1a>;
 		status = "okay";

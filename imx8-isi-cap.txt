@@ -1,0 +1,141 @@
+TODOs
+1. struct mxc_isi_out_formats um Formate erweitern
+
+
+Abkürzungen
+mbus    media bus
+vb      video buffer
+
+
+
+// *** Variablen **********************************************************************************
+
+struct mxc_isi_cap_dev {
+	struct mxc_isi_dev             *mxc_isi;
+
+	struct v4l2_pix_format_mplane  pix;
+	struct mxc_isi_frame           src_f;
+	struct mxc_isi_frame           dst_f;
+};
+
+struct mxc_isi_out_formats
+struct mxc_isi_src_formats
+
+
+
+// *** Funktionen *********************************************************************************
+
+// --- Pad Remote ---------------------------------------------------------------------------------
+
+static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_isi_cap_dev *isi_cap, const char * const label)     // Liefert den Zeiger auf mxc-mipi-csi2.1
+        static struct media_pad* mxc_isi_get_remote_source_pad(struct mxc_isi_cap_dev *isi_cap)
+
+
+// --- Subdevice ----------------------------------------------------------------------------------
+isi_cap->sd = struct v4l2_subdev {
+        struct mxc_isi_subdev_ops {
+                .pad = struct mxc_isi_subdev_pad_ops {
+FMT                     static int mxc_isi_subdev_enum_mbus_code        (struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_mbus_code_enum *code)
+FMT                     static int mxc_isi_subdev_get_fmt               (struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *fmt)
+FMT                     static int mxc_isi_subdev_set_fmt               (struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *fmt)
+FMT                     static int mxc_isi_subdev_get_selection         (struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_selection *sel)
+FMT                     static int mxc_isi_subdev_set_selection         (struct v4l2_subdev *sd,	struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_selection *sel)
+                }
+        }
+        
+        entity.ops = struct mxc_isi_sd_media_ops {
+                static int mxc_isi_link_setup                           (struct media_entity *entity, const struct media_pad *local, const struct media_pad *remote, u32 flags)
+        }
+
+        internal_ops = struct mxc_isi_capture_sd_internal_ops {
+                static int      mxc_isi_subdev_registered               (struct v4l2_subdev *sd)
+                        static int      mxc_isi_register_cap_device     (struct mxc_isi_cap_dev *isi_cap, struct v4l2_device *v4l2_dev)
+
+// --- Video Buffer -------------------------------------------------------------------------------
+                                isi_cap->vb2_q = struct mxc_cap_vb2_qops {
+                                        static int      cap_vb2_queue_setup     (struct vb2_queue *q, unsigned int *num_buffers, unsigned int *num_planes, unsigned int sizes[], struct device *alloc_devs[])
+                                        static int      cap_vb2_buffer_prepare  (struct vb2_buffer *vb2)
+                                        static void     cap_vb2_buffer_queue    (struct vb2_buffer *vb2)
+                                                static int      mxc_isi_update_buf_paddr        (struct mxc_isi_buffer *buf, int memplanes)
+                                        vb2_ops_wait_prepare
+                                        vb2_ops_wait_finish
+                                        static int      cap_vb2_start_streaming (struct vb2_queue *q, unsigned int count)
+                                        static void     cap_vb2_stop_streaming  (struct vb2_queue *q)
+                                }
+
+// --- Video Device -------------------------------------------------------------------------------
+                                isi_cap->vdev = struct video_device {
+                                        struct mxc_isi_capture_fops {
+mxc-mipi-csi2.1 <                               static int mxc_isi_capture_open                 (struct file *file)
+mxc-mipi-csi2.1 <                               static int mxc_isi_capture_release              (struct file *file)
+                                                vb2_fop_poll
+                                                video_ioctl2
+                                                vb2_fop_mmap
+                                        }
+
+                                        struct mxc_isi_capture_ioctl_ops {
+                                                static int      mxc_isi_cap_querycap            (struct file *file, void *priv, struct v4l2_capability *cap)
+
+FMT  f = mxc_isi_out_formats[]                  static int      mxc_isi_cap_enum_fmt            (struct file *file, void *priv, struct v4l2_fmtdesc *f)
+FMT  f in mxc_isi_out_formats[]?                static int      mxc_isi_cap_try_fmt_mplane      (struct file *file, void *fh, struct v4l2_format *f)
+FMT                                             static int      mxc_isi_cap_s_fmt_mplane        (struct file *file, void *priv, struct v4l2_format *f)
+FMT                                             static int      mxc_isi_cap_g_fmt_mplane        (struct file *file, void *fh, struct v4l2_format *f)
+
+                                                vb2_ioctl_reqbufs
+                                                vb2_ioctl_querybuf
+                                                vb2_ioctl_qbuf
+                                                vb2_ioctl_dqbuf
+                                                vb2_ioctl_expbuf
+                                                vb2_ioctl_prepare_buf
+                                                vb2_ioctl_create_bufs
+
+mxc-mipi-csi2.1 <                               static int      mxc_isi_cap_g_parm              (struct file *file, void *fh, struct v4l2_streamparm *a)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_cap_s_parm              (struct file *file, void *fh, struct v4l2_streamparm *a)
+
+                                                static int      mxc_isi_cap_streamon            (struct file *file, void *priv, enum v4l2_buf_type type)
+                                                        static int      mxc_isi_config_parm             (struct mxc_isi_cap_dev *isi_cap)   
+mxc-mipi-csi2.1 <                                               static int      mxc_isi_source_fmt_init         (struct mxc_isi_cap_dev *isi_cap)                       // ruft subdev auf um ein src_fmt zu setzen und wieder abzurufen.
+                                                                        struct mxc_isi_fmt *mxc_isi_get_src_fmt(struct v4l2_subdev_format *sd_fmt)
+                                                                static int      mxc_isi_pipeline_enable         (struct mxc_isi_cap_dev *isi_cap, bool enable)
+
+                                                static int      mxc_isi_cap_streamoff           (struct file *file, void *priv, enum v4l2_buf_type type)
+
+                                                static int      mxc_isi_cap_g_selection         (struct file *file, void *fh, struct v4l2_selection *s)
+                                                static int      mxc_isi_cap_s_selection         (struct file *file, void *fh, struct v4l2_selection *s)
+                                                        static int      enclosed_rectangle              (struct v4l2_rect *a, struct v4l2_rect *b)
+
+mxc-mipi-csi2.1 <                               static int      mxc_isi_cap_enum_framesizes     (struct file *file, void *priv, struct v4l2_frmsizeenum *fsize)
+                                                        struct mxc_isi_fmt *mxc_isi_find_format(const u32 *pixelformat,	const u32 *mbus_code, int index)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_cap_enum_frameintervals (struct file *file, void *fh, struct v4l2_frmivalenum *interval)
+
+// --- Subdev Ctrls -------------------------------------------------------------------------------
+mxc-mipi-csi2.1 <                               static int      mxc_vidioc_queryctrl            (struct file *file, void *fh, struct v4l2_queryctrl *a)
+mxc-mipi-csi2.1 <                               static int      mxc_vidioc_query_ext_ctrl       (struct file *file, void *fh, struct v4l2_query_ext_ctrl *qec)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_querymenu        (struct file *file, void *fh, struct v4l2_querymenu *qm)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_g_ctrl           (struct file *file, void *fh, struct v4l2_control *a)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_s_ctrl           (struct file *file, void *fh, struct v4l2_control *a)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_g_ext_ctrls      (struct file *file, void *fh, struct v4l2_ext_controls *a)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_try_ext_ctrls    (struct file *file, void *fh, struct v4l2_ext_controls *a)
+mxc-mipi-csi2.1 <                               static int      mxc_isi_vidioc_s_ext_ctrls      (struct file *file, void *fh, struct v4l2_ext_controls *a)
+
+                                        }
+                                }
+                                
+                static void     mxc_isi_subdev_unregistered     (struct v4l2_subdev *sd)
+        }
+}
+
+static int      isi_cap_probe                   (struct platform_device *pdev)
+static int      isi_cap_remove                  (struct platform_device *pdev)
+
+
+
+// --- Sonstige Funktionen ------------------------------------------------------------------------
+// --- Werden nicht direkt aufgerufen  ------------------------------------------------------------
+struct mxc_isi_fmt *    mxc_isi_get_format              (unsigned int index);
+void                    mxc_isi_cap_frame_write_done    (struct mxc_isi_dev *mxc_isi)
+
+// --- Alternatice Ctrls Implementierung ----------------------------------------------------------
+static int      mxc_isi_s_ctrl                  (struct v4l2_ctrl *ctrl)
+int             mxc_isi_ctrls_create            (struct mxc_isi_cap_dev *isi_cap)
+void            mxc_isi_ctrls_delete            (struct mxc_isi_cap_dev *isi_cap)
