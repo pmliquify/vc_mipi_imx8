@@ -30,7 +30,7 @@
 
 #include "imx8-common.h"
 
-#define TRACE printk("        TRACE [vc-mipi] imx8-media-dev.c --->  %s : %d", __FUNCTION__, __LINE__);
+#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-media-dev.c --->  %s : %d", __FUNCTION__, __LINE__);
 // #define TRACE
 
 #define MXC_MD_DRIVER_NAME	"mxc-md"

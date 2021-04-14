@@ -40,7 +40,7 @@
 #include <media/v4l2-device.h>
 #include <linux/reset.h>
 
-#define TRACE printk("        TRACE [vc-mipi] imx8-mipi-csi2-sam.c --->  %s : %d", __FUNCTION__, __LINE__);
+#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-mipi-csi2-sam.c --->  %s : %d", __FUNCTION__, __LINE__);
 // #define TRACE
 
 #define CSIS_DRIVER_NAME		"mxc-mipi-csi2-sam"

@@ -578,17 +578,17 @@ config VIDEO_IMX214
 	  To compile this driver as a module, choose M here: the
 	  module will be called imx214.
 
-config VIDEO_IMX226
-	tristate "Sony IMX226 sensor support"
+config VIDEO_VC_MIPI
+	tristate "Vision Components MIPI CSI-2 sensor support"
 	depends on GPIOLIB && I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
 	depends on MEDIA_CAMERA_SUPPORT
 	depends on V4L2_FWNODE
 	help
-	  This is a Video4Linux2 sensor driver for the Sony
-	  IMX226 camera.
+	  This is a Video4Linux2 sensor driver for the Vision Components 
+	  MIPI CSI-2 cameras.
 
 	  To compile this driver as a module, choose M here: the
-	  module will be called imx226.
+	  module will be called vc-mipi-cam.
 
 config VIDEO_IMX258
 	tristate "Sony IMX258 sensor support"

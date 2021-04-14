@@ -5,7 +5,7 @@
  */
 #include "imx8-isi-hw.h"
 
-// #define TRACE printk("        TRACE [vc-mipi] imx8-isi-core.c --->  %s : %d", __FUNCTION__, __LINE__);
+// #define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-isi-core.c --->  %s : %d", __FUNCTION__, __LINE__);
 #define TRACE
 
 static const struct soc_device_attribute imx8_soc[] = {
