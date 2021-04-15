@@ -127,6 +127,7 @@ int vc_mipi_param_setup(struct vc_mipi_camera *camera)
 	camera->sen_pars.sensor_stop_table  = (struct sensor_reg *)imx226_stop;
 	camera->sen_pars.sensor_mode_table  = (struct sensor_reg *)imx226_mode_3840_3040;
 
+	camera->model = IMX226_MODEL_COLOR;
 	if(camera->model == IMX226_MODEL_MONOCHROME) {
 		camera->vc_mipi_data_fmts      = imx226_mono_fmts;
 		camera->vc_mipi_data_fmts_size = imx226_mono_fmts_size;
@@ -139,8 +140,8 @@ int vc_mipi_param_setup(struct vc_mipi_camera *camera)
 	camera->pix.width  = camera->sen_pars.frame_dx; // 640;
 	camera->pix.height = camera->sen_pars.frame_dy; // 480;
 
-	vc_mipi_valid_res[0].width  = camera->sen_pars.frame_dx;
-	vc_mipi_valid_res[0].height = camera->sen_pars.frame_dy;
+	// vc_mipi_valid_res[0].width  = camera->sen_pars.frame_dx;
+	// vc_mipi_valid_res[0].height = camera->sen_pars.frame_dy;
 
 	camera->sensor_ext_trig = 0;    // ext. trigger flag: 0=no, 1=yes
 
@@ -193,7 +194,7 @@ static int vc_mipi_probe(struct i2c_client *client)
 		return ret;
 	}
 
-	ret = vc_mipi_subdev_init(&camera->sd, client);
+	ret = vc_mipi_sd_init(&camera->sd, client);
 	if (ret)
 		goto free_ctrls;
 

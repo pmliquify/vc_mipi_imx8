@@ -8,6 +8,7 @@
  * Copyright (c) 2019 NXP Semiconductor
  *
  */
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -29,12 +30,11 @@
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
 
-#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-isi-cap.c --->  %s : %d", __FUNCTION__, __LINE__);
-// #define TRACE
-
 #define sd_to_cap_dev(ptr)	container_of(ptr, struct mxc_isi_cap_dev, sd)
 
 struct mxc_isi_fmt mxc_isi_out_formats[] = {
+// *** VC MIPI ****************************************************************
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	{
 		.name		= "Y8-RAW",
 		.fourcc		= V4L2_PIX_FMT_GREY,
@@ -155,7 +155,10 @@ struct mxc_isi_fmt mxc_isi_out_formats[] = {
 		.memplanes	= 1,
 		.colplanes	= 1,
 		.mbus_code  = MEDIA_BUS_FMT_SRGGB12_1X12,
-	}, {
+	}, 
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// ****************************************************************************
+	{
 		.name		= "RGB565",
 		.fourcc		= V4L2_PIX_FMT_RGB565,
 		.depth		= { 16 },
@@ -234,6 +237,15 @@ struct mxc_isi_fmt mxc_isi_out_formats[] = {
  * Pixel link input format
  */
 struct mxc_isi_fmt mxc_isi_src_formats[] = {
+// *** VC MIPI ****************************************************************
+	{
+		.name		= "SRGGB8-RAW",
+		.fourcc		= V4L2_PIX_FMT_SRGGB8,
+		.depth		= { 8 },
+		.memplanes	= 1,
+		.colplanes	= 1,
+	},
+// **************************************************************************** 
 	{
 		.name		= "RGB32",
 		.fourcc		= V4L2_PIX_FMT_RGB32,
@@ -264,8 +276,6 @@ struct mxc_isi_fmt *mxc_isi_find_format(const u32 *pixelformat,
 	unsigned int i;
 	int id = 0;
 
-	TRACE
-	
 	if (index >= (int)ARRAY_SIZE(mxc_isi_out_formats))
 		return NULL;
 
@@ -284,26 +294,26 @@ struct mxc_isi_fmt *mxc_isi_find_format(const u32 *pixelformat,
 
 struct mxc_isi_fmt *mxc_isi_get_src_fmt(struct v4l2_subdev_format *sd_fmt)
 {
-	u32 index;
+	// u32 index;
 
-	TRACE
+	// /* two fmt RGB32 and YUV444 from pixellink */
+	// if (sd_fmt->format.code == MEDIA_BUS_FMT_YUYV8_1X16 ||
+	//     sd_fmt->format.code == MEDIA_BUS_FMT_YVYU8_2X8 ||
+	//     sd_fmt->format.code == MEDIA_BUS_FMT_AYUV8_1X32 ||
+	//     sd_fmt->format.code == MEDIA_BUS_FMT_UYVY8_2X8 ||
+	//     sd_fmt->format.code == MEDIA_BUS_FMT_YUYV8_2X8)
+	// 	index = 1;
+	// else
+	// 	index = 0;
+	// return &mxc_isi_src_formats[index];
 
-	/* two fmt RGB32 and YUV444 from pixellink */
-	if (sd_fmt->format.code == MEDIA_BUS_FMT_YUYV8_1X16 ||
-	    sd_fmt->format.code == MEDIA_BUS_FMT_YVYU8_2X8 ||
-	    sd_fmt->format.code == MEDIA_BUS_FMT_AYUV8_1X32 ||
-	    sd_fmt->format.code == MEDIA_BUS_FMT_UYVY8_2X8 ||
-	    sd_fmt->format.code == MEDIA_BUS_FMT_YUYV8_2X8)
-		index = 1;
-	else
-		index = 0;
-	return &mxc_isi_src_formats[index];
+// *** VC MIPI ****************************************************************
+	return &mxc_isi_src_formats[0];
+// ****************************************************************************
 }
 
 static inline struct mxc_isi_buffer *to_isi_buffer(struct vb2_v4l2_buffer *v4l2_buf)
 {
-	TRACE
-
 	return container_of(v4l2_buf, struct mxc_isi_buffer, v4l2_buf);
 }
 
@@ -319,8 +329,6 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
 	struct v4l2_subdev *subdev;
 	int ret = 0;
 
-	TRACE
-
 	mutex_lock(&mdev->graph_mutex);
 
 	ret = media_graph_walk_init(&graph, entity->graph_obj.mdev);
@@ -332,24 +340,24 @@ static int mxc_isi_pipeline_enable(struct mxc_isi_cap_dev *isi_cap, bool enable)
 
 	while ((entity = media_graph_walk_next(&graph))) {
 		if (!entity) {
-			dev_dbg(dev, "[vc-mipi isi-cap] entity is NULL\n");
+			dev_dbg(dev, "entity is NULL\n");
 			continue;
 		}
 
 		if (!is_media_entity_v4l2_subdev(entity)) {
-			dev_dbg(dev, "[vc-mipi isi-cap] %s is no v4l2 subdev\n", entity->name);
+			dev_dbg(dev, "%s is no v4l2 subdev\n", entity->name);
 			continue;
 		}
 
 		subdev = media_entity_to_v4l2_subdev(entity);
 		if (!subdev) {
-			dev_dbg(dev, "[vc-mipi isi-cap] %s subdev is NULL\n", entity->name);
+			dev_dbg(dev, "%s subdev is NULL\n", entity->name);
 			continue;
 		}
 
 		ret = v4l2_subdev_call(subdev, video, s_stream, enable);
 		if (ret < 0 && ret != -ENOIOCTLCMD) {
-			dev_err(dev, "[vc-mipi isi-cap] subdev %s s_stream failed\n", subdev->name);
+			dev_err(dev, "subdev %s s_stream failed\n", subdev->name);
 			break;
 		}
 	}
@@ -363,8 +371,6 @@ static int mxc_isi_update_buf_paddr(struct mxc_isi_buffer *buf, int memplanes)
 {
 	struct frame_addr *paddr = &buf->paddr;
 	struct vb2_buffer *vb2 = &buf->v4l2_buf.vb2_buf;
-
-	TRACE
 
 	paddr->cb = 0;
 	paddr->cr = 0;
@@ -393,10 +399,8 @@ void mxc_isi_cap_frame_write_done(struct mxc_isi_dev *mxc_isi)
 	struct mxc_isi_buffer *buf;
 	struct vb2_buffer *vb2;
 
-	TRACE
-
 	if (list_empty(&isi_cap->out_active)) {
-		dev_warn(dev, "[vc-mipi isi-cap] trying to access empty active list\n");
+		dev_warn(dev, "trying to access empty active list\n");
 		return;
 	}
 
@@ -408,7 +412,7 @@ void mxc_isi_cap_frame_write_done(struct mxc_isi_dev *mxc_isi)
 	 */
 	if ((is_buf_active(mxc_isi, 1) && buf->id == MXC_ISI_BUF1) ||
 	    (is_buf_active(mxc_isi, 2) && buf->id == MXC_ISI_BUF2)) {
-		dev_dbg(dev, "[vc-mipi isi-cap] status=0x%x id=%d\n", mxc_isi->status, buf->id);
+		dev_dbg(dev, "status=0x%x id=%d\n", mxc_isi->status, buf->id);
 		return;
 	}
 
@@ -425,7 +429,7 @@ void mxc_isi_cap_frame_write_done(struct mxc_isi_dev *mxc_isi)
 
 	if (list_empty(&isi_cap->out_pending)) {
 		if (list_empty(&isi_cap->out_discard)) {
-			dev_warn(dev, "[vc-mipi isi-cap] trying to access empty discard list\n");
+			dev_warn(dev, "trying to access empty discard list\n");
 			return;
 		}
 
@@ -458,8 +462,6 @@ static int cap_vb2_queue_setup(struct vb2_queue *q,
 	unsigned long wh;
 	int i;
 
-	TRACE
-	
 	if (!fmt)
 		return -EINVAL;
 
@@ -477,7 +479,7 @@ static int cap_vb2_queue_setup(struct vb2_queue *q,
 			size >>= 1;
 		sizes[i] = max_t(u32, size, dst_f->sizeimage[i]);
 	}
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s, buf_n=%d, size=%d\n",
+	dev_dbg(&isi_cap->pdev->dev, "%s, buf_n=%d, size=%d\n",
 		__func__, *num_buffers, sizes[0]);
 
 	return 0;
@@ -490,9 +492,7 @@ static int cap_vb2_buffer_prepare(struct vb2_buffer *vb2)
 	struct mxc_isi_frame *dst_f = &isi_cap->dst_f;
 	int i;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	if (!isi_cap->dst_f.fmt)
 		return -EINVAL;
@@ -502,7 +502,7 @@ static int cap_vb2_buffer_prepare(struct vb2_buffer *vb2)
 
 		if (vb2_plane_size(vb2, i) < size) {
 			v4l2_err(&isi_cap->vdev,
-				 "[vc-mipi isi-cap] User buffer too small (%ld < %ld)\n",
+				 "User buffer too small (%ld < %ld)\n",
 				 vb2_plane_size(vb2, i), size);
 			return -EINVAL;
 		}
@@ -519,8 +519,6 @@ static void cap_vb2_buffer_queue(struct vb2_buffer *vb2)
 	struct mxc_isi_buffer *buf = to_isi_buffer(v4l2_buf);
 	struct mxc_isi_cap_dev *isi_cap = vb2_get_drv_priv(vb2->vb2_queue);
 	unsigned long flags;
-
-	TRACE
 
 	spin_lock_irqsave(&isi_cap->slock, flags);
 
@@ -539,9 +537,7 @@ static int cap_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 	unsigned long flags;
 	int i, j;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	if (count < 2)
 		return -ENOBUFS;
@@ -564,12 +560,12 @@ static int cap_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 						  isi_cap->discard_buffer[j],
 						  isi_cap->discard_buffer_dma[j]);
 				dev_err(&isi_cap->pdev->dev,
-					"[vc-mipi isi-cap] alloc dma buffer(%d) fail\n", j);
+					"alloc dma buffer(%d) fail\n", j);
 			}
 			return -ENOMEM;
 		}
 		dev_dbg(&isi_cap->pdev->dev,
-			"[vc-mipi isi-cap] %s: num_plane=%d discard_size=%d discard_buffer=%p\n"
+			"%s: num_plane=%d discard_size=%d discard_buffer=%p\n"
 			, __func__, i,
 			(int)isi_cap->discard_size[i],
 			isi_cap->discard_buffer[i]);
@@ -615,9 +611,7 @@ static void cap_vb2_stop_streaming(struct vb2_queue *q)
 	unsigned long flags;
 	int i;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	mxc_isi_channel_disable(mxc_isi);
 
@@ -695,9 +689,7 @@ static int mxc_isi_s_ctrl(struct v4l2_ctrl *ctrl)
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_cap->pdev);
 	unsigned long flags;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	if (ctrl->flags & V4L2_CTRL_FLAG_INACTIVE)
 		return 0;
@@ -726,7 +718,7 @@ static int mxc_isi_s_ctrl(struct v4l2_ctrl *ctrl)
 
 	default:
 		dev_err(&isi_cap->pdev->dev,
-			"[vc-mipi isi-cap] %s: Not support %d CID\n", __func__, ctrl->id);
+			"%s: Not support %d CID\n", __func__, ctrl->id);
 		return -EINVAL;
 	}
 
@@ -742,8 +734,6 @@ int mxc_isi_ctrls_create(struct mxc_isi_cap_dev *isi_cap)
 {
 	struct mxc_isi_ctrls *ctrls = &isi_cap->ctrls;
 	struct v4l2_ctrl_handler *handler = &ctrls->handler;
-
-	TRACE
 
 	if (isi_cap->ctrls.ready)
 		return 0;
@@ -768,8 +758,6 @@ void mxc_isi_ctrls_delete(struct mxc_isi_cap_dev *isi_cap)
 {
 	struct mxc_isi_ctrls *ctrls = &isi_cap->ctrls;
 
-	TRACE
-
 	if (ctrls->ready) {
 		v4l2_ctrl_handler_free(&ctrls->handler);
 		ctrls->ready = false;
@@ -779,13 +767,10 @@ void mxc_isi_ctrls_delete(struct mxc_isi_cap_dev *isi_cap)
 #endif
 
 static struct media_pad
-*mxc_isi_get_remote_source_pad(struct mxc_isi_cap_dev *isi_cap)
+*mxc_isi_get_remote_source_pad(struct v4l2_subdev *subdev)
 {
-	struct v4l2_subdev *subdev = &isi_cap->sd;
 	struct media_pad *sink_pad, *source_pad;
 	int i;
-
-	// TRACE
 
 	while (1) {
 		source_pad = NULL;
@@ -803,35 +788,30 @@ static struct media_pad
 	}
 
 	if (i == subdev->entity.num_pads)
-		v4l2_err(subdev, "[vc-mipi isi-cap] (%d): No remote pad found!\n", __LINE__);
+		v4l2_err(subdev, "(%d): No remote pad found!\n", __LINE__);
 
 	return NULL;
 }
 
-static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_isi_cap_dev *isi_cap,
+static struct v4l2_subdev *mxc_get_remote_subdev(struct v4l2_subdev *subdev,
 						 const char * const label)
 {
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
 
-	// TRACE
-
 	/* Get remote source pad */
-	source_pad = mxc_isi_get_remote_source_pad(isi_cap);
+	source_pad = mxc_isi_get_remote_source_pad(subdev);
 	if (!source_pad) {
-		v4l2_err(&isi_cap->sd,
-			 "[vc-mipi isi-cap] %s, No remote pad found!\n", label);
+		v4l2_err(subdev, "%s, No remote pad found!\n", label);
 		return NULL;
 	}
 
 	/* Get remote source pad subdev */
 	sen_sd = media_entity_to_v4l2_subdev(source_pad->entity);
 	if (!sen_sd) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] %s, No remote subdev found!\n", label);
+		v4l2_err(subdev, "%s, No remote subdev found!\n", label);
 		return NULL;
 	}
-
-	//printk("[vc-mipi] sen_sd: %s", sen_sd->name);
 
 	return sen_sd;
 }
@@ -844,14 +824,12 @@ static int mxc_isi_capture_open(struct file *file)
 	struct v4l2_subdev *sd;
 	int ret = -EBUSY;
 
-	TRACE
-
 	if (mxc_isi->m2m_enabled) {
-		dev_err(dev, "[vc-mipi isi-cap] ISI channel[%d] is busy\n", isi_cap->id);
+		dev_err(dev, "ISI channel[%d] is busy\n", isi_cap->id);
 		return ret;
 	}
 
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -ENODEV;
 
@@ -867,7 +845,7 @@ static int mxc_isi_capture_open(struct file *file)
 
 	ret = v4l2_subdev_call(sd, core, s_power, 1);
 	if (ret) {
-		dev_err(dev, "[vc-mipi isi-cap] Call subdev s_power fail!\n");
+		dev_err(dev, "Call subdev s_power fail!\n");
 		pm_runtime_put(dev);
 		return ret;
 	}
@@ -889,16 +867,14 @@ static int mxc_isi_capture_release(struct file *file)
 	struct v4l2_subdev *sd;
 	int ret = -1;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		goto label;
 
 	mutex_lock(&isi_cap->lock);
 	ret = _vb2_fop_release(file, NULL);
 	if (ret) {
-		dev_err(dev, "[vc-mipi isi-cap] %s fail\n", __func__);
+		dev_err(dev, "%s fail\n", __func__);
 		mutex_unlock(&isi_cap->lock);
 		goto label;
 	}
@@ -910,7 +886,7 @@ static int mxc_isi_capture_release(struct file *file)
 
 	ret = v4l2_subdev_call(sd, core, s_power, 0);
 	if (ret < 0 && ret != -ENOIOCTLCMD) {
-		dev_err(dev, "[vc-mipi isi-cap] %s s_power fail\n", __func__);
+		dev_err(dev, "%s s_power fail\n", __func__);
 		goto label;
 	}
 
@@ -936,8 +912,6 @@ static int mxc_isi_cap_querycap(struct file *file, void *priv,
 {
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 
-	TRACE
-
 	strlcpy(cap->driver, MXC_ISI_CAPTURE, sizeof(cap->driver));
 	strlcpy(cap->card, MXC_ISI_CAPTURE, sizeof(cap->card));
 	snprintf(cap->bus_info, sizeof(cap->bus_info), "platform:%s.%d",
@@ -955,10 +929,7 @@ static int mxc_isi_cap_enum_fmt(struct file *file, void *priv,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct mxc_isi_fmt *fmt;
 
-	TRACE
-	// dev_info(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 	if (f->index >= (int)ARRAY_SIZE(mxc_isi_out_formats))
 		return -EINVAL;
 
@@ -981,9 +952,7 @@ static int mxc_isi_cap_g_fmt_mplane(struct file *file, void *fh,
 	struct mxc_isi_frame *dst_f = &isi_cap->dst_f;
 	int i;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	pix->width = dst_f->o_width;
 	pix->height = dst_f->o_height;
@@ -1008,9 +977,7 @@ static int mxc_isi_cap_try_fmt_mplane(struct file *file, void *fh,
 	struct mxc_isi_fmt *fmt;
 	int i;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	for (i = 0; i < ARRAY_SIZE(mxc_isi_out_formats); i++) {
 		fmt = &mxc_isi_out_formats[i];
@@ -1019,13 +986,13 @@ static int mxc_isi_cap_try_fmt_mplane(struct file *file, void *fh,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] format(%.4s) is not support!\n",
+		v4l2_err(&isi_cap->sd, "format(%.4s) is not support!\n",
 			 (char *)&pix->pixelformat);
 		return -EINVAL;
 	}
 
 	if (pix->width <= 0 || pix->height <= 0) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] %s, W/H=(%d, %d) is not valid\n"
+		v4l2_err(&isi_cap->sd, "%s, W/H=(%d, %d) is not valid\n"
 			, __func__, pix->width, pix->height);
 		return -EINVAL;
 	}
@@ -1043,21 +1010,22 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	struct v4l2_subdev *src_sd;
 	int ret;
 
-	TRACE
+	v4l2_err(&isi_cap->sd, "%s\n", __FUNCTION__);
 
-	source_pad = mxc_isi_get_remote_source_pad(isi_cap);
+	source_pad = mxc_isi_get_remote_source_pad(&isi_cap->sd);
 	if (!source_pad) {
 		v4l2_err(&isi_cap->sd,
-			 "[vc-mipi isi-cap] %s, No remote pad found!\n", __func__);
+			 "%s, No remote pad found!\n", __func__);
 		return -EINVAL;
 	}
 
-	src_sd = mxc_get_remote_subdev(isi_cap, __func__);
+	src_sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!src_sd)
 		return -EINVAL;
 
-	printk("[vc-mipi] src_sd = %s\n", src_sd->name);
 
+	// VC MIPI 
+	// Wozu wir hier das Format gesetzt?
 	src_fmt.pad = source_pad->index;
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
 	src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_2X8;
@@ -1065,7 +1033,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	src_fmt.format.height = dst_f->height;
 	ret = v4l2_subdev_call(src_sd, pad, set_fmt, NULL, &src_fmt);
 	if (ret < 0 && ret != -ENOIOCTLCMD) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] set remote fmt fail!\n");
+		v4l2_err(&isi_cap->sd, "set remote fmt fail!\n");
 		return ret;
 	}
 
@@ -1074,7 +1042,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
 	ret = v4l2_subdev_call(src_sd, pad, get_fmt, NULL, &src_fmt);
 	if (ret < 0 && ret != -ENOIOCTLCMD) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] get remote fmt fail!\n");
+		v4l2_err(&isi_cap->sd, "get remote fmt fail!\n");
 		return ret;
 	}
 
@@ -1085,7 +1053,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 
 	if (dst_f->width > src_f->width || dst_f->height > src_f->height) {
 		dev_err(&isi_cap->pdev->dev,
-			"[vc-mipi isi-cap] %s: src:(%d,%d), dst:(%d,%d) Not support upscale\n",
+			"%s: src:(%d,%d), dst:(%d,%d) Not support upscale\n",
 			__func__,
 			src_f->width, src_f->height,
 			dst_f->width, dst_f->height);
@@ -1102,12 +1070,8 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
 	struct mxc_isi_frame *dst_f = &isi_cap->dst_f;
 	struct mxc_isi_fmt *fmt;
-	struct v4l2_subdev *sd;
-	int ret;
 	int bpl;
 	int i;
-
-	TRACE
 
 	/* Step1: Check format with output support format list.
 	 * Step2: Update output frame information.
@@ -1118,11 +1082,9 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	 * Step5: Update mxc isi channel configuration.
 	 */
 
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s, fmt=0x%X\n", __func__, pix->pixelformat);
+	dev_dbg(&isi_cap->pdev->dev, "%s, fmt=0x%X\n", __func__, pix->pixelformat);
 	if (vb2_is_busy(&isi_cap->vb2_q))
 		return -EBUSY;
-
-	printk("[vc-mipi] Step1: Check format with output support format list.");
 
 	/* Check out put format */
 	for (i = 0; i < ARRAY_SIZE(mxc_isi_out_formats); i++) {
@@ -1133,15 +1095,13 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
 		dev_dbg(&isi_cap->pdev->dev,
-			"[vc-mipi isi-cap] format(%.4s) is not support!\n", (char *)&pix->pixelformat);
+			"format(%.4s) is not support!\n", (char *)&pix->pixelformat);
 		return -EINVAL;
 	}
 
 	/* update out put frame size and formate */
 	if (pix->height <= 0 || pix->width <= 0)
 		return -EINVAL;
-
-	printk("[vc-mipi] Step2: Update output frame information.\n");
 
 	dst_f->fmt = fmt;
 	dst_f->height = pix->height;
@@ -1179,60 +1139,6 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	memcpy(&isi_cap->pix, pix, sizeof(*pix));
 	set_frame_bounds(dst_f, pix->width, pix->height);
 
-	// struct v4l2_pix_format_mplane {
-	// 	__u32				width;
-	// 	__u32				height;
-	// 	__u32				pixelformat;
-	// 	__u32				field;
-	// 	__u32				colorspace;
-
-	// 	struct v4l2_plane_pix_format	plane_fmt[VIDEO_MAX_PLANES];
-	// 	__u8				num_planes;
-	// 	__u8				flags;
-	// 	union {
-	// 		__u8				ycbcr_enc;
-	// 		__u8				hsv_enc;
-	// 	};
-	// 	__u8				quantization;
-	// 	__u8				xfer_func;
-	// 	__u8				reserved[7];
-	// } __attribute__ ((packed));
-	printk("[vc-mipi] width=%u, height=%u, pixelformat=%u, field=%u\n", 
-		pix->width, pix->height, pix->pixelformat, pix->field);
-	printk("[vc-mipi] num_planes=%u, flags=%u, quantization=%u\n", 
-		pix->num_planes, pix->flags, pix->quantization);
-
-// 	struct mxc_isi_frame {
-// 		u32	o_width;
-// 		u32	o_height;
-// 		u32	c_width;
-// 		u32	c_height;
-// 		u32	h_off;
-// 		u32	v_off;
-// 		u32	width;
-// 		u32	height;
-// 		unsigned int	sizeimage[MXC_MAX_PLANES];
-// 		unsigned int	bytesperline[MXC_MAX_PLANES];
-// 		struct mxc_isi_fmt	*fmt;
-// }	;
-	printk("[vc-mipi] o_width=%u, o_height=%u, c_width=%u, c_height=%u\n", 
-		dst_f->o_width, dst_f->o_height, dst_f->c_width, dst_f->c_height);
-	printk("[vc-mipi] Step3: Checkout the format whether is supported by remote subdev\n");
-
-	/* Step3: Checkout the format whether is supported by remote subdev
-	 *	 Step3.1: If Yes, call remote subdev set_fmt.
-	 *	 Step3.2: If NO, call remote subdev get_fmt.
-	 * Step4: Update input frame information.
-	 * Step5: Update mxc isi channel configuration.
-	 */
-	// sd = mxc_get_remote_subdev(isi_cap, __func__);
-	// if (!sd)
-	// 	return -EINVAL;
-
-	// ret = v4l2_subdev_call(sd, pad, enum_frame_interval, NULL, &fie);
-	// if (ret)
-	// 	return ret;
-
 	return 0;
 }
 
@@ -1240,8 +1146,6 @@ static int mxc_isi_config_parm(struct mxc_isi_cap_dev *isi_cap)
 {
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_cap->pdev);
 	int ret;
-
-	TRACE
 
 	ret = mxc_isi_source_fmt_init(isi_cap);
 	if (ret < 0)
@@ -1259,9 +1163,7 @@ static int mxc_isi_cap_g_parm(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -ENODEV;
 
@@ -1274,9 +1176,7 @@ static int mxc_isi_cap_s_parm(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -ENODEV;
 
@@ -1291,9 +1191,8 @@ static int mxc_isi_cap_streamon(struct file *file, void *priv,
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_cap->pdev);
 	int ret;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	v4l2_err(&isi_cap->sd, "%s\n", __FUNCTION__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	ret = mxc_isi_config_parm(isi_cap);
 	if (ret < 0)
@@ -1317,9 +1216,7 @@ static int mxc_isi_cap_streamoff(struct file *file, void *priv,
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_cap->pdev);
 	int ret;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	mxc_isi_pipeline_enable(isi_cap, 0);
 	mxc_isi_channel_disable(mxc_isi);
@@ -1336,9 +1233,7 @@ static int mxc_isi_cap_g_selection(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct mxc_isi_frame *f = &isi_cap->src_f;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		return -EINVAL;
@@ -1372,8 +1267,6 @@ static int mxc_isi_cap_g_selection(struct file *file, void *fh,
 
 static int enclosed_rectangle(struct v4l2_rect *a, struct v4l2_rect *b)
 {
-	TRACE
-
 	if (a->left < b->left || a->top < b->top)
 		return 0;
 
@@ -1394,9 +1287,7 @@ static int mxc_isi_cap_s_selection(struct file *file, void *fh,
 	struct v4l2_rect rect = s->r;
 	unsigned long flags;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		return -EINVAL;
 
@@ -1437,16 +1328,14 @@ static int mxc_isi_cap_enum_framesizes(struct file *file, void *priv,
 	};
 	int ret;
 
-	TRACE
-
 	fmt = mxc_isi_find_format(&fsize->pixel_format, NULL, 0);
 	if (!fmt || fmt->fourcc != fsize->pixel_format)
 		return -EINVAL;
 	fse.code = fmt->mbus_code;
 
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd) {
-		v4l2_err(&isi_cap->sd, "[vc-mipi isi-cap] Can't find subdev\n");
+		v4l2_err(&isi_cap->sd, "Can't find subdev\n");
 		return -ENODEV;
 	}
 
@@ -1455,7 +1344,7 @@ static int mxc_isi_cap_enum_framesizes(struct file *file, void *priv,
 		return ret;
 
 	parent = of_get_parent(isi_cap->pdev->dev.of_node);
-	if ((of_device_is_compatible(parent, "fsl,imx8mn-isi")) &&
+	if ((of_device_is_compatible(parent, "fsl,imx8m-isi")) &&
 	    (fse.max_width > ISI_2K || fse.min_width > ISI_2K))
 		return -EINVAL;
 
@@ -1493,14 +1382,12 @@ static int mxc_isi_cap_enum_frameintervals(struct file *file, void *fh,
 	};
 	int ret;
 
-	TRACE
-
 	fmt = mxc_isi_find_format(&interval->pixel_format, NULL, 0);
 	if (!fmt || fmt->fourcc != interval->pixel_format)
 		return -EINVAL;
 	fie.code = fmt->mbus_code;
 
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1526,9 +1413,7 @@ static int mxc_vidioc_queryctrl(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	// TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1542,8 +1427,6 @@ static int mxc_vidioc_query_ext_ctrl(struct file *file, void *fh,
 		.id = qec->id
 	};
 	int ret;
-
-	// TRACE
 
 	ret = mxc_vidioc_queryctrl(file, fh, &qc);
 
@@ -1573,9 +1456,7 @@ static int mxc_isi_vidioc_querymenu(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1588,9 +1469,7 @@ static int mxc_isi_vidioc_g_ctrl(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1603,9 +1482,7 @@ static int mxc_isi_vidioc_s_ctrl(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1618,9 +1495,7 @@ static int mxc_isi_vidioc_g_ext_ctrls(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1633,9 +1508,7 @@ static int mxc_isi_vidioc_try_ext_ctrls(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1648,9 +1521,7 @@ static int mxc_isi_vidioc_s_ext_ctrls(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct v4l2_subdev *sd;
 
-	TRACE
-
-	sd = mxc_get_remote_subdev(isi_cap, __func__);
+	sd = mxc_get_remote_subdev(&isi_cap->sd, __func__);
 	if (!sd)
 		return -EINVAL;
 
@@ -1705,8 +1576,6 @@ static int mxc_isi_link_setup(struct media_entity *entity,
 	struct v4l2_subdev *sd = media_entity_to_v4l2_subdev(entity);
 	struct mxc_isi_cap_dev *isi_cap = v4l2_get_subdevdata(sd);
 
-	TRACE
-
 	if (WARN_ON(!isi_cap))
 		return 0;
 
@@ -1722,7 +1591,7 @@ static int mxc_isi_link_setup(struct media_entity *entity,
 		case MXC_ISI_SD_PAD_SOURCE_MEM:
 			break;
 		default:
-			dev_err(&isi_cap->pdev->dev, "[vc-mipi isi-cap] invalid source pad\n");
+			dev_err(&isi_cap->pdev->dev, "invalid source pad\n");
 			return -EINVAL;
 		}
 	} else if (local->flags & MEDIA_PAD_FL_SINK) {
@@ -1743,7 +1612,7 @@ static int mxc_isi_link_setup(struct media_entity *entity,
 			break;
 		default:
 			dev_err(&isi_cap->pdev->dev,
-				"[vc-mipi isi-cap] %s invalid sink pad\n", __func__);
+				"%s invalid sink pad\n", __func__);
 			return -EINVAL;
 		}
 	}
@@ -1759,7 +1628,6 @@ static int mxc_isi_subdev_enum_mbus_code(struct v4l2_subdev *sd,
 					 struct v4l2_subdev_pad_config *cfg,
 					 struct v4l2_subdev_mbus_code_enum *code)
 {
-	TRACE
 	return 0;
 }
 
@@ -1770,8 +1638,6 @@ static int mxc_isi_subdev_get_fmt(struct v4l2_subdev *sd,
 	struct mxc_isi_cap_dev *isi_cap = v4l2_get_subdevdata(sd);
 	struct mxc_isi_frame *f;
 	struct v4l2_mbus_framefmt *mf = &fmt->format;
-
-	TRACE
 
 	mutex_lock(&isi_cap->lock);
 
@@ -1798,7 +1664,7 @@ static int mxc_isi_subdev_get_fmt(struct v4l2_subdev *sd,
 	default:
 		mutex_unlock(&isi_cap->lock);
 		v4l2_err(&isi_cap->sd,
-			 "[vc-mipi isi-cap] %s, Pad is not support now!\n", __func__);
+			 "%s, Pad is not support now!\n", __func__);
 		return -1;
 	}
 
@@ -1826,8 +1692,6 @@ static int mxc_isi_subdev_set_fmt(struct v4l2_subdev *sd,
 	struct mxc_isi_fmt *out_fmt;
 	int i;
 
-	TRACE
-
 	if (fmt->pad < MXC_ISI_SD_PAD_SOURCE_MEM &&
 	    vb2_is_busy(&isi_cap->vb2_q))
 		return -EBUSY;
@@ -1839,7 +1703,7 @@ static int mxc_isi_subdev_set_fmt(struct v4l2_subdev *sd,
 	}
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
 		v4l2_err(&isi_cap->sd,
-			 "[vc-mipi isi-cap] %s, format is not support!\n", __func__);
+			 "%s, format is not support!\n", __func__);
 		return -EINVAL;
 	}
 
@@ -1854,7 +1718,7 @@ static int mxc_isi_subdev_set_fmt(struct v4l2_subdev *sd,
 	set_frame_bounds(dst_f, mf->width, mf->height);
 	mutex_unlock(&isi_cap->lock);
 
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] pad%d: code: 0x%x, %dx%d",
+	dev_dbg(&isi_cap->pdev->dev, "pad%d: code: 0x%x, %dx%d",
 		fmt->pad, mf->code, mf->width, mf->height);
 
 	return 0;
@@ -1868,8 +1732,6 @@ static int mxc_isi_subdev_get_selection(struct v4l2_subdev *sd,
 	struct mxc_isi_frame *f = &isi_cap->src_f;
 	struct v4l2_rect *r = &sel->r;
 	struct v4l2_rect *try_sel;
-
-	TRACE
 
 	mutex_lock(&isi_cap->lock);
 
@@ -1907,7 +1769,7 @@ static int mxc_isi_subdev_get_selection(struct v4l2_subdev *sd,
 	}
 
 	dev_dbg(&isi_cap->pdev->dev,
-		"[vc-mipi isi-cap] %s, target %#x: l:%d, t:%d, %dx%d, f_w: %d, f_h: %d",
+		"%s, target %#x: l:%d, t:%d, %dx%d, f_w: %d, f_h: %d",
 		__func__, sel->pad, r->left, r->top, r->width, r->height,
 		f->c_width, f->c_height);
 
@@ -1924,8 +1786,6 @@ static int mxc_isi_subdev_set_selection(struct v4l2_subdev *sd,
 	struct v4l2_rect *r = &sel->r;
 	struct v4l2_rect *try_sel;
 	unsigned long flags;
-
-	TRACE
 
 	mutex_lock(&isi_cap->lock);
 
@@ -1950,7 +1810,7 @@ static int mxc_isi_subdev_set_selection(struct v4l2_subdev *sd,
 		spin_unlock_irqrestore(&isi_cap->slock, flags);
 	}
 
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s, target %#x: (%d,%d)/%dx%d", __func__,
+	dev_dbg(&isi_cap->pdev->dev, "%s, target %#x: (%d,%d)/%dx%d", __func__,
 		sel->target, r->left, r->top, r->width, r->height);
 
 	mutex_unlock(&isi_cap->lock);
@@ -1977,9 +1837,7 @@ static int mxc_isi_register_cap_device(struct mxc_isi_cap_dev *isi_cap,
 	struct vb2_queue *q = &isi_cap->vb2_q;
 	int ret = -ENOMEM;
 
-	TRACE
-
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 	memset(vdev, 0, sizeof(*vdev));
 	snprintf(vdev->name, sizeof(vdev->name), "mxc_isi.%d.capture", isi_cap->id);
 
@@ -2037,7 +1895,7 @@ static int mxc_isi_register_cap_device(struct mxc_isi_cap_dev *isi_cap,
 #ifndef CONFIG_VIDEO_ECAM
 	vdev->ctrl_handler = &isi_cap->ctrls.handler;
 #endif
-	v4l2_info(v4l2_dev, "[vc-mipi isi-cap] Registered %s as /dev/%s\n",
+	v4l2_info(v4l2_dev, "Registered %s as /dev/%s\n",
 		  vdev->name, video_device_node_name(vdev));
 
 	return 0;
@@ -2057,12 +1915,10 @@ static int mxc_isi_subdev_registered(struct v4l2_subdev *sd)
 	struct mxc_isi_cap_dev *isi_cap = sd_to_cap_dev(sd);
 	int ret;
 
-	TRACE
-
 	if (!isi_cap)
 		return -ENXIO;
 
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	ret = mxc_isi_register_cap_device(isi_cap, sd->v4l2_dev);
 	if (ret < 0)
@@ -2076,12 +1932,10 @@ static void mxc_isi_subdev_unregistered(struct v4l2_subdev *sd)
 	struct mxc_isi_cap_dev *isi_cap = v4l2_get_subdevdata(sd);
 	struct video_device *vdev;
 
-	TRACE
-
 	if (!isi_cap)
 		return;
 
-	dev_dbg(&isi_cap->pdev->dev, "[vc-mipi isi-cap] %s\n", __func__);
+	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	mutex_lock(&isi_cap->lock);
 	vdev = &isi_cap->vdev;
@@ -2109,25 +1963,21 @@ static int isi_cap_probe(struct platform_device *pdev)
 	struct v4l2_subdev *sd;
 	int ret;
 
-	TRACE
-
 	isi_cap = devm_kzalloc(dev, sizeof(*isi_cap), GFP_KERNEL);
 	if (!isi_cap)
 		return -ENOMEM;
 
 	dev->parent = mxc_isi_dev_get_parent(pdev);
 	if (!dev->parent) {
-		dev_info(dev, "[vc-mipi isi-cap] deferring %s device registration\n", dev_name(dev));
+		dev_info(dev, "deferring %s device registration\n", dev_name(dev));
 		return -EPROBE_DEFER;
 	}
 
 	mxc_isi = mxc_isi_get_hostdata(pdev);
 	if (!mxc_isi) {
-		dev_info(dev, "[vc-mipi isi-cap] deferring %s device registration\n", dev_name(dev));
+		dev_info(dev, "deferring %s device registration\n", dev_name(dev));
 		return -EPROBE_DEFER;
 	}
-
-	//printk("[vc-mipi] pdev: %s, parent: %s, mxc_isi: %s", pdev->name, dev->parent->name, mxc_isi->pdev->name);
 
 	isi_cap->pdev = pdev;
 	isi_cap->id = mxc_isi->id;
@@ -2182,8 +2032,6 @@ static int isi_cap_remove(struct platform_device *pdev)
 	struct mxc_isi_cap_dev *isi_cap = platform_get_drvdata(pdev);
 	struct v4l2_subdev *sd = &isi_cap->sd;
 
-	TRACE
-	
 	v4l2_device_unregister_subdev(sd);
 	media_entity_cleanup(&sd->entity);
 	v4l2_set_subdevdata(sd, NULL);

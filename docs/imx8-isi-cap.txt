@@ -78,8 +78,8 @@ mxc-mipi-csi2.1 <                               static int mxc_isi_capture_relea
 
 FMT  f = mxc_isi_out_formats[]                  static int      mxc_isi_cap_enum_fmt            (struct file *file, void *priv, struct v4l2_fmtdesc *f)
 FMT  f in mxc_isi_out_formats[]?                static int      mxc_isi_cap_try_fmt_mplane      (struct file *file, void *fh, struct v4l2_format *f)
-FMT                                             static int      mxc_isi_cap_s_fmt_mplane        (struct file *file, void *priv, struct v4l2_format *f)
-FMT                                             static int      mxc_isi_cap_g_fmt_mplane        (struct file *file, void *fh, struct v4l2_format *f)
+FMT  dst_f = mxc_isi_out_formats[]              static int      mxc_isi_cap_s_fmt_mplane        (struct file *file, void *priv, struct v4l2_format *f)
+FMT  f = dst_f                                  static int      mxc_isi_cap_g_fmt_mplane        (struct file *file, void *fh, struct v4l2_format *f)
 
                                                 vb2_ioctl_reqbufs
                                                 vb2_ioctl_querybuf
@@ -94,7 +94,7 @@ mxc-mipi-csi2.1 <                               static int      mxc_isi_cap_s_pa
 
                                                 static int      mxc_isi_cap_streamon            (struct file *file, void *priv, enum v4l2_buf_type type)
                                                         static int      mxc_isi_config_parm             (struct mxc_isi_cap_dev *isi_cap)   
-mxc-mipi-csi2.1 <                                               static int      mxc_isi_source_fmt_init         (struct mxc_isi_cap_dev *isi_cap)                       // ruft subdev auf um ein src_fmt zu setzen und wieder abzurufen.
+mxc-mipi-csi2.1 <  ******                                       static int      mxc_isi_source_fmt_init         (struct mxc_isi_cap_dev *isi_cap)                       // ruft subdev auf um ein src_fmt zu setzen und wieder abzurufen.
                                                                         struct mxc_isi_fmt *mxc_isi_get_src_fmt(struct v4l2_subdev_format *sd_fmt)
                                                                 static int      mxc_isi_pipeline_enable         (struct mxc_isi_cap_dev *isi_cap, bool enable)
 

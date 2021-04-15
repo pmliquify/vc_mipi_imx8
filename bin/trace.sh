@@ -1,5 +1,7 @@
 #/bin/bash
 #
+clear
+
 . config/configure.sh $1
 
 TARGET_DIR=/home/root

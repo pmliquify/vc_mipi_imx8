@@ -8,6 +8,7 @@
  * Copyright (c) 2019 NXP Semiconductor
  *
  */
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
@@ -28,9 +29,6 @@
 
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
-
-#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-isi-m2m.c --->  %s : %d", __FUNCTION__, __LINE__);
-// #define TRACE
 
 #define to_isi_buffer(x)	\
 	container_of((x), struct mxc_isi_buffer, v4l2_buf)
@@ -86,8 +84,6 @@ struct mxc_isi_fmt mxc_isi_input_formats[] = {
 
 static struct v4l2_m2m_buffer *to_v4l2_m2m_buffer(struct vb2_v4l2_buffer *vbuf)
 {
-	TRACE
-	
 	struct v4l2_m2m_buffer *b;
 
 	b = container_of(vbuf, struct v4l2_m2m_buffer, vb);
@@ -96,8 +92,6 @@ static struct v4l2_m2m_buffer *to_v4l2_m2m_buffer(struct vb2_v4l2_buffer *vbuf)
 
 void mxc_isi_m2m_frame_write_done(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_isi->isi_m2m;
 	struct v4l2_fh *fh;
 	struct mxc_isi_ctx *curr_mxc_ctx;
@@ -105,25 +99,25 @@ void mxc_isi_m2m_frame_write_done(struct mxc_isi_dev *mxc_isi)
 	struct mxc_isi_buffer *src_buf, *dst_buf;
 	struct v4l2_m2m_buffer *b;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	curr_mxc_ctx = v4l2_m2m_get_curr_priv(isi_m2m->m2m_dev);
 	if (!curr_mxc_ctx) {
 		dev_err(&isi_m2m->pdev->dev,
-			"[vc-mipi isi-m2m] Instance released before the end of transaction\n");
+			"Instance released before the end of transaction\n");
 		return;
 	}
 	fh = &curr_mxc_ctx->fh;
 
 	if (isi_m2m->aborting) {
 		mxc_isi_channel_disable(mxc_isi);
-		dev_warn(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] Aborting current job\n");
+		dev_warn(&isi_m2m->pdev->dev, "Aborting current job\n");
 		goto job_finish;
 	}
 
 	src_vbuf = v4l2_m2m_next_src_buf(fh->m2m_ctx);
 	if (!src_vbuf) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] No enought source buffers\n");
+		dev_err(&isi_m2m->pdev->dev, "No enought source buffers\n");
 		goto job_finish;
 	}
 	src_buf = to_isi_buffer(src_vbuf);
@@ -158,8 +152,6 @@ job_finish:
 
 static void mxc_isi_m2m_device_run(void *priv)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = priv;
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
@@ -168,14 +160,14 @@ static void mxc_isi_m2m_device_run(void *priv)
 	struct mxc_isi_buffer *src_buf;
 	unsigned long flags;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s enter\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s enter\n", __func__);
 
 	spin_lock_irqsave(&isi_m2m->slock, flags);
 
 	/* SRC */
 	vbuf = v4l2_m2m_next_src_buf(fh->m2m_ctx);
 	if (!vbuf) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] Null src buf\n");
+		dev_err(&isi_m2m->pdev->dev, "Null src buf\n");
 		goto unlock;
 	}
 
@@ -189,8 +181,6 @@ unlock:
 
 static int mxc_isi_m2m_job_ready(void *priv)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = priv;
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	struct v4l2_fh *fh = &mxc_ctx->fh;
@@ -198,7 +188,7 @@ static int mxc_isi_m2m_job_ready(void *priv)
 	unsigned int num_dst_bufs_ready;
 	unsigned long flags;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	spin_lock_irqsave(&isi_m2m->slock, flags);
 	num_src_bufs_ready = v4l2_m2m_num_src_bufs_ready(fh->m2m_ctx);
@@ -212,13 +202,11 @@ static int mxc_isi_m2m_job_ready(void *priv)
 
 static void mxc_isi_m2m_job_abort(void *priv)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = priv;
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 
 	isi_m2m->aborting = 1;
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] Abort requested\n");
+	dev_dbg(&isi_m2m->pdev->dev, "Abort requested\n");
 }
 
 static struct v4l2_m2m_ops mxc_isi_m2m_ops = {
@@ -231,8 +219,6 @@ static int m2m_vb2_queue_setup(struct vb2_queue *q,
 		unsigned int *num_buffers, unsigned int *num_planes,
 		unsigned int sizes[], struct device *alloc_devs[])
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = vb2_get_drv_priv(q);
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	struct device *dev = &isi_m2m->pdev->dev;
@@ -241,18 +227,18 @@ static int m2m_vb2_queue_setup(struct vb2_queue *q,
 	unsigned long wh;
 	int i;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (q->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
 		if (*num_buffers < 3) {
-			dev_err(dev, "[vc-mipi isi-m2m] %s at least need 3 buffer\n", __func__);
+			dev_err(dev, "%s at least need 3 buffer\n", __func__);
 			return -EINVAL;
 		}
 		frame = &isi_m2m->dst_f;
 		isi_m2m->req_cap_buf_num = *num_buffers;
 	} else {
 		if (*num_buffers < 1) {
-			dev_err(dev, "[vc-mipi isi-m2m] %s at least need one buffer\n", __func__);
+			dev_err(dev, "%s at least need one buffer\n", __func__);
 			return -EINVAL;
 		}
 		frame = &isi_m2m->src_f;
@@ -276,7 +262,7 @@ static int m2m_vb2_queue_setup(struct vb2_queue *q,
 			size >>= 1;
 		sizes[i] = max_t(u32, size, frame->sizeimage[i]);
 
-		dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s, buf_n=%d, planes[%d]->size=%d\n",
+		dev_dbg(&isi_m2m->pdev->dev, "%s, buf_n=%d, planes[%d]->size=%d\n",
 					__func__,  *num_buffers, i, sizes[i]);
 	}
 
@@ -285,8 +271,6 @@ static int m2m_vb2_queue_setup(struct vb2_queue *q,
 
 static int m2m_vb2_buffer_prepare(struct vb2_buffer *vb2)
 {
-	TRACE
-
 	struct vb2_queue *vq = vb2->vb2_queue;
 	struct mxc_isi_ctx *mxc_ctx = vb2_get_drv_priv(vq);
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
@@ -306,7 +290,7 @@ static int m2m_vb2_buffer_prepare(struct vb2_buffer *vb2)
 
 		if (vb2_plane_size(vb2, i) < size) {
 			dev_err(&isi_m2m->pdev->dev,
-				 "[vc-mipi isi-m2m] User buffer too small (%ld < %ld)\n",
+				 "User buffer too small (%ld < %ld)\n",
 				 vb2_plane_size(vb2, i), size);
 			return -EINVAL;
 		}
@@ -318,8 +302,6 @@ static int m2m_vb2_buffer_prepare(struct vb2_buffer *vb2)
 
 static void m2m_vb2_buffer_queue(struct vb2_buffer *vb2)
 {
-	TRACE
-
 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb2);
 	struct mxc_isi_ctx *mxc_ctx = vb2_get_drv_priv(vb2->vb2_queue);
 	struct v4l2_fh *fh = &mxc_ctx->fh;
@@ -329,8 +311,6 @@ static void m2m_vb2_buffer_queue(struct vb2_buffer *vb2)
 
 static int m2m_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = vb2_get_drv_priv(q);
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
@@ -344,7 +324,7 @@ static int m2m_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 		return 0;
 
 	if (count < 2) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] Need to at leas 2 buffers\n");
+		dev_err(&isi_m2m->pdev->dev, "Need to at leas 2 buffers\n");
 		return -EINVAL;
 	}
 
@@ -353,7 +333,7 @@ static int m2m_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 	/* BUF1 */
 	dst_vbuf = v4l2_m2m_next_dst_buf(fh->m2m_ctx);
 	if (!dst_vbuf) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %d: Null dst buf\n", __LINE__);
+		dev_err(&isi_m2m->pdev->dev, "%d: Null dst buf\n", __LINE__);
 		goto unlock;
 	}
 	dst_vbuf->vb2_buf.state = VB2_BUF_STATE_ACTIVE;
@@ -367,7 +347,7 @@ static int m2m_vb2_start_streaming(struct vb2_queue *q, unsigned int count)
 	/* BUF2 */
 	dst_vbuf = v4l2_m2m_next_dst_buf(fh->m2m_ctx);
 	if (!dst_vbuf) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %d: Null dst buf\n", __LINE__);
+		dev_err(&isi_m2m->pdev->dev, "%d: Null dst buf\n", __LINE__);
 		goto unlock;
 	}
 	dst_vbuf->vb2_buf.state = VB2_BUF_STATE_ACTIVE;
@@ -388,8 +368,6 @@ unlock:
 
 static void m2m_vb2_stop_streaming(struct vb2_queue *q)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = vb2_get_drv_priv(q);
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	struct vb2_v4l2_buffer *vb2;
@@ -428,8 +406,6 @@ static struct vb2_ops mxc_m2m_vb2_qops = {
 static int mxc_m2m_queue_init(void *priv, struct vb2_queue *src_vq,
 			       struct vb2_queue *dst_vq)
 {
-	TRACE
-
 	struct mxc_isi_ctx *mxc_ctx = priv;
 	struct mxc_isi_m2m_dev *isi_m2m = mxc_ctx->isi_m2m;
 	int ret;
@@ -464,8 +440,6 @@ static int mxc_m2m_queue_init(void *priv, struct vb2_queue *src_vq,
 
 static int mxc_isi_m2m_open(struct file *file)
 {
-	TRACE
-
 	struct video_device *vdev = video_devdata(file);
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
@@ -474,7 +448,7 @@ static int mxc_isi_m2m_open(struct file *file)
 	int ret = 0;
 
 	if (atomic_read(&mxc_isi->usage_count) > 0) {
-		dev_err(dev, "[vc-mipi isi-m2m] ISI channel[%d] is busy\n", isi_m2m->id);
+		dev_err(dev, "ISI channel[%d] is busy\n", isi_m2m->id);
 		return -EBUSY;
 	}
 
@@ -496,7 +470,7 @@ static int mxc_isi_m2m_open(struct file *file)
 						mxc_ctx,
 						mxc_m2m_queue_init);
 	if (IS_ERR(mxc_ctx->fh.m2m_ctx)) {
-		dev_err(dev, "[vc-mipi isi-m2m] v4l2_m2m_ctx_init fail\n");
+		dev_err(dev, "v4l2_m2m_ctx_init fail\n");
 		ret = PTR_ERR(mxc_ctx->fh.m2m_ctx);
 		v4l2_fh_exit(&mxc_ctx->fh);
 		kfree(mxc_ctx);
@@ -519,8 +493,6 @@ unlock:
 
 static int mxc_isi_m2m_release(struct file *file)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
 	struct device *dev = &isi_m2m->pdev->dev;
@@ -557,8 +529,6 @@ static const struct v4l2_file_operations mxc_isi_m2m_fops = {
 static int mxc_isi_m2m_querycap(struct file *file, void *priv,
 					struct v4l2_capability *cap)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 
 	strlcpy(cap->driver, MXC_ISI_M2M, sizeof(cap->driver));
@@ -574,12 +544,10 @@ static int mxc_isi_m2m_querycap(struct file *file, void *priv,
 static int mxc_isi_m2m_enum_fmt_vid_out(struct file *file, void *priv,
 				    struct v4l2_fmtdesc *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_fmt *fmt;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 	if (f->index >= (int)ARRAY_SIZE(mxc_isi_input_formats))
 		return -EINVAL;
 
@@ -594,12 +562,10 @@ static int mxc_isi_m2m_enum_fmt_vid_out(struct file *file, void *priv,
 static int mxc_isi_m2m_enum_fmt_vid_cap(struct file *file, void *priv,
 				    struct v4l2_fmtdesc *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_fmt *fmt;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 	if (f->index >= (int)ARRAY_SIZE(mxc_isi_out_formats))
 		return -EINVAL;
 
@@ -614,8 +580,6 @@ static int mxc_isi_m2m_enum_fmt_vid_cap(struct file *file, void *priv,
 static int mxc_isi_m2m_try_fmt_vid_out(struct file *file, void *fh,
 				   struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct device *dev = &isi_m2m->pdev->dev;
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
@@ -632,12 +596,12 @@ static int mxc_isi_m2m_try_fmt_vid_out(struct file *file, void *fh,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_input_formats)) {
-		dev_err(dev, "[vc-mipi isi-m2m] %s, format is not support!\n", __func__);
+		dev_err(dev, "%s, format is not support!\n", __func__);
 		return -EINVAL;
 	}
 
 	if (pix->width <= 0 || pix->height <= 0) {
-		dev_err(dev, "[vc-mipi isi-m2m] %s, width %d, height %d is not valid\n"
+		dev_err(dev, "%s, width %d, height %d is not valid\n"
 				, __func__, pix->width, pix->height);
 		return -EINVAL;
 	}
@@ -648,8 +612,6 @@ static int mxc_isi_m2m_try_fmt_vid_out(struct file *file, void *fh,
 static int mxc_isi_m2m_try_fmt_vid_cap(struct file *file, void *fh,
 				   struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct device *dev = &isi_m2m->pdev->dev;
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
@@ -666,12 +628,12 @@ static int mxc_isi_m2m_try_fmt_vid_cap(struct file *file, void *fh,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
-		dev_err(dev, "[vc-mipi isi-m2m] %s, format is not support!\n", __func__);
+		dev_err(dev, "%s, format is not support!\n", __func__);
 		return -EINVAL;
 	}
 
 	if (pix->width <= 0 || pix->height <= 0) {
-		dev_err(dev, "[vc-mipi isi-m2m] %s, width %d, height %d is not valid\n"
+		dev_err(dev, "%s, width %d, height %d is not valid\n"
 				, __func__, pix->width, pix->height);
 		return -EINVAL;
 	}
@@ -682,8 +644,6 @@ static int mxc_isi_m2m_try_fmt_vid_cap(struct file *file, void *fh,
 static int mxc_isi_m2m_s_fmt_vid_out(struct file *file, void *priv,
 				 struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
 	struct v4l2_fh *fh = file->private_data;
@@ -693,7 +653,7 @@ static int mxc_isi_m2m_s_fmt_vid_out(struct file *file, void *priv,
 	struct vb2_queue *vq;
 	int bpl, i;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (f->type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		return -EINVAL;
@@ -703,7 +663,7 @@ static int mxc_isi_m2m_s_fmt_vid_out(struct file *file, void *priv,
 		return -EINVAL;
 
 	if (vb2_is_busy(vq)) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] queue busy\n");
+		dev_err(&isi_m2m->pdev->dev, "queue busy\n");
 		return -EBUSY;
 	}
 
@@ -714,7 +674,7 @@ static int mxc_isi_m2m_s_fmt_vid_out(struct file *file, void *priv,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_input_formats)) {
-		dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s, format is not support!\n", __func__);
+		dev_dbg(&isi_m2m->pdev->dev, "%s, format is not support!\n", __func__);
 		return -EINVAL;
 	}
 
@@ -751,8 +711,6 @@ static int mxc_isi_m2m_s_fmt_vid_out(struct file *file, void *priv,
 static int mxc_isi_m2m_s_fmt_vid_cap(struct file *file, void *priv,
 				 struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
 	struct v4l2_fh *fh = file->private_data;
@@ -762,7 +720,7 @@ static int mxc_isi_m2m_s_fmt_vid_cap(struct file *file, void *priv,
 	struct vb2_queue *vq;
 	int bpl, i;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (f->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		return -EINVAL;
@@ -772,7 +730,7 @@ static int mxc_isi_m2m_s_fmt_vid_cap(struct file *file, void *priv,
 		return -EINVAL;
 
 	if (vb2_is_busy(vq)) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] queue busy\n");
+		dev_err(&isi_m2m->pdev->dev, "queue busy\n");
 		return -EBUSY;
 	}
 
@@ -783,26 +741,26 @@ static int mxc_isi_m2m_s_fmt_vid_cap(struct file *file, void *priv,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s, format is not support!\n", __func__);
+		dev_err(&isi_m2m->pdev->dev, "%s, format is not support!\n", __func__);
 		return -EINVAL;
 	}
 
 	/* update out put frame size and formate */
 	if (pix->height <= 0 || pix->width <= 0) {
 		dev_err(&isi_m2m->pdev->dev,
-			"[vc-mipi isi-m2m] Invalid width or height(w=%d, h=%d)\n",
+			"Invalid width or height(w=%d, h=%d)\n",
 			pix->width, pix->height);
 		return -EINVAL;
 	}
 
 	if ((pix->pixelformat == V4L2_PIX_FMT_NV12) && ((pix->width / 4) % 2)) {
 		dev_err(&isi_m2m->pdev->dev,
-			"[vc-mipi isi-m2m] Invalid width or height(w=%d, h=%d) for NV12\n",
+			"Invalid width or height(w=%d, h=%d) for NV12\n",
 			pix->width, pix->height);
 		return -EINVAL;
 	} else if ((pix->pixelformat != V4L2_PIX_FMT_XBGR32) && (pix->width % 2)) {
 		dev_err(&isi_m2m->pdev->dev,
-			"[vc-mipi isi-m2m] Invalid width or height(w=%d, h=%d) for %.4s\n",
+			"Invalid width or height(w=%d, h=%d) for %.4s\n",
 			pix->width, pix->height, (char *)&pix->pixelformat);
 		return -EINVAL;
 	}
@@ -852,14 +810,12 @@ static int mxc_isi_m2m_s_fmt_vid_cap(struct file *file, void *priv,
 static int mxc_isi_m2m_g_fmt_vid_cap(struct file *file, void *fh,
 				 struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
 	struct mxc_isi_frame *frame = &isi_m2m->dst_f;
 	int i;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (f->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 		return -EINVAL;
@@ -882,14 +838,12 @@ static int mxc_isi_m2m_g_fmt_vid_cap(struct file *file, void *fh,
 static int mxc_isi_m2m_g_fmt_vid_out(struct file *file, void *fh,
 				 struct v4l2_format *f)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct v4l2_pix_format_mplane *pix = &f->fmt.pix_mp;
 	struct mxc_isi_frame *frame = &isi_m2m->src_f;
 	int i;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (f->type != V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE)
 		return -EINVAL;
@@ -912,8 +866,6 @@ static int mxc_isi_m2m_g_fmt_vid_out(struct file *file, void *fh,
 static int mxc_isi_m2m_streamon(struct file *file, void *priv,
 			     enum v4l2_buf_type type)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
 	struct mxc_isi_frame *src_f, *dst_f;
@@ -924,7 +876,7 @@ static int mxc_isi_m2m_streamon(struct file *file, void *priv,
 
 	if ((dst_f->width  > src_f->width) ||
 		(dst_f->height > src_f->height)) {
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s Not support upscale\n", __func__);
+		dev_err(&isi_m2m->pdev->dev, "%s Not support upscale\n", __func__);
 		return -EINVAL;
 	}
 
@@ -941,8 +893,6 @@ static int mxc_isi_m2m_streamon(struct file *file, void *priv,
 static int mxc_isi_m2m_streamoff(struct file *file, void *priv,
 			    enum v4l2_buf_type type)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = video_drvdata(file);
 	struct mxc_isi_dev *mxc_isi =  mxc_isi_get_hostdata(isi_m2m->pdev);
 	int ret;
@@ -990,14 +940,12 @@ static const struct v4l2_ioctl_ops mxc_isi_m2m_ioctl_ops = {
 
 static int mxc_isi_m2m_s_ctrl(struct v4l2_ctrl *ctrl)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = ctrl_to_mxc_isi_m2m(ctrl);
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_m2m->pdev);
 	unsigned long flags;
 	int ret = 0;
 
-	dev_dbg(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s\n", __func__);
+	dev_dbg(&isi_m2m->pdev->dev, "%s\n", __func__);
 
 	if (ctrl->flags & V4L2_CTRL_FLAG_INACTIVE)
 		return 0;
@@ -1031,7 +979,7 @@ static int mxc_isi_m2m_s_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 
 	default:
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s: Not support %d CID\n", __func__, ctrl->id);
+		dev_err(&isi_m2m->pdev->dev, "%s: Not support %d CID\n", __func__, ctrl->id);
 		ret = -EINVAL;
 	}
 
@@ -1042,8 +990,6 @@ unlock:
 
 static int mxc_isi_m2m_g_ctrl(struct v4l2_ctrl *ctrl)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = ctrl_to_mxc_isi_m2m(ctrl);
 	unsigned long flags;
 	int ret = 0;
@@ -1058,7 +1004,7 @@ static int mxc_isi_m2m_g_ctrl(struct v4l2_ctrl *ctrl)
 		ctrl->val = isi_m2m->req_out_buf_num;
 		break;
 	default:
-		dev_err(&isi_m2m->pdev->dev, "[vc-mipi isi-m2m] %s: Not support %d CID\n",
+		dev_err(&isi_m2m->pdev->dev, "%s: Not support %d CID\n",
 					__func__, ctrl->id);
 		ret = -EINVAL;
 	}
@@ -1075,8 +1021,6 @@ static const struct v4l2_ctrl_ops mxc_isi_m2m_ctrl_ops = {
 
 static int mxc_isi_m2m_ctrls_create(struct mxc_isi_m2m_dev *isi_m2m)
 {
-	TRACE
-	
 	struct mxc_isi_ctrls *ctrls = &isi_m2m->ctrls;
 	struct v4l2_ctrl_handler *handler = &ctrls->handler;
 
@@ -1105,8 +1049,6 @@ static int mxc_isi_m2m_ctrls_create(struct mxc_isi_m2m_dev *isi_m2m)
 
 void mxc_isi_m2m_ctrls_delete(struct mxc_isi_m2m_dev *isi_m2m)
 {
-	TRACE
-	
 	struct mxc_isi_ctrls *ctrls = &isi_m2m->ctrls;
 
 	if (ctrls->ready) {
@@ -1118,8 +1060,6 @@ void mxc_isi_m2m_ctrls_delete(struct mxc_isi_m2m_dev *isi_m2m)
 
 static int isi_m2m_probe(struct platform_device *pdev)
 {
-	TRACE
-	
 	struct mxc_isi_dev *mxc_isi;
 	struct mxc_isi_m2m_dev *isi_m2m;
 	struct v4l2_device *v4l2_dev;
@@ -1133,14 +1073,14 @@ static int isi_m2m_probe(struct platform_device *pdev)
 
 	pdev->dev.parent = mxc_isi_dev_get_parent(pdev);
 	if (!pdev->dev.parent) {
-		dev_info(&pdev->dev, "[vc-mipi isi-m2m] deferring %s device registration\n",
+		dev_info(&pdev->dev, "deferring %s device registration\n",
 			 dev_name(&pdev->dev));
 		return -EPROBE_DEFER;
 	}
 
 	mxc_isi = mxc_isi_get_hostdata(pdev);
 	if (!mxc_isi) {
-		dev_info(&pdev->dev, "[vc-mipi isi-m2m] deferring %s device registration\n",
+		dev_info(&pdev->dev, "deferring %s device registration\n",
 			 dev_name(&pdev->dev));
 		return -EPROBE_DEFER;
 	}
@@ -1153,7 +1093,7 @@ static int isi_m2m_probe(struct platform_device *pdev)
 	/* m2m */
 	isi_m2m->m2m_dev = v4l2_m2m_init(&mxc_isi_m2m_ops);
 	if (IS_ERR(isi_m2m->m2m_dev)) {
-		dev_err(&pdev->dev, "[vc-mipi isi-m2m] %s fail to get m2m device\n", __func__);
+		dev_err(&pdev->dev, "%s fail to get m2m device\n", __func__);
 		return PTR_ERR(isi_m2m->m2m_dev);
 	}
 
@@ -1163,7 +1103,7 @@ static int isi_m2m_probe(struct platform_device *pdev)
 
 	ret = v4l2_device_register(&pdev->dev, v4l2_dev);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "[vc-mipi isi-m2m] Failed to register v4l2_device\n");
+		dev_err(&pdev->dev, "Failed to register v4l2_device\n");
 		return -EINVAL;
 	}
 
@@ -1188,7 +1128,7 @@ static int isi_m2m_probe(struct platform_device *pdev)
 
 	ret = video_register_device(vdev, VFL_TYPE_GRABBER, -1);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "[vc-mipi isi-m2m] %s fail to register video device\n", __func__);
+		dev_err(&pdev->dev, "%s fail to register video device\n", __func__);
 		goto ctrl_free;
 	}
 
@@ -1197,7 +1137,7 @@ static int isi_m2m_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, isi_m2m);
 	pm_runtime_enable(&pdev->dev);
 
-	dev_info(&pdev->dev, "[vc-mipi isi-m2m] Register m2m success for ISI.%d\n", isi_m2m->id);
+	dev_info(&pdev->dev, "Register m2m success for ISI.%d\n", isi_m2m->id);
 
 	return 0;
 
@@ -1211,8 +1151,6 @@ free_m2m:
 
 static int isi_m2m_remove(struct platform_device *pdev)
 {
-	TRACE
-	
 	struct mxc_isi_m2m_dev *isi_m2m = platform_get_drvdata(pdev);
 	struct video_device *vdev = &isi_m2m->vdev;
 

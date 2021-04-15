@@ -6,6 +6,8 @@
 #ifndef _VC_MIPI_DRIVER_H
 #define _VC_MIPI_DRIVER_H
 
+#define DEBUG
+
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/clkdev.h>
@@ -34,24 +36,19 @@ struct vc_mipi_res {
     int height;
 };
 
-/* Valid sensor resolutions */
-static struct vc_mipi_res vc_mipi_valid_res[] = {
-    [0] = {640, 480},
-//    [1] = {320, 240},
-//    [2] = {720, 480},
-//    [3] = {1280, 720},
-//    [4] = {1920, 1080},
-//    [5] = {2592, 1944},
-};
+// /* Valid sensor resolutions */
+// static struct vc_mipi_res vc_mipi_valid_res[] = {
+//     [0] = {640, 480},
+// //    [1] = {320, 240},
+// //    [2] = {720, 480},
+// //    [3] = {1280, 720},
+// //    [4] = {1920, 1080},
+// //    [5] = {2592, 1944},
+// };
 
 struct vc_mipi_datafmt {
     __u32 code;
     enum v4l2_colorspace        colorspace;
-};
-
-struct sensor_reg {
-    __u16 addr;
-    __u8 val;
 };
 
 struct sensor_params {
@@ -89,11 +86,11 @@ struct vc_mipi_camera {
  	struct v4l2_pix_format pix;
  	int flash_output;       		// flash output enable
  	int streaming;
+	int sensor_mode;        		// sensor mode
+	// int num_lanes;          		// # of data lanes: 1, 2, 4
 
 // 	int color;              // color flag: 0=no, 1=yes
 // 	char model_name[32];    // sensor model name, e.g. "IMX327 color"
-// 	int sensor_mode;        // sensor mode
-// 	int num_lanes;          // # of data lanes: 1, 2, 4
 // 	int fpga_addr;          // FPGA i2c address (def = 0x10)
 };
 

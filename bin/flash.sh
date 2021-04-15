@@ -19,12 +19,12 @@ if [[ -z $2 || $2 == "d" ]]; then
 fi
 $TARGET_SHELL /sbin/reboot
 
-printf "Waiting for $TARGET_NAME ..."
-sleep 5
-while ! ping -c 1 -n -w 1 $TARGET_NAME &> /dev/null
-do
-        printf "."
-done
-printf " OK\n\n"
+#printf "Waiting for $TARGET_NAME ..."
+#sleep 5
+#while ! ping -c 1 -n -w 1 $TARGET_NAME &> /dev/null
+#do
+#        printf "."
+#done
+#printf " OK\n\n"
 
-$TARGET_SHELL dmesg | grep vc-mipi
+#$TARGET_SHELL dmesg | grep vc-mipi

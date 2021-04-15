@@ -8,9 +8,6 @@
 #include "imx8-isi-hw.h"
 #include "imx8-common.h"
 
-// #define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-isi-hw.c --->  %s : %d", __FUNCTION__, __LINE__);
-#define TRACE
-
 #define	ISI_DOWNSCALE_THRESHOLD		0x4000
 
 #ifdef DEBUG
@@ -64,10 +61,10 @@ void dump_isi_regs(struct mxc_isi_dev *mxc_isi)
 	};
 	u32 i;
 
-	dev_dbg(dev, "[vc-mipi] ISI CHNLC register dump, isi%d\n", mxc_isi->id);
+	dev_dbg(dev, "ISI CHNLC register dump, isi%d\n", mxc_isi->id);
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
 		u32 reg = readl(mxc_isi->regs + registers[i].offset);
-		dev_dbg(dev, "[vc-mipi] %20s[0x%.2x]: %.2x\n",
+		dev_dbg(dev, "%20s[0x%.2x]: %.2x\n",
 			registers[i].name, registers[i].offset, reg);
 	}
 }
@@ -131,8 +128,6 @@ static bool is_yuv(u32 pix_fmt)
 
 bool is_buf_active(struct mxc_isi_dev *mxc_isi, int buf_id)
 {
-	TRACE
-
 	u32 status = mxc_isi->status;
 	bool reverse = mxc_isi->buf_active_reverse;
 
@@ -143,8 +138,6 @@ bool is_buf_active(struct mxc_isi_dev *mxc_isi, int buf_id)
 
 static void chain_buf(struct mxc_isi_dev *mxc_isi, struct mxc_isi_frame *frm)
 {
-	TRACE
-
 	u32 val;
 
 	if (frm->o_width > ISI_2K) {
@@ -162,8 +155,6 @@ static void chain_buf(struct mxc_isi_dev *mxc_isi, struct mxc_isi_frame *frm)
 void mxc_isi_channel_set_outbuf(struct mxc_isi_dev *mxc_isi,
 				struct mxc_isi_buffer *buf)
 {
-	TRACE
-
 	struct vb2_buffer *vb2_buf = &buf->v4l2_buf.vb2_buf;
 	u32 framecount = buf->v4l2_buf.sequence;
 	struct frame_addr *paddr = &buf->paddr;
@@ -213,8 +204,6 @@ void mxc_isi_channel_set_outbuf(struct mxc_isi_dev *mxc_isi,
 void mxc_isi_channel_set_m2m_src_addr(struct mxc_isi_dev *mxc_isi,
 			struct mxc_isi_buffer *buf)
 {
-	TRACE
-
 	struct vb2_buffer *vb2_buf = &buf->v4l2_buf.vb2_buf;
 	struct frame_addr *paddr = &buf->paddr;
 
@@ -225,8 +214,6 @@ void mxc_isi_channel_set_m2m_src_addr(struct mxc_isi_dev *mxc_isi,
 
 void mxc_isi_channel_sw_reset(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_CTRL);
@@ -239,8 +226,6 @@ void mxc_isi_channel_sw_reset(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_source_config(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_CTRL);
@@ -277,7 +262,7 @@ void mxc_isi_channel_source_config(struct mxc_isi_dev *mxc_isi)
 		val |= (CHNL_CTRL_SRC_TYPE_MEMORY << CHNL_CTRL_SRC_TYPE_OFFSET);
 		break;
 	default:
-		dev_err(&mxc_isi->pdev->dev, "[vc-mipi] invalid interface\n");
+		dev_err(&mxc_isi->pdev->dev, "invalid interface\n");
 		break;
 	}
 
@@ -286,8 +271,6 @@ void mxc_isi_channel_source_config(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_set_flip(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_IMG_CTRL);
@@ -305,8 +288,6 @@ void mxc_isi_channel_set_csc(struct mxc_isi_dev *mxc_isi,
 			     struct mxc_isi_frame *src_f,
 			     struct mxc_isi_frame *dst_f)
 {
-	TRACE
-
 	struct mxc_isi_fmt *src_fmt = src_f->fmt;
 	struct mxc_isi_fmt *dst_fmt = dst_f->fmt;
 	u32 val, csc = 0;
@@ -357,8 +338,6 @@ void mxc_isi_channel_set_csc(struct mxc_isi_dev *mxc_isi,
 void mxc_isi_channel_set_alpha_roi0(struct mxc_isi_dev *mxc_isi,
 				    struct v4l2_rect *rect)
 {
-	TRACE
-
 	u32 val0, val1;
 
 	val0 = (rect->left << 16) | rect->top;
@@ -369,8 +348,6 @@ void mxc_isi_channel_set_alpha_roi0(struct mxc_isi_dev *mxc_isi,
 
 void mxc_isi_channel_set_alpha(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_IMG_CTRL);
@@ -385,8 +362,6 @@ void mxc_isi_channel_set_alpha(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_set_panic_threshold(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct mxc_isi_set_thd *set_thd = mxc_isi->pdata->set_thd;
 	u32 val;
 
@@ -406,8 +381,6 @@ void mxc_isi_channel_set_panic_threshold(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_set_chain_buf(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	if (mxc_isi->chain_buf) {
@@ -421,14 +394,11 @@ void mxc_isi_channel_set_chain_buf(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_deinterlace_init(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
 	/* Config for Blending deinterlace */
 }
 
 void mxc_isi_channel_set_deinterlace(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	/* de-interlacing method
 	 * Weaving-------------Yes
 	 * Line Doubling-------No
@@ -449,8 +419,6 @@ void mxc_isi_channel_set_deinterlace(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_set_crop(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct mxc_isi_frame *src_f = &mxc_isi->isi_cap->src_f;
 	struct v4l2_rect crop;
 	u32 val, val0, val1, temp;
@@ -493,8 +461,6 @@ void mxc_isi_channel_set_crop(struct mxc_isi_dev *mxc_isi)
 
 static void mxc_isi_channel_clear_scaling(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val0;
 
 	writel(0x10001000, mxc_isi->regs + CHNL_SCALE_FACTOR);
@@ -508,8 +474,6 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 				 struct mxc_isi_frame *src_f,
 				 struct mxc_isi_frame *dst_f)
 {
-	TRACE
-
 	u32 decx, decy;
 	u32 xscale, yscale;
 	u32 xdec = 0, ydec = 0;
@@ -519,11 +483,11 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 	    dst_f->width == src_f->width) {
 		mxc_isi->scale = 0;
 		mxc_isi_channel_clear_scaling(mxc_isi);
-		dev_dbg(&mxc_isi->pdev->dev, "[vc-mipi] %s: no scale\n", __func__);
+		dev_dbg(&mxc_isi->pdev->dev, "%s: no scale\n", __func__);
 		return;
 	}
 
-	dev_info(&mxc_isi->pdev->dev, "[vc-mipi] input_size(%d,%d), output_size(%d,%d)\n",
+	dev_info(&mxc_isi->pdev->dev, "input_size(%d,%d), output_size(%d,%d)\n",
 		 src_f->width, src_f->height, dst_f->width, dst_f->height);
 
 	mxc_isi->scale = 1;
@@ -592,8 +556,6 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 
 void mxc_isi_channel_init(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	/* sw reset */
@@ -607,8 +569,6 @@ void mxc_isi_channel_init(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_deinit(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	/* sw reset */
@@ -623,8 +583,6 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 			    struct mxc_isi_frame *src_f,
 			    struct mxc_isi_frame *dst_f)
 {
-	TRACE
-
 	u32 val;
 
 	/* images having higher than 2048 horizontal resolution */
@@ -668,8 +626,6 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 
 void mxc_isi_clean_registers(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 status;
 
 	status = mxc_isi_get_irq_status(mxc_isi);
@@ -678,8 +634,6 @@ void mxc_isi_clean_registers(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_channel_enable(struct mxc_isi_dev *mxc_isi, bool m2m_enabled)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_CTRL);
@@ -709,8 +663,6 @@ void mxc_isi_channel_enable(struct mxc_isi_dev *mxc_isi, bool m2m_enabled)
 
 void mxc_isi_channel_disable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	mxc_isi_disable_irq(mxc_isi);
@@ -724,8 +676,6 @@ void mxc_isi_channel_disable(struct mxc_isi_dev *mxc_isi)
 
 void  mxc_isi_enable_irq(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	u32 val;
 
@@ -754,30 +704,22 @@ void  mxc_isi_enable_irq(struct mxc_isi_dev *mxc_isi)
 
 void mxc_isi_disable_irq(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	writel(0, mxc_isi->regs + CHNL_IER);
 }
 
 u32 mxc_isi_get_irq_status(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-	
 	return readl(mxc_isi->regs + CHNL_STS);
 }
 
 void mxc_isi_clean_irq_status(struct mxc_isi_dev *mxc_isi, u32 val)
 {
-	TRACE
-
 	writel(val, mxc_isi->regs + CHNL_STS);
 }
 
 void mxc_isi_m2m_config_src(struct mxc_isi_dev *mxc_isi,
 			    struct mxc_isi_frame *src_f)
 {
-	TRACE
-
 	u32 val;
 
 	/* source format */
@@ -799,8 +741,6 @@ void mxc_isi_m2m_config_src(struct mxc_isi_dev *mxc_isi,
 void mxc_isi_m2m_config_dst(struct mxc_isi_dev *mxc_isi,
 			    struct mxc_isi_frame *dst_f)
 {
-	TRACE
-
 	u32 val;
 
 	/* out format */
@@ -818,8 +758,6 @@ void mxc_isi_m2m_config_dst(struct mxc_isi_dev *mxc_isi,
 
 void mxc_isi_m2m_start_read(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-
 	u32 val;
 
 	val = readl(mxc_isi->regs + CHNL_MEM_RD_CTRL);

@@ -5,6 +5,7 @@
  * Copyright (c) 2019 NXP Semiconductor
  *
  */
+
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -32,9 +33,6 @@
 #include <linux/pm_runtime.h>
 
 #include "imx8-common.h"
-
-#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-mipi-csi2.c --->  %s : %d", __FUNCTION__, __LINE__);
-// #define TRACE
 
 #define MXC_MIPI_CSI2_DRIVER_NAME	"mxc-mipi-csi2"
 #define MXC_MIPI_CSI2_SUBDEV_NAME	MXC_MIPI_CSI2_DRIVER_NAME
@@ -351,8 +349,6 @@ static int calc_hs_settle(struct mxc_mipi_csi2_dev *csi2dev, u32 dphy_clk)
 	u32 hs_settle_min;
 	u32 hs_settle_max;
 
-	TRACE
-
 	esc_rate = clk_get_rate(csi2dev->clk_esc) / 1000000;
 	hs_settle_min = 85 + 6 * 1000 / dphy_clk;
 	hs_settle_max = 145 + 10 * 1000 / dphy_clk;
@@ -405,10 +401,10 @@ static void mxc_mipi_csi2_reg_dump(struct mxc_mipi_csi2_dev *csi2dev)
 	};
 	u32 i;
 
-	dev_dbg(dev, "[vc-mipi mipi-csi2] MIPI CSI2 CSR and HC register dump, mipi csi%d\n", csi2dev->id);
+	dev_dbg(dev, "MIPI CSI2 CSR and HC register dump, mipi csi%d\n", csi2dev->id);
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
 		u32 reg = readl(csi2dev->base_regs + registers[i].offset);
-		dev_dbg(dev, "[vc-mipi mipi-csi2] %20s[0x%.3x]: 0x%.3x\n",
+		dev_dbg(dev, "%20s[0x%.3x]: 0x%.3x\n",
 			registers[i].name, registers[i].offset, reg);
 	}
 }
@@ -419,11 +415,9 @@ static int mipi_sc_fw_init(struct mxc_mipi_csi2_dev *csi2dev, char enable)
 	u32 rsrc_id;
 	int ret;
 
-	// TRACE
-
 	ret = imx_scu_get_handle(&pm_ipc_handle);
 	if (ret) {
-		dev_err(dev, "[vc-mipi mipi-csi2] sc_misc_MIPI get ipc handle failed! ret = (%d)\n", ret);
+		dev_err(dev, "sc_misc_MIPI get ipc handle failed! ret = (%d)\n", ret);
 		return ret;
 	}
 
@@ -435,7 +429,7 @@ static int mipi_sc_fw_init(struct mxc_mipi_csi2_dev *csi2dev, char enable)
 	ret = imx_sc_misc_set_control(pm_ipc_handle,
 				      rsrc_id, IMX_SC_C_MIPI_RESET, enable);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi mipi-csi2] sc_misc_MIPI reset failed! ret = (%d)\n", ret);
+		dev_err(dev, "sc_misc_MIPI reset failed! ret = (%d)\n", ret);
 		return ret;
 	}
 
@@ -449,8 +443,6 @@ static uint16_t find_hs_configure(struct v4l2_subdev_format *sd_fmt)
 	u32 frame_rate = fmt->reserved[1];
 	int i;
 
-	TRACE
-
 	if (!fmt)
 		return -EINVAL;
 
@@ -462,7 +454,7 @@ static uint16_t find_hs_configure(struct v4l2_subdev_format *sd_fmt)
 	}
 
 	if (i == ARRAY_SIZE(hs_setting))
-		pr_err("[vc-mipi mipi-csi2] can not find HS setting for w/h@fps=(%d, %d)@%d\n",
+		pr_err("can not find HS setting for w/h@fps=(%d, %d)@%d\n",
 		       fmt->width, fmt->height, frame_rate);
 
 	return -EINVAL;
@@ -471,8 +463,6 @@ static uint16_t find_hs_configure(struct v4l2_subdev_format *sd_fmt)
 static void mxc_mipi_csi2_reset(struct mxc_mipi_csi2_dev *csi2dev)
 {
 	u32 val;
-
-	TRACE
 
 	/* Reset MIPI CSI */
 	val = CSI2SS_CTRL_CLK_RESET_EN | CSI2SS_CTRL_CLK_RESET_CLK_OFF;
@@ -484,13 +474,11 @@ static void mxc_mipi_csi2_enable(struct mxc_mipi_csi2_dev *csi2dev)
 	struct device *dev = &csi2dev->pdev->dev;
 	u32 val = 0;
 
-	TRACE
-
 	val = readl(csi2dev->csr_regs + CSI2SS_PLM_CTRL);
 	while (val & CSI2SS_PLM_CTRL_PL_CLK_RUN) {
 		msleep(10);
 		val = readl(csi2dev->csr_regs + CSI2SS_PLM_CTRL);
-		dev_dbg(dev, "[vc-mipi mipi-csi2] Waiting pl clk running, val=0x%x\n", val);
+		dev_dbg(dev, "Waiting pl clk running, val=0x%x\n", val);
 	}
 
 	/* Enable Pixel link Master*/
@@ -512,8 +500,6 @@ static void mxc_mipi_csi2_enable(struct mxc_mipi_csi2_dev *csi2dev)
 
 static void mxc_mipi_csi2_disable(struct mxc_mipi_csi2_dev *csi2dev)
 {
-	TRACE
-
 	/* Disable Data lanes */
 	writel(0xf, csi2dev->base_regs + CSI2RX_CFG_DISABLE_DATA_LANES);
 
@@ -530,8 +516,6 @@ static void mxc_mipi_csi2_disable(struct mxc_mipi_csi2_dev *csi2dev)
 static void mxc_mipi_csi2_csr_config(struct mxc_mipi_csi2_dev *csi2dev)
 {
 	u32 val;
-
-	TRACE
 
 	/* format */
 	val = 0;
@@ -562,8 +546,6 @@ static void mxc_mipi_csi2_hc_config(struct mxc_mipi_csi2_dev *csi2dev)
 	u32 val0, val1;
 	u32 i;
 
-	TRACE
-
 	val0 = 0;
 
 	/* Lanes */
@@ -588,8 +570,6 @@ static struct media_pad *mxc_csi2_get_remote_sensor_pad(struct mxc_mipi_csi2_dev
 	struct media_pad *sink_pad, *source_pad;
 	int i;
 
-	// TRACE
-
 	while (1) {
 		source_pad = NULL;
 		for (i = 0; i < subdev->entity.num_pads; i++) {
@@ -606,7 +586,7 @@ static struct media_pad *mxc_csi2_get_remote_sensor_pad(struct mxc_mipi_csi2_dev
 	}
 
 	if (i == subdev->entity.num_pads)
-		v4l2_err(&csi2dev->sd, "[vc-mipi mipi-csi2] %s, No remote pad found!\n", __func__);
+		v4l2_err(&csi2dev->sd, "%s, No remote pad found!\n", __func__);
 
 	return NULL;
 }
@@ -616,8 +596,6 @@ static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_mipi_csi2_dev *csi2d
 {
 	struct media_pad *source_pad;
 	struct v4l2_subdev *sen_sd;
-
-	// TRACE
 
 	/* Get remote source pad */
 	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);
@@ -629,7 +607,7 @@ static struct v4l2_subdev *mxc_get_remote_subdev(struct mxc_mipi_csi2_dev *csi2d
 	/* Get remote source pad subdev */
 	sen_sd = media_entity_to_v4l2_subdev(source_pad->entity);
 	if (!sen_sd) {
-		v4l2_err(&csi2dev->sd, "[vc-mipi mipi-csi2] %s, No remote subdev found!\n", label);
+		v4l2_err(&csi2dev->sd, "%s, No remote subdev found!\n", label);
 		return NULL;
 	}
 
@@ -644,12 +622,10 @@ static int mxc_csi2_get_sensor_fmt(struct mxc_mipi_csi2_dev *csi2dev)
 	struct media_pad *source_pad;
 	int ret;
 
-	TRACE
-
 	/* Get remote source pad */
 	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);
 	if (!source_pad) {
-		v4l2_err(&csi2dev->sd, "[vc-mipi mipi-csi2] %s, No remote pad found!\n", __func__);
+		v4l2_err(&csi2dev->sd, "%s, No remote pad found!\n", __func__);
 		return -EINVAL;
 	}
 
@@ -667,7 +643,7 @@ static int mxc_csi2_get_sensor_fmt(struct mxc_mipi_csi2_dev *csi2dev)
 	/* Update input frame size and formate  */
 	memcpy(mf, &src_fmt.format, sizeof(struct v4l2_mbus_framefmt));
 
-	dev_dbg(&csi2dev->pdev->dev, "[vc-mipi mipi-csi2] width=%d, height=%d, fmt.code=0x%x\n",
+	dev_dbg(&csi2dev->pdev->dev, "width=%d, height=%d, fmt.code=0x%x\n",
 		mf->width, mf->height, mf->code);
 
 	/* Get rxhs settle */
@@ -692,23 +668,21 @@ static int mipi_csi2_clk_init(struct mxc_mipi_csi2_dev *csi2dev)
 {
 	struct device *dev = &csi2dev->pdev->dev;
 
-	// TRACE
-
 	csi2dev->clk_core = devm_clk_get(dev, "clk_core");
 	if (IS_ERR(csi2dev->clk_core)) {
-		dev_err(dev, "[vc-mipi mipi-csi2] failed to get csi core clk\n");
+		dev_err(dev, "failed to get csi core clk\n");
 		return PTR_ERR(csi2dev->clk_core);
 	}
 
 	csi2dev->clk_esc = devm_clk_get(dev, "clk_esc");
 	if (IS_ERR(csi2dev->clk_esc)) {
-		dev_err(dev, "[vc-mipi mipi-csi2] failed to get csi esc clk\n");
+		dev_err(dev, "failed to get csi esc clk\n");
 		return PTR_ERR(csi2dev->clk_esc);
 	}
 
 	csi2dev->clk_pxl = devm_clk_get(dev, "clk_pxl");
 	if (IS_ERR(csi2dev->clk_pxl)) {
-		dev_err(dev, "[vc-mipi mipi-csi2] failed to get csi pixel link clk\n");
+		dev_err(dev, "failed to get csi pixel link clk\n");
 		return PTR_ERR(csi2dev->clk_pxl);
 	}
 
@@ -720,12 +694,10 @@ static int mipi_csi2_attach_pd(struct mxc_mipi_csi2_dev *csi2dev)
 	struct device *dev = &csi2dev->pdev->dev;
 	struct device_link *link;
 
-	// TRACE
-
 	csi2dev->pd_csi = dev_pm_domain_attach_by_name(dev, "pd_csi");
 	if (IS_ERR(csi2dev->pd_csi)) {
 		if (PTR_ERR(csi2dev->pd_csi) != -EPROBE_DEFER) {
-			dev_err(dev, "[vc-mipi mipi-csi2] attach pd_csi domain for csi fail\n");
+			dev_err(dev, "attach pd_csi domain for csi fail\n");
 			return PTR_ERR(csi2dev->pd_csi);
 		} else {
 			return PTR_ERR(csi2dev->pd_csi);
@@ -740,7 +712,7 @@ static int mipi_csi2_attach_pd(struct mxc_mipi_csi2_dev *csi2dev)
 	csi2dev->pd_isi = dev_pm_domain_attach_by_name(dev, "pd_isi_ch0");
 	if (IS_ERR(csi2dev->pd_isi)) {
 		if (PTR_ERR(csi2dev->pd_isi) != -EPROBE_DEFER) {
-			dev_err(dev, "[vc-mipi mipi-csi2] attach pd_isi_ch0 domain for csi fail\n");
+			dev_err(dev, "attach pd_isi_ch0 domain for csi fail\n");
 			return PTR_ERR(csi2dev->pd_isi);
 		} else {
 			return PTR_ERR(csi2dev->pd_isi);
@@ -760,21 +732,19 @@ static int mipi_csi2_clk_enable(struct mxc_mipi_csi2_dev *csi2dev)
 	struct device *dev = &csi2dev->pdev->dev;
 	int ret;
 
-	TRACE
-
 	ret = clk_prepare_enable(csi2dev->clk_core);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi mipi-csi2] %s, pre clk_core error\n", __func__);
+		dev_err(dev, "%s, pre clk_core error\n", __func__);
 		return ret;
 	}
 	ret = clk_prepare_enable(csi2dev->clk_esc);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi mipi-csi2] %s, prepare clk_esc error\n", __func__);
+		dev_err(dev, "%s, prepare clk_esc error\n", __func__);
 		return ret;
 	}
 	ret = clk_prepare_enable(csi2dev->clk_pxl);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi mipi-csi2] %s, prepare clk_pxl error\n", __func__);
+		dev_err(dev, "%s, prepare clk_pxl error\n", __func__);
 		return ret;
 	}
 
@@ -790,8 +760,6 @@ static void mipi_csi2_clk_disable(struct mxc_mipi_csi2_dev *csi2dev)
 
 static int mipi_csi2_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
-	TRACE
-	
 	return 0;
 }
 
@@ -800,8 +768,6 @@ static int mipi_csi2_link_setup(struct media_entity *entity,
 				const struct media_pad *local,
 				const struct media_pad *remote, u32 flags)
 {
-	// TRACE
-	
 	/* TODO */
 	/* Add MIPI source and sink pad link configuration */
 	if (local->flags & MEDIA_PAD_FL_SOURCE) {
@@ -841,8 +807,6 @@ static int mipi_csi2_querymenu(struct v4l2_subdev *sd, struct v4l2_querymenu *qm
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -854,17 +818,12 @@ static int mipi_csi2_queryctrl(struct v4l2_subdev *sd, struct v4l2_queryctrl *qc
 {
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
-	int ret;
 
-	// TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
 
-	ret = v4l2_subdev_call(sen_sd, core, queryctrl, qc);
-	// printk("[vc-mipi] imx8-mipi-csi2.c %s(0x%08x, 0x%08x, %s) -> %d", __FUNCTION__, sen_sd, qc->id, qc->name, ret);
-	return ret;
+	return v4l2_subdev_call(sen_sd, core, queryctrl, qc);
 }
 
 static int mipi_csi2_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
@@ -872,8 +831,6 @@ static int mipi_csi2_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	// TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -887,8 +844,6 @@ static int mipi_csi2_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	// TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -901,8 +856,6 @@ static int mipi_csi2_g_ext_ctrls(struct v4l2_subdev *sd, struct v4l2_ext_control
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -915,8 +868,6 @@ static int mipi_csi2_try_ext_ctrls(struct v4l2_subdev *sd, struct v4l2_ext_contr
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	// TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -929,8 +880,6 @@ static int mipi_csi2_s_ext_ctrls(struct v4l2_subdev *sd, struct v4l2_ext_control
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -944,8 +893,6 @@ static int mipi_csi2_s_power(struct v4l2_subdev *sd, int on)
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	// TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -959,8 +906,6 @@ static int mipi_csi2_g_frame_interval(struct v4l2_subdev *sd,
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -974,8 +919,6 @@ static int mipi_csi2_s_frame_interval(struct v4l2_subdev *sd,
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -989,9 +932,7 @@ static int mipi_csi2_s_stream(struct v4l2_subdev *sd, int enable)
 	struct device *dev = &csi2dev->pdev->dev;
 	int ret = 0;
 
-	TRACE
-	
-	dev_dbg(&csi2dev->pdev->dev, "[vc-mipi mipi-csi2] %s: %d, csi2dev: 0x%x\n",
+	dev_dbg(&csi2dev->pdev->dev, "%s: %d, csi2dev: 0x%x\n",
 		__func__, enable, csi2dev->flags);
 
 	if (enable) {
@@ -1021,8 +962,6 @@ static int mipi_csi2_enum_framesizes(struct v4l2_subdev *sd,
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -1037,8 +976,6 @@ static int mipi_csi2_enum_frame_interval(struct v4l2_subdev *sd,
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_subdev *sen_sd;
 
-	TRACE
-	
 	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
 	if (!sen_sd)
 		return -EINVAL;
@@ -1053,8 +990,6 @@ static int mipi_csi2_get_fmt(struct v4l2_subdev *sd,
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 	struct v4l2_mbus_framefmt *mf = &fmt->format;
 
-	TRACE
-	
 	mxc_csi2_get_sensor_fmt(csi2dev);
 
 	memcpy(mf, &csi2dev->format, sizeof(struct v4l2_mbus_framefmt));
@@ -1072,12 +1007,12 @@ static int mipi_csi2_set_fmt(struct v4l2_subdev *sd,
 	struct media_pad *source_pad;
 	int ret;
 
-	TRACE
-	
+	v4l2_err(&csi2dev->sd, "%s\n", __FUNCTION__);
+
 	/* Get remote source pad */
 	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);
 	if (!source_pad) {
-		v4l2_err(&csi2dev->sd, "[vc-mipi mipi-csi2] %s, No remote pad found!\n", __func__);
+		v4l2_err(&csi2dev->sd, "%s, No remote pad found!\n", __func__);
 		return -EINVAL;
 	}
 
@@ -1136,15 +1071,13 @@ static int mipi_csi2_parse_dt(struct mxc_mipi_csi2_dev *csi2dev)
 	struct v4l2_fwnode_endpoint endpoint;
 	u32 i;
 
-	// TRACE
-	
 	csi2dev->id = of_alias_get_id(node, "csi");
 
 	csi2dev->vchannel = of_property_read_bool(node, "virtual-channel");
 
 	node = of_graph_get_next_endpoint(node, NULL);
 	if (!node) {
-		dev_err(dev, "[vc-mipi mipi-csi2] No port node at %s\n", node->full_name);
+		dev_err(dev, "No port node at %s\n", node->full_name);
 		return -EINVAL;
 	}
 
@@ -1167,8 +1100,6 @@ static int mipi_csi2_probe(struct platform_device *pdev)
 	struct mxc_mipi_csi2_dev *csi2dev;
 	int ret = -ENOMEM;
 
-	// TRACE
-	
 	csi2dev = devm_kzalloc(dev, sizeof(*csi2dev), GFP_KERNEL);
 	if (!csi2dev)
 		return -ENOMEM;
@@ -1183,14 +1114,14 @@ static int mipi_csi2_probe(struct platform_device *pdev)
 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	csi2dev->base_regs = devm_ioremap_resource(dev, mem_res);
 	if (IS_ERR(csi2dev->base_regs)) {
-		dev_err(dev, "[vc-mipi mipi-csi2] Failed to get mipi csi2 HC register\n");
+		dev_err(dev, "Failed to get mipi csi2 HC register\n");
 		return PTR_ERR(csi2dev->base_regs);
 	}
 
 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	csi2dev->csr_regs = devm_ioremap_resource(dev, mem_res);
 	if (IS_ERR(csi2dev->csr_regs)) {
-		dev_err(dev, "[vc-mipi mipi-csi2] Failed to get mipi CSR register\n");
+		dev_err(dev, "Failed to get mipi CSR register\n");
 		return PTR_ERR(csi2dev->csr_regs);
 	}
 
@@ -1235,7 +1166,7 @@ static int mipi_csi2_probe(struct platform_device *pdev)
 	csi2dev->running = 0;
 	pm_runtime_enable(dev);
 
-	dev_info(&pdev->dev, "[vc-mipi mipi-csi2] lanes: %d, name: %s\n",
+	dev_info(&pdev->dev, "lanes: %d, name: %s\n",
 		 csi2dev->num_lanes, csi2dev->sd.name);
 
 	return 0;
@@ -1250,8 +1181,6 @@ static int mipi_csi2_remove(struct platform_device *pdev)
 	struct v4l2_subdev *sd = platform_get_drvdata(pdev);
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 
-	TRACE
-	
 	mipi_sc_fw_init(csi2dev, 0);
 	media_entity_cleanup(&csi2dev->sd.entity);
 	pm_runtime_disable(&pdev->dev);
@@ -1264,10 +1193,8 @@ static int  mipi_csi2_pm_suspend(struct device *dev)
 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
 	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
 
-	TRACE
-	
 	if (csi2dev->running > 0) {
-		dev_warn(dev, "[vc-mipi mipi-csi2] running, prevent entering suspend.\n");
+		dev_warn(dev, "running, prevent entering suspend.\n");
 		return -EAGAIN;
 	}
 
@@ -1276,8 +1203,6 @@ static int  mipi_csi2_pm_suspend(struct device *dev)
 
 static int  mipi_csi2_pm_resume(struct device *dev)
 {
-	TRACE
-	
 	return pm_runtime_force_resume(dev);
 }
 
@@ -1285,8 +1210,6 @@ static int  mipi_csi2_runtime_suspend(struct device *dev)
 {
 	struct mxc_mipi_csi2_dev *csi2dev = dev_get_drvdata(dev);
 
-	TRACE
-	
 	mipi_csi2_clk_disable(csi2dev);
 	return 0;
 }
@@ -1296,8 +1219,6 @@ static int  mipi_csi2_runtime_resume(struct device *dev)
 	struct mxc_mipi_csi2_dev *csi2dev = dev_get_drvdata(dev);
 	int ret;
 
-	TRACE
-	
 	ret = mipi_csi2_clk_enable(csi2dev);
 	if (ret)
 		return ret;

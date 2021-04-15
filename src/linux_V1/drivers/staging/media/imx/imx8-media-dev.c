@@ -5,6 +5,7 @@
  * Copyright (c) 2019 NXP Semiconductor
  *
  */
+
 #include <linux/bug.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
@@ -29,9 +30,6 @@
 #include <media/media-device.h>
 
 #include "imx8-common.h"
-
-#define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-media-dev.c --->  %s : %d", __FUNCTION__, __LINE__);
-// #define TRACE
 
 #define MXC_MD_DRIVER_NAME	"mxc-md"
 #define ISI_OF_NODE_NAME	"isi"
@@ -123,8 +121,6 @@ struct mxc_md {
 
 static inline struct mxc_md *notifier_to_mxc_md(struct v4l2_async_notifier *n)
 {
-	TRACE
-
 	return container_of(n, struct mxc_md, subdev_notifier);
 };
 
@@ -132,8 +128,6 @@ static void mxc_md_unregister_entities(struct mxc_md *mxc_md)
 {
 	struct mxc_parallel_csi_info *pcsidev = &mxc_md->pcsidev;
 	int i;
-
-	TRACE
 
 	for (i = 0; i < MXC_ISI_MAX_DEVS; i++) {
 		struct mxc_isi_info *isi = &mxc_md->mxc_isi[i];
@@ -155,7 +149,7 @@ static void mxc_md_unregister_entities(struct mxc_md *mxc_md)
 	if (pcsidev->sd)
 		v4l2_device_unregister_subdev(pcsidev->sd);
 
-	v4l2_info(&mxc_md->v4l2_dev, "[vc-mipi media-dev] Unregistered all entities\n");
+	v4l2_info(&mxc_md->v4l2_dev, "Unregistered all entities\n");
 }
 
 static struct media_entity *find_entity_by_name(struct mxc_md *mxc_md,
@@ -163,15 +157,13 @@ static struct media_entity *find_entity_by_name(struct mxc_md *mxc_md,
 {
 	struct media_entity *ent = NULL;
 
-	TRACE
-
 	if (!mxc_md || !name)
 		return NULL;
 
 	media_device_for_each_entity(ent, &mxc_md->media_dev) {
 		if (!strcmp(ent->name, name)) {
 			dev_dbg(&mxc_md->pdev->dev,
-				"[vc-mipi media-dev] %s entity is found\n", ent->name);
+				"%s entity is found\n", ent->name);
 			return ent;
 		}
 	}
@@ -185,24 +177,22 @@ static int mxc_md_do_clean(struct mxc_md *mxc_md, struct media_pad *pad)
 	struct media_pad *remote_pad;
 	struct v4l2_subdev	*subdev;
 
-	TRACE
-
 	remote_pad = media_entity_remote_pad(pad);
 	if (remote_pad == NULL) {
-		dev_err(dev, "[vc-mipi media-dev] %s get remote pad fail\n", __func__);
+		dev_err(dev, "%s get remote pad fail\n", __func__);
 		return -ENODEV;
 	}
 
 	subdev = media_entity_to_v4l2_subdev(remote_pad->entity);
 	if (subdev == NULL) {
-		dev_err(dev, "[vc-mipi media-dev] %s media entity to v4l2 subdev fail\n", __func__);
+		dev_err(dev, "%s media entity to v4l2 subdev fail\n", __func__);
 		return -ENODEV;
 	}
 
 	v4l2_device_unregister_subdev(subdev);
 	media_entity_cleanup(&subdev->entity);
 
-	pr_info("[vc-mipi media-dev] clean ISI channel: %s\n", subdev->name);
+	pr_info("clean ISI channel: %s\n", subdev->name);
 
 	return 0;
 }
@@ -216,8 +206,6 @@ static int mxc_md_clean_channel(struct mxc_md *mxc_md, int index)
 	struct media_entity *local_en;
 	u32 i, mipi_vc = 0;
 	int ret;
-
-	TRACE
 
 	if (mxc_md->mipi_csi2[index].sd) {
 		mipi_csi2 = &mxc_md->mipi_csi2[index];
@@ -261,8 +249,6 @@ static int mxc_md_clean_unlink_channels(struct mxc_md *mxc_md)
 	int num_subdevs = mxc_md->num_sensors;
 	int i, ret;
 
-	TRACE
-
 	for (i = 0; i < num_subdevs; i++) {
 		sensor = &mxc_md->sensor[i];
 		if (sensor->sd != NULL)
@@ -270,7 +256,7 @@ static int mxc_md_clean_unlink_channels(struct mxc_md *mxc_md)
 
 		ret = mxc_md_clean_channel(mxc_md, i);
 		if (ret < 0) {
-			pr_err("[vc-mipi media-dev] %s: clean channel fail(%d)\n", __func__, i);
+			pr_err("%s: clean channel fail(%d)\n", __func__, i);
 			return ret;
 		}
 	}
@@ -283,8 +269,6 @@ static void mxc_md_unregister_all(struct mxc_md *mxc_md)
 	struct mxc_isi_info *mxc_isi;
 	int i;
 
-	TRACE
-
 	for (i = 0; i < MXC_ISI_MAX_DEVS; i++) {
 		mxc_isi = &mxc_md->mxc_isi[i];
 		if (!mxc_isi->sd)
@@ -293,7 +277,7 @@ static void mxc_md_unregister_all(struct mxc_md *mxc_md)
 		v4l2_device_unregister_subdev(mxc_isi->sd);
 		media_entity_cleanup(&mxc_isi->sd->entity);
 
-		pr_info("[vc-mipi media-dev] unregister ISI channel: %s\n", mxc_isi->sd->name);
+		pr_info("unregister ISI channel: %s\n", mxc_isi->sd->name);
 	}
 }
 
@@ -309,8 +293,6 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 	u16  source_pad, sink_pad;
 	u32 flags;
 	u32 mipi_vc = 0;
-
-	TRACE
 
 	/* Create links between each ISI's subdev and video node */
 	flags = MEDIA_LNK_FL_ENABLED;
@@ -335,7 +317,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 			source_pad = MXC_ISI_SD_PAD_SOURCE_MEM;
 			break;
 		default:
-			v4l2_err(&mxc_md->v4l2_dev, "[vc-mipi media-dev] Wrong output interface: %x\n",
+			v4l2_err(&mxc_md->v4l2_dev, "Wrong output interface: %x\n",
 				 mxc_isi->interface[OUT_PORT]);
 			return -EINVAL;
 		}
@@ -344,7 +326,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 					    sink, sink_pad, flags);
 		if (ret) {
 			v4l2_err(&mxc_md->v4l2_dev,
-				 "[vc-mipi media-dev] Failed created link [%s] %c> [%s]\n",
+				 "Failed created link [%s] %c> [%s]\n",
 				 source->name, flags ? '=' : '-', sink->name);
 			break;
 		}
@@ -354,12 +336,12 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 					&sink->pads[sink_pad], flags);
 		if (ret) {
 			v4l2_err(&mxc_md->v4l2_dev,
-				 "[vc-mipi media-dev] failed call link_setup [%s] %c> [%s]\n",
+				 "failed call link_setup [%s] %c> [%s]\n",
 				 source->name, flags ? '=' : '-', sink->name);
 			break;
 		}
 
-		v4l2_info(&mxc_md->v4l2_dev, "[vc-mipi media-dev] created link [%s] %c> [%s]\n",
+		v4l2_info(&mxc_md->v4l2_dev, "created link [%s] %c> [%s]\n",
 			  source->name, flags ? '=' : '-', sink->name);
 
 		/* Connect MIPI/HDMI/Mem source to ISI sink */
@@ -433,7 +415,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 		case ISI_INPUT_INTERFACE_MEM:
 		default:
 			v4l2_err(&mxc_md->v4l2_dev,
-				 "[vc-mipi media-dev] Not support input interface: %x\n",
+				 "Not support input interface: %x\n",
 				 mxc_isi->interface[IN_PORT]);
 			return -EINVAL;
 		}
@@ -442,7 +424,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 		ret = media_create_pad_link(source, source_pad, sink, sink_pad, flags);
 		if (ret) {
 			v4l2_err(&mxc_md->v4l2_dev,
-				 "[vc-mipi media-dev] created link [%s] %c> [%s] fail\n",
+				 "created link [%s] %c> [%s] fail\n",
 				 source->name, flags ? '=' : '-', sink->name);
 			break;
 		}
@@ -461,7 +443,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 		if (ret)
 			break;
 
-		v4l2_info(&mxc_md->v4l2_dev, "[vc-mipi media-dev] created link [%s] %c> [%s]\n",
+		v4l2_info(&mxc_md->v4l2_dev, "created link [%s] %c> [%s]\n",
 			  source->name, flags ? '=' : '-', sink->name);
 	}
 
@@ -505,7 +487,7 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 			if (ret)
 				return ret;
 			v4l2_info(&mxc_md->v4l2_dev,
-				  "[vc-mipi media-dev] created link [%s] => [%s]\n",
+				  "created link [%s] => [%s]\n",
 				  source->name, sink->name);
 		} else if (mxc_md->mipi_csi2[sensor->id].sd) {
 			mipi_csi2 = &mxc_md->mipi_csi2[sensor->id];
@@ -543,11 +525,11 @@ static int mxc_md_create_links(struct mxc_md *mxc_md)
 					return ret;
 			}
 			v4l2_info(&mxc_md->v4l2_dev,
-				  "[vc-mipi media-dev] created link [%s] => [%s]\n",
+				  "created link [%s] => [%s]\n",
 				  source->name, sink->name);
 		}
 	}
-	dev_info(&mxc_md->pdev->dev, "[vc-mipi media-dev] %s\n", __func__);
+	dev_info(&mxc_md->pdev->dev, "%s\n", __func__);
 	return 0;
 }
 
@@ -559,9 +541,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
 	struct mxc_sensor_info *sensor = NULL;
 	int i;
 
-	TRACE
-
-	dev_dbg(&mxc_md->pdev->dev, "[vc-mipi media-dev] %s\n", __func__);
+	dev_dbg(&mxc_md->pdev->dev, "%s\n", __func__);
 
 	/* Find platform data for this sensor subdev */
 	for (i = 0; i < ARRAY_SIZE(mxc_md->sensor); i++) {
@@ -578,7 +558,7 @@ static int subdev_notifier_bound(struct v4l2_async_notifier *notifier,
 	sensor->sd = sd;
 	mxc_md->valid_num_sensors++;
 
-	v4l2_info(&mxc_md->v4l2_dev, "[vc-mipi media-dev] Registered sensor subdevice: %s (%d)\n",
+	v4l2_info(&mxc_md->v4l2_dev, "Registered sensor subdevice: %s (%d)\n",
 		  sd->name, mxc_md->valid_num_sensors);
 
 	return 0;
@@ -589,9 +569,7 @@ static int subdev_notifier_complete(struct v4l2_async_notifier *notifier)
 	struct mxc_md *mxc_md = notifier_to_mxc_md(notifier);
 	int ret;
 
-	TRACE
-
-	dev_dbg(&mxc_md->pdev->dev, "[vc-mipi media-dev] %s\n", __func__);
+	dev_dbg(&mxc_md->pdev->dev, "%s\n", __func__);
 	mutex_lock(&mxc_md->media_dev.graph_mutex);
 
 	ret = mxc_md_create_links(mxc_md);
@@ -604,7 +582,7 @@ static int subdev_notifier_complete(struct v4l2_async_notifier *notifier)
 unlock:
 	mutex_unlock(&mxc_md->media_dev.graph_mutex);
 	if (ret < 0) {
-		v4l2_err(&mxc_md->v4l2_dev, "[vc-mipi media-dev] %s error exit\n", __func__);
+		v4l2_err(&mxc_md->v4l2_dev, "%s error exit\n", __func__);
 		return ret;
 	}
 
@@ -639,8 +617,6 @@ static struct mxc_isi_info *mxc_md_parse_isi_entity(struct mxc_md *mxc_md,
 	struct device_node *child;
 	int ret, id = -1;
 
-	TRACE
-
 	if (!mxc_md || !node)
 		return NULL;
 
@@ -652,7 +628,7 @@ static struct mxc_isi_info *mxc_md_parse_isi_entity(struct mxc_md *mxc_md,
 
 	child = of_get_child_by_name(node, "cap_device");
 	if (!child) {
-		dev_err(dev, "[vc-mipi media-dev] Can not get child node for %s.%d\n",
+		dev_err(dev, "Can not get child node for %s.%d\n",
 			ISI_OF_NODE_NAME, id);
 		return NULL;
 	}
@@ -666,7 +642,7 @@ static struct mxc_isi_info *mxc_md_parse_isi_entity(struct mxc_md *mxc_md,
 	ret = of_property_read_u32_array(node, "interface",
 					 mxc_isi->interface, 3);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi media-dev] %s node has not interface property\n", child->name);
+		dev_err(dev, "%s node has not interface property\n", child->name);
 		return NULL;
 	}
 
@@ -679,8 +655,6 @@ mxc_md_parse_csi_entity(struct mxc_md *mxc_md,
 {
 	struct mxc_mipi_csi2_info *mipi_csi2;
 	int id = -1;
-
-	TRACE
 
 	if (!mxc_md || !node)
 		return NULL;
@@ -706,8 +680,6 @@ mxc_md_parse_pcsi_entity(struct mxc_md *mxc_md, struct device_node *node)
 {
 	struct mxc_parallel_csi_info *pcsidev;
 
-	TRACE
-
 	if (!mxc_md || !node)
 		return NULL;
 
@@ -727,8 +699,6 @@ static struct v4l2_subdev *get_subdev_by_node(struct device_node *node)
 	struct v4l2_subdev *sd = NULL;
 	struct device *dev;
 	void *drvdata;
-
-	TRACE
 
 	pdev = of_find_device_by_node(node);
 	if (!pdev)
@@ -758,12 +728,10 @@ static int register_isi_entity(struct mxc_md *mxc_md,
 	struct v4l2_subdev *sd;
 	int ret;
 
-	TRACE
-
 	sd = get_subdev_by_node(mxc_isi->node);
 	if (!sd) {
 		dev_info(&mxc_md->pdev->dev,
-			 "[vc-mipi media-dev] deferring %s device registration\n",
+			 "deferring %s device registration\n",
 			 mxc_isi->node->name);
 		return -EPROBE_DEFER;
 	}
@@ -777,7 +745,7 @@ static int register_isi_entity(struct mxc_md *mxc_md,
 	if (!ret)
 		mxc_isi->sd = sd;
 	else
-		v4l2_err(&mxc_md->v4l2_dev, "[vc-mipi media-dev] Failed to register ISI.%d (%d)\n",
+		v4l2_err(&mxc_md->v4l2_dev, "Failed to register ISI.%d (%d)\n",
 			 mxc_isi->id, ret);
 	return ret;
 }
@@ -788,12 +756,10 @@ static int register_mipi_csi2_entity(struct mxc_md *mxc_md,
 	struct v4l2_subdev *sd;
 	int ret;
 
-	TRACE
-
 	sd = get_subdev_by_node(mipi_csi2->node);
 	if (!sd) {
 		dev_info(&mxc_md->pdev->dev,
-			 "[vc-mipi media-dev] deferring %s device registration\n",
+			 "deferring %s device registration\n",
 			 mipi_csi2->node->name);
 		return -EPROBE_DEFER;
 	}
@@ -807,7 +773,7 @@ static int register_mipi_csi2_entity(struct mxc_md *mxc_md,
 	if (!ret)
 		mipi_csi2->sd = sd;
 	else
-		v4l2_err(&mxc_md->v4l2_dev, "[vc-mipi media-dev] Failed to register MIPI-CSI.%d (%d)\n",
+		v4l2_err(&mxc_md->v4l2_dev, "Failed to register MIPI-CSI.%d (%d)\n",
 			 mipi_csi2->id, ret);
 	return ret;
 }
@@ -818,12 +784,10 @@ static int register_parallel_csi_entity(struct mxc_md *mxc_md,
 	struct v4l2_subdev *sd;
 	int ret;
 
-	TRACE
-
 	sd = get_subdev_by_node(pcsidev->node);
 	if (!sd) {
 		dev_info(&mxc_md->pdev->dev,
-			 "[vc-mipi media-dev] deferring %s device registration\n",
+			 "deferring %s device registration\n",
 			 pcsidev->node->name);
 		return -EPROBE_DEFER;
 	}
@@ -835,7 +799,7 @@ static int register_parallel_csi_entity(struct mxc_md *mxc_md,
 		pcsidev->sd = sd;
 	else
 		v4l2_err(&mxc_md->v4l2_dev,
-			"[vc-mipi media-dev] Failed to register Parallel (%d)\n", ret);
+			"Failed to register Parallel (%d)\n", ret);
 	return ret;
 }
 
@@ -849,8 +813,6 @@ static int mxc_md_register_platform_entity(struct mxc_md *mxc_md,
 	struct mxc_mipi_csi2_info *mipi_csi2;
 	struct mxc_parallel_csi_info *pcsidev;
 	int ret = -EINVAL;
-
-	TRACE
 
 	switch (plat_entity) {
 	case IDX_ISI:
@@ -872,7 +834,7 @@ static int mxc_md_register_platform_entity(struct mxc_md *mxc_md,
 		ret = register_parallel_csi_entity(mxc_md, pcsidev);
 		break;
 	default:
-		dev_err(dev, "[vc-mipi media-dev] Invalid platform entity (%d)", plat_entity);
+		dev_err(dev, "Invalid platform entity (%d)", plat_entity);
 		return ret;
 	}
 
@@ -884,8 +846,6 @@ static int mxc_md_register_platform_entities(struct mxc_md *mxc_md,
 {
 	struct device_node *node;
 	int ret = 0;
-
-	TRACE
 
 	for_each_available_child_of_node(parent, node) {
 		int plat_entity = -1;
@@ -921,8 +881,6 @@ static int register_sensor_entities(struct mxc_md *mxc_md)
 	int index = 0;
 	int ret;
 
-	TRACE
-
 	mxc_md->num_sensors = 0;
 
 	/* Attach sensors linked to MIPI CSI2 / paralle csi / HDMI Rx */
@@ -950,7 +908,7 @@ static int register_sensor_entities(struct mxc_md *mxc_md)
 		ret = v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep), &endpoint);
 		if (WARN_ON(endpoint.base.port >= MXC_MAX_SENSORS || ret)) {
 			v4l2_err(&mxc_md->v4l2_dev,
-				 "[vc-mipi media-dev] Failed to get sensor endpoint\n");
+				 "Failed to get sensor endpoint\n");
 			return -EINVAL;
 		}
 
@@ -964,7 +922,7 @@ static int register_sensor_entities(struct mxc_md *mxc_md)
 		of_node_put(ep);
 		if (!rem) {
 			v4l2_info(&mxc_md->v4l2_dev,
-				  "[vc-mipi media-dev] Remote device at %s not found\n",
+				  "Remote device at %s not found\n",
 				  ep->full_name);
 			continue;
 		}
@@ -975,7 +933,7 @@ static int register_sensor_entities(struct mxc_md *mxc_md)
 		client = of_find_i2c_device_by_node(rem);
 		if (!client) {
 			v4l2_info(&mxc_md->v4l2_dev,
-				  "[vc-mipi media-dev] Can't find i2c client device for %s\n",
+				  "Can't find i2c client device for %s\n",
 				  of_node_full_name(rem));
 			return -EPROBE_DEFER;
 		}
@@ -999,8 +957,6 @@ static int mxc_md_probe(struct platform_device *pdev)
 	struct v4l2_device *v4l2_dev;
 	struct mxc_md *mxc_md;
 	int ret;
-
-	TRACE
 
 	mxc_md = devm_kzalloc(dev, sizeof(*mxc_md), GFP_KERNEL);
 	if (!mxc_md)
@@ -1027,7 +983,7 @@ static int mxc_md_probe(struct platform_device *pdev)
 
 	ret = v4l2_device_register(dev, &mxc_md->v4l2_dev);
 	if (ret < 0) {
-		v4l2_err(v4l2_dev, "[vc-mipi media-dev] Failed to register v4l2_device (%d)\n", ret);
+		v4l2_err(v4l2_dev, "Failed to register v4l2_device (%d)\n", ret);
 		goto clean_md;
 	}
 
@@ -1048,7 +1004,7 @@ static int mxc_md_probe(struct platform_device *pdev)
 		ret = v4l2_async_notifier_register(&mxc_md->v4l2_dev,
 						   &mxc_md->subdev_notifier);
 		if (ret < 0) {
-			dev_warn(&mxc_md->pdev->dev, "[vc-mipi media-dev] Sensor register failed\n");
+			dev_warn(&mxc_md->pdev->dev, "Sensor register failed\n");
 			return ret;
 		}
 
@@ -1080,8 +1036,6 @@ clean_md:
 static int mxc_md_remove(struct platform_device *pdev)
 {
 	struct mxc_md *mxc_md = platform_get_drvdata(pdev);
-
-	TRACE
 
 	if (!mxc_md)
 		return 0;

@@ -3,10 +3,8 @@
  * Copyright 2019-2020 NXP
  *
  */
-#include "imx8-isi-hw.h"
 
-// #define TRACE printk(KERN_INFO "        TRACE [vc-mipi] imx8-isi-core.c --->  %s : %d", __FUNCTION__, __LINE__);
-#define TRACE
+#include "imx8-isi-hw.h"
 
 static const struct soc_device_attribute imx8_soc[] = {
 	{
@@ -38,15 +36,13 @@ struct mxc_isi_dev *mxc_isi_get_hostdata(struct platform_device *pdev)
 {
 	struct mxc_isi_dev *mxc_isi;
 
-	TRACE
-
 	if (!pdev || !pdev->dev.parent)
 		return NULL;
 
 	device_lock(pdev->dev.parent);
 	mxc_isi = (struct mxc_isi_dev *)dev_get_drvdata(pdev->dev.parent);
 	if (!mxc_isi) {
-		dev_err(&pdev->dev, "[vc-mipi isi-core] Cann't get host data\n");
+		dev_err(&pdev->dev, "Cann't get host data\n");
 		device_unlock(pdev->dev.parent);
 		return NULL;
 	}
@@ -60,8 +56,6 @@ struct device *mxc_isi_dev_get_parent(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct device_node *parent;
 	struct platform_device *parent_pdev;
-
-	TRACE
 
 	if (!pdev)
 		return NULL;
@@ -85,8 +79,6 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	u32 status;
 
-	TRACE
-
 	spin_lock(&mxc_isi->slock);
 
 	status = mxc_isi_get_irq_status(mxc_isi);
@@ -103,22 +95,22 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 	if (status & (CHNL_STS_AXI_WR_ERR_Y_MASK |
 		      CHNL_STS_AXI_WR_ERR_U_MASK |
 		      CHNL_STS_AXI_WR_ERR_V_MASK))
-		dev_dbg(dev, "[vc-mipi isi-core] %s, IRQ AXI Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ AXI Error stat=0x%X\n", __func__, status);
 
 	if (status & (ier_reg->panic_y_buf_en.mask |
 		      ier_reg->panic_u_buf_en.mask |
 		      ier_reg->panic_v_buf_en.mask))
-		dev_dbg(dev, "[vc-mipi isi-core] %s, IRQ Panic OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ Panic OFLW Error stat=0x%X\n", __func__, status);
 
 	if (status & (ier_reg->oflw_y_buf_en.mask |
 		      ier_reg->oflw_u_buf_en.mask |
 		      ier_reg->oflw_v_buf_en.mask))
-		dev_dbg(dev, "[vc-mipi isi-core] %s, IRQ OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ OFLW Error stat=0x%X\n", __func__, status);
 
 	if (status & (ier_reg->excs_oflw_y_buf_en.mask |
 		      ier_reg->excs_oflw_u_buf_en.mask |
 		      ier_reg->excs_oflw_v_buf_en.mask))
-		dev_dbg(dev, "[vc-mipi isi-core] %s, IRQ EXCS OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ EXCS OFLW Error stat=0x%X\n", __func__, status);
 
 	spin_unlock(&mxc_isi->slock);
 	return IRQ_HANDLED;
@@ -127,8 +119,6 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 static int disp_mix_sft_rstn(struct reset_control *reset, bool enable)
 {
 	int ret;
-
-	TRACE
 
 	if (!reset)
 		return 0;
@@ -142,8 +132,6 @@ static int disp_mix_clks_enable(struct reset_control *reset, bool enable)
 {
 	int ret;
 
-	TRACE
-
 	if (!reset)
 		return 0;
 
@@ -156,12 +144,10 @@ static int mxc_imx8_clk_get(struct mxc_isi_dev *mxc_isi)
 {
 	struct device *dev = &mxc_isi->pdev->dev;
 
-	TRACE
-
 	mxc_isi->clk = devm_clk_get(dev, NULL);
 
 	if (IS_ERR(mxc_isi->clk)) {
-		dev_err(dev, "[vc-mipi isi-core] failed to get isi clk\n");
+		dev_err(dev, "failed to get isi clk\n");
 		return PTR_ERR(mxc_isi->clk);
 	}
 
@@ -173,11 +159,9 @@ static int mxc_imx8_clk_enable(struct mxc_isi_dev *mxc_isi)
 	struct device *dev = &mxc_isi->pdev->dev;
 	int ret;
 
-	TRACE
-
 	ret = clk_prepare_enable(mxc_isi->clk);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] %s, enable clk error\n", __func__);
+		dev_err(dev, "%s, enable clk error\n", __func__);
 		return ret;
 	}
 
@@ -186,7 +170,6 @@ static int mxc_imx8_clk_enable(struct mxc_isi_dev *mxc_isi)
 
 static void mxc_imx8_clk_disable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
 	clk_disable_unprepare(mxc_isi->clk);
 }
 
@@ -268,29 +251,27 @@ static int mxc_imx8mn_clk_get(struct mxc_isi_dev *mxc_isi)
 {
 	struct device *dev = &mxc_isi->pdev->dev;
 
-	TRACE
-
-	mxc_isi->clk_disp_axi = devm_clk_get(dev, "[vc-mipi isi-core] disp_axi");
+	mxc_isi->clk_disp_axi = devm_clk_get(dev, "disp_axi");
 	if (IS_ERR(mxc_isi->clk_disp_axi)) {
-		dev_err(dev, "[vc-mipi isi-core] failed to get disp_axi clk\n");
+		dev_err(dev, "failed to get disp_axi clk\n");
 		return PTR_ERR(mxc_isi->clk_disp_axi);
 	}
 
-	mxc_isi->clk_disp_apb = devm_clk_get(dev, "[vc-mipi isi-core] disp_apb");
+	mxc_isi->clk_disp_apb = devm_clk_get(dev, "disp_apb");
 	if (IS_ERR(mxc_isi->clk_disp_apb)) {
-		dev_err(dev, "[vc-mipi isi-core] failed to get disp_apb clk\n");
+		dev_err(dev, "failed to get disp_apb clk\n");
 		return PTR_ERR(mxc_isi->clk_disp_apb);
 	}
 
-	mxc_isi->clk_root_disp_axi = devm_clk_get(dev, "[vc-mipi isi-core] disp_axi_root");
+	mxc_isi->clk_root_disp_axi = devm_clk_get(dev, "disp_axi_root");
 	if (IS_ERR(mxc_isi->clk_root_disp_axi)) {
-		dev_err(dev, "[vc-mipi isi-core] failed to get disp axi root clk\n");
+		dev_err(dev, "failed to get disp axi root clk\n");
 		return PTR_ERR(mxc_isi->clk_root_disp_axi);
 	}
 
-	mxc_isi->clk_root_disp_apb = devm_clk_get(dev, "[vc-mipi isi-core] disp_apb_root");
+	mxc_isi->clk_root_disp_apb = devm_clk_get(dev, "disp_apb_root");
 	if (IS_ERR(mxc_isi->clk_root_disp_apb)) {
-		dev_err(dev, "[vc-mipi isi-core] failed to get disp apb root clk\n");
+		dev_err(dev, "failed to get disp apb root clk\n");
 		return PTR_ERR(mxc_isi->clk_root_disp_apb);
 	}
 
@@ -302,29 +283,27 @@ static int mxc_imx8mn_clk_enable(struct mxc_isi_dev *mxc_isi)
 	struct device *dev = &mxc_isi->pdev->dev;
 	int ret;
 
-	TRACE
-
 	ret = clk_prepare_enable(mxc_isi->clk_disp_axi);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] prepare and enable axi clk error\n");
+		dev_err(dev, "prepare and enable axi clk error\n");
 		return ret;
 	}
 
 	ret = clk_prepare_enable(mxc_isi->clk_disp_apb);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] prepare and enable abp clk error\n");
+		dev_err(dev, "prepare and enable abp clk error\n");
 		return ret;
 	}
 
 	ret = clk_prepare_enable(mxc_isi->clk_root_disp_axi);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] prepare and enable axi root clk error\n");
+		dev_err(dev, "prepare and enable axi root clk error\n");
 		return ret;
 	}
 
 	ret = clk_prepare_enable(mxc_isi->clk_root_disp_apb);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] prepare and enable apb root clk error\n");
+		dev_err(dev, "prepare and enable apb root clk error\n");
 		return ret;
 	}
 
@@ -333,8 +312,6 @@ static int mxc_imx8mn_clk_enable(struct mxc_isi_dev *mxc_isi)
 
 static void mxc_imx8mn_clk_disable(struct mxc_isi_dev *mxc_isi)
 {
-	TRACE
-	
 	clk_disable_unprepare(mxc_isi->clk_root_disp_axi);
 	clk_disable_unprepare(mxc_isi->clk_root_disp_apb);
 	clk_disable_unprepare(mxc_isi->clk_disp_axi);
@@ -367,8 +344,6 @@ static int mxc_isi_parse_dt(struct mxc_isi_dev *mxc_isi)
 	struct device_node *node = dev->of_node;
 	int ret = 0;
 
-	TRACE
-
 	mxc_isi->id = of_alias_get_id(node, "isi");
 	mxc_isi->chain_buf = of_property_read_bool(node, "fsl,chain_buf");
 
@@ -376,7 +351,7 @@ static int mxc_isi_parse_dt(struct mxc_isi_dev *mxc_isi)
 	if (ret < 0)
 		return ret;
 
-	dev_dbg(dev, "[vc-mipi isi-core] %s, isi_%d,interface(%d, %d, %d)\n", __func__,
+	dev_dbg(dev, "%s, isi_%d,interface(%d, %d, %d)\n", __func__,
 		mxc_isi->id,
 		mxc_isi->interface[0],
 		mxc_isi->interface[1],
@@ -388,8 +363,6 @@ static int mxc_isi_clk_get(struct mxc_isi_dev *mxc_isi)
 {
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
 
-	TRACE
-
 	if (!ops && !ops->clk_get)
 		return -EINVAL;
 
@@ -400,8 +373,6 @@ static int mxc_isi_clk_enable(struct mxc_isi_dev *mxc_isi)
 {
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
 
-	TRACE
-
 	if (!ops && !ops->clk_enable)
 		return -EINVAL;
 
@@ -411,8 +382,6 @@ static int mxc_isi_clk_enable(struct mxc_isi_dev *mxc_isi)
 static void mxc_isi_clk_disable(struct mxc_isi_dev *mxc_isi)
 {
 	const struct mxc_isi_dev_ops *ops = mxc_isi->pdata->ops;
-
-	TRACE
 
 	if (!ops && !ops->clk_disable)
 		return;
@@ -430,8 +399,6 @@ static int mxc_isi_of_parse_resets(struct mxc_isi_dev *mxc_isi)
 	struct reset_control *rstc;
 	const char *compat;
 	uint32_t len, rstc_num = 0;
-
-	TRACE
 
 	ret = of_parse_phandle_with_args(np, "resets", "#reset-cells",
 					 0, &args);
@@ -456,12 +423,12 @@ static int mxc_isi_of_parse_resets(struct mxc_isi_dev *mxc_isi)
 			mxc_isi->clk_enable = rstc;
 			rstc_num++;
 		} else {
-			dev_warn(dev, "[vc-mipi isi-core] invalid isi reset node: %s\n", compat);
+			dev_warn(dev, "invalid isi reset node: %s\n", compat);
 		}
 	}
 
 	if (!rstc_num) {
-		dev_err(dev, "[vc-mipi isi-core] no invalid reset control exists\n");
+		dev_err(dev, "no invalid reset control exists\n");
 		return -EINVAL;
 	}
 
@@ -475,8 +442,6 @@ static int mxc_isi_soc_match(struct mxc_isi_dev *mxc_isi,
 	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	struct mxc_isi_set_thd *set_thd = mxc_isi->pdata->set_thd;
 	const struct soc_device_attribute *match;
-
-	TRACE
 
 	match = soc_device_match(data);
 	if (!match)
@@ -508,8 +473,6 @@ static int mxc_isi_probe(struct platform_device *pdev)
 	const struct of_device_id *of_id;
 	int ret = 0;
 
-	TRACE
-
 
 	mxc_isi = devm_kzalloc(dev, sizeof(*mxc_isi), GFP_KERNEL);
 	if (!mxc_isi)
@@ -522,13 +485,13 @@ static int mxc_isi_probe(struct platform_device *pdev)
 
 	mxc_isi->pdata = of_id->data;
 	if (!mxc_isi->pdata) {
-		dev_err(dev, "[vc-mipi isi-core] Can't get platform device data\n");
+		dev_err(dev, "Can't get platform device data\n");
 		return -EINVAL;
 	}
 
 	ret = mxc_isi_soc_match(mxc_isi, imx8_soc);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] Can't match soc version\n");
+		dev_err(dev, "Can't match soc version\n");
 		return ret;
 	}
 
@@ -537,7 +500,7 @@ static int mxc_isi_probe(struct platform_device *pdev)
 		return ret;
 
 	if (mxc_isi->id >= MXC_ISI_MAX_DEVS || mxc_isi->id < 0) {
-		dev_err(dev, "[vc-mipi isi-core] Invalid driver data or device id (%d)\n",
+		dev_err(dev, "Invalid driver data or device id (%d)\n",
 			mxc_isi->id);
 		return -EINVAL;
 	}
@@ -549,27 +512,27 @@ static int mxc_isi_probe(struct platform_device *pdev)
 	if (!of_property_read_bool(dev->of_node, "no-reset-control")) {
 		ret = mxc_isi_of_parse_resets(mxc_isi);
 		if (ret) {
-			dev_warn(dev, "[vc-mipi isi-core] Can not parse reset control\n");
+			dev_warn(dev, "Can not parse reset control\n");
 			return ret;
 		}
 	}
 
 	ret = mxc_isi_clk_get(mxc_isi);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] ISI_%d get clocks fail\n", mxc_isi->id);
+		dev_err(dev, "ISI_%d get clocks fail\n", mxc_isi->id);
 		return ret;
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	mxc_isi->regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(mxc_isi->regs)) {
-		dev_err(dev, "[vc-mipi isi-core] Failed to get ISI register map\n");
+		dev_err(dev, "Failed to get ISI register map\n");
 		return PTR_ERR(mxc_isi->regs);
 	}
 
 	ret = mxc_isi_clk_enable(mxc_isi);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] ISI_%d enable clocks fail\n", mxc_isi->id);
+		dev_err(dev, "ISI_%d enable clocks fail\n", mxc_isi->id);
 		return ret;
 	}
 	disp_mix_sft_rstn(mxc_isi->soft_resetn, false);
@@ -579,13 +542,13 @@ static int mxc_isi_probe(struct platform_device *pdev)
 
 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
 	if (!res) {
-		dev_err(dev, "[vc-mipi isi-core] Failed to get IRQ resource\n");
+		dev_err(dev, "Failed to get IRQ resource\n");
 		goto err;
 	}
 	ret = devm_request_irq(dev, res->start, mxc_isi_irq_handler,
 			       0, dev_name(dev), mxc_isi);
 	if (ret < 0) {
-		dev_err(dev, "[vc-mipi isi-core] failed to install irq (%d)\n", ret);
+		dev_err(dev, "failed to install irq (%d)\n", ret);
 		goto err;
 	}
 
@@ -593,14 +556,14 @@ static int mxc_isi_probe(struct platform_device *pdev)
 
 	ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
 	if (ret < 0)
-		dev_warn(dev, "[vc-mipi isi-core] Populate child platform device fail\n");
+		dev_warn(dev, "Populate child platform device fail\n");
 
 	mxc_isi_clk_disable(mxc_isi);
 
 	platform_set_drvdata(pdev, mxc_isi);
 	pm_runtime_enable(dev);
 
-	dev_info(dev, "[vc-mipi isi-core] mxc_isi.%d registered successfully\n", mxc_isi->id);
+	dev_info(dev, "mxc_isi.%d registered successfully\n", mxc_isi->id);
 	return 0;
 
 err:
@@ -614,8 +577,6 @@ static int mxc_isi_remove(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 
-	TRACE
-
 	pm_runtime_disable(dev);
 
 	return 0;
@@ -625,10 +586,8 @@ static int mxc_isi_pm_suspend(struct device *dev)
 {
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
 
-	TRACE
-
 	if (mxc_isi->is_streaming) {
-		dev_warn(dev, "[vc-mipi isi-core] running, prevent entering suspend.\n");
+		dev_warn(dev, "running, prevent entering suspend.\n");
 		return -EAGAIN;
 	}
 
@@ -637,15 +596,12 @@ static int mxc_isi_pm_suspend(struct device *dev)
 
 static int mxc_isi_pm_resume(struct device *dev)
 {
-	TRACE
 	return pm_runtime_force_resume(dev);
 }
 
 static int mxc_isi_runtime_suspend(struct device *dev)
 {
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
-
-	TRACE
 
 	disp_mix_clks_enable(mxc_isi->clk_enable, false);
 	mxc_isi_clk_disable(mxc_isi);
@@ -658,11 +614,9 @@ static int mxc_isi_runtime_resume(struct device *dev)
 	struct mxc_isi_dev *mxc_isi = dev_get_drvdata(dev);
 	int ret;
 
-	TRACE
-
 	ret = mxc_isi_clk_enable(mxc_isi);
 	if (ret) {
-		dev_err(dev, "[vc-mipi isi-core] %s clk enable fail\n", __func__);
+		dev_err(dev, "%s clk enable fail\n", __func__);
 		return ret;
 	}
 	disp_mix_sft_rstn(mxc_isi->soft_resetn, false);
