@@ -1,6 +1,8 @@
 #ifndef _VC_MIPI_MOD_H
 #define _VC_MIPI_MOD_H
 
+#define DEBUG
+
 #include <linux/types.h>
 #include <linux/i2c.h>
 

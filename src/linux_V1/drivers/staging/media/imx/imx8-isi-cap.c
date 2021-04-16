@@ -1023,12 +1023,14 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	if (!src_sd)
 		return -EINVAL;
 
-
-	// VC MIPI 
-	// Wozu wir hier das Format gesetzt?
+	// *** VC MIPI ********************************************************
+	// Frage: Wozu wird hier das Format gesetzt?
 	src_fmt.pad = source_pad->index;
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+	// *** VC MIPI ********************************************************
 	src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_2X8;
+	// src_fmt.format.code = dst_f->fmt ...
+	// ********************************************************************
 	src_fmt.format.width = dst_f->width;
 	src_fmt.format.height = dst_f->height;
 	ret = v4l2_subdev_call(src_sd, pad, set_fmt, NULL, &src_fmt);
@@ -1904,7 +1906,9 @@ err_ctrl_free:
 #ifndef CONFIG_VIDEO_ECAM
 	mxc_isi_ctrls_delete(isi_cap);
 #endif
-err_me_cleanup:
+// *** VC MIPI ****************************************************************
+// err_me_cleanup:
+// ****************************************************************************
 	media_entity_cleanup(&vdev->entity);
 err_free_ctx:
 	return ret;

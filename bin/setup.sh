@@ -14,6 +14,13 @@ cd ..
 mkdir -p build
 cd build
 mkdir -p image
+
+# Q1.2021
 #git clone -b toradex_imx_v2020.04_5.4.24_2.1.0 git://git.toradex.com/u-boot-toradex.git
-git clone -b toradex_5.4-2.1.x-imx git://git.toradex.com/linux-toradex.git
 #git clone -b toradex_5.4-2.1.x-imx git://git.toradex.com/device-tree-overlays.git
+git clone -b toradex_5.4-2.1.x-imx git://git.toradex.com/linux-toradex.git
+
+# Ab Q2.2021
+#git clone -b toradex_imx_v2020.04_5.4.70_2.3.0 git://git.toradex.com/u-boot-toradex.git
+#git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/device-tree-overlays.git
+#git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/linux-toradex.git
