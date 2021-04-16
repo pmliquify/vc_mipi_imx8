@@ -103,21 +103,19 @@ __s32 vc_mipi_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
 
 // --- v4l2_subdev_video_ops ---------------------------------------------------
 
-int vc_mipi_sd_g_frame_interval(struct v4l2_subdev *sd,
-				   struct v4l2_subdev_frame_interval *fi)
-{
-	TRACE
+// int vc_mipi_sd_g_frame_interval(struct v4l2_subdev *sd,
+// 				   struct v4l2_subdev_frame_interval *fi)
+// {
+// 	TRACE
+// 	return 0;
+// }
 
-	return 0;
-}
-
-int vc_mipi_sd_s_frame_interval(struct v4l2_subdev *sd,
-				   struct v4l2_subdev_frame_interval *fi)
-{
- 	TRACE
-	
-	return 0;
-}
+// int vc_mipi_sd_s_frame_interval(struct v4l2_subdev *sd,
+// 				   struct v4l2_subdev_frame_interval *fi)
+// {
+//  	TRACE
+// 	return 0;
+// }
 
 int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
 {
@@ -127,20 +125,22 @@ int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
 	struct device* dev = sd->dev;
 	int ret = 0;
     	int pix_fmt;
-    	int sensor_mode = 0;
+    	int mode = 0;
+
+	dev_dbg(dev, "%s(): Set sensor mode\n", __FUNCTION__);
 
 	/*............. Get pixel format */
-    	//mx6s_get_pix_fmt(&pix);
+    	// TODO: mx6s_get_pix_fmt(&pix);
     	pix_fmt = V4L2_PIX_FMT_SRGGB8;
 
 	if (pix_fmt == V4L2_PIX_FMT_GREY || pix_fmt == V4L2_PIX_FMT_SRGGB8) {
-      		sensor_mode = 0;      // 8-bit
+      		mode = 0;      // 8-bit
 
     	} else if (pix_fmt == V4L2_PIX_FMT_Y10 || pix_fmt == V4L2_PIX_FMT_SRGGB10) {
-      		sensor_mode = 1;      // 10-bit
+      		mode = 1;      // 10-bit
 
     	} else if (pix_fmt == V4L2_PIX_FMT_Y12 || pix_fmt == V4L2_PIX_FMT_SRGGB12) {
-      		sensor_mode = 2;      // 12-bit
+      		mode = 2;      // 12-bit
     	}
 
     	// if (camera->num_lanes == 4) {
@@ -148,16 +148,16 @@ int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
     	// }
 
 	// Ext. trigger mode
-    	if (camera->sensor_ext_trig) {
-      		sensor_mode += 3;
-    	}
+    	// if (camera->sensor_ext_trig) {
+      	// 	sensor_mode += 3;
+    	// }
 
 	// Change VC MIPI sensor mode
-    	if (camera->sensor_mode != sensor_mode) {
-      		camera->sensor_mode = sensor_mode;
+    	if (camera->mode != mode) {
+      		camera->mode = mode;
 
 		// TODO: Check if it is realy necessary to reset the module.
-		ret  = vc_mipi_mod_reset_module(client_mod, sensor_mode);
+		ret  = vc_mipi_mod_reset_module(client_mod, mode);
 		ret |= vc_mipi_sen_set_gain(client_sen, vc_mipi_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
 		ret |= vc_mipi_sen_set_exposure(client_sen, vc_mipi_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
       		if (ret) {
@@ -169,30 +169,34 @@ int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
 	return vc_mipi_sen_write_table(client_sen, camera->sen_pars.sensor_mode_table);
 }
 
-
 int vc_mipi_sd_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	struct device *dev = sd->dev;
 	struct i2c_client *client_sen = camera->client_sen;
 	struct i2c_client *client_mod = camera->client_mod;
 	int ret = 0;
 
- 	TRACE
+	dev_dbg(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable?"on":"off");
 
 	if (enable) {
 		if (camera->streaming) {
-			ret = vc_mipi_sen_stop_stream(client_sen, client_mod);
+			dev_warn(dev, "%s(): Sensor is already streaming!\n", __FUNCTION__);
+			ret = vc_mipi_sen_stop_stream(client_sen, client_mod,
+				camera->sen_pars.sensor_stop_table, camera->mode);
 		}
 
 		ret  = vc_mipi_sd_set_mode(camera);		
         	ret |= vc_mipi_sen_start_stream(client_sen, client_mod, 
 			camera->sen_pars.sensor_start_table, camera->flash_output);
-		if (ret == 0) {
+		if (ret == 0)
 			camera->streaming = 1;
-		} 
 
 	} else {
-	        ret = vc_mipi_sen_stop_stream(client_sen, client_mod);
+	        ret = vc_mipi_sen_stop_stream(client_sen, client_mod, 
+			camera->sen_pars.sensor_stop_table, camera->mode);
+		if (ret == 0)
+			camera->streaming = 0;
     	}
 	
 	return ret;
@@ -335,14 +339,13 @@ int vc_mipi_sd_enum_frame_size(struct v4l2_subdev *sd,
 	return 0;
 }
 
-int vc_mipi_sd_enum_frame_interval(struct v4l2_subdev *sd,
-				struct v4l2_subdev_pad_config *cfg,
-				struct v4l2_subdev_frame_interval_enum *fie)
-{
-	TRACE
-	
-	return 0;
-}
+// int vc_mipi_sd_enum_frame_interval(struct v4l2_subdev *sd,
+// 				struct v4l2_subdev_pad_config *cfg,
+// 				struct v4l2_subdev_frame_interval_enum *fie)
+// {
+// 	TRACE
+// 	return 0;
+// }
 
 
 // *** Initialisation *********************************************************
@@ -356,8 +359,8 @@ const struct v4l2_subdev_core_ops vc_mipi_core_ops = {
 };
 
 const struct v4l2_subdev_video_ops vc_mipi_video_ops = {
-	.g_frame_interval = vc_mipi_sd_g_frame_interval,
-	.s_frame_interval = vc_mipi_sd_s_frame_interval,
+	// .g_frame_interval = vc_mipi_sd_g_frame_interval,
+	// .s_frame_interval = vc_mipi_sd_s_frame_interval,
 	.s_stream = vc_mipi_sd_s_stream,
 };
 
@@ -366,7 +369,7 @@ const struct v4l2_subdev_pad_ops vc_mipi_pad_ops = {
 	.get_fmt = vc_mipi_sd_get_fmt,
 	.set_fmt = vc_mipi_sd_set_fmt,
 	.enum_frame_size = vc_mipi_sd_enum_frame_size,
-	.enum_frame_interval = vc_mipi_sd_enum_frame_interval,
+	// .enum_frame_interval = vc_mipi_sd_enum_frame_interval,
 };
 
 const struct v4l2_subdev_ops vc_mipi_subdev_ops = {

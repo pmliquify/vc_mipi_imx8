@@ -6,9 +6,6 @@
 #include "vc_mipi_camera.h"
 #include "vc_mipi_subdev.h"
 
-#define TRACE printk("        TRACE [vc-mipi] vc_mipi_camera.c --->  %s : %d", __FUNCTION__, __LINE__);
-//#define TRACE
-
 
 /*............. Sensor models */
 enum sen_model {
@@ -91,68 +88,67 @@ static const struct sensor_reg imx226_mode_3840_3040[] = {
 };
 
 // IMX226 - mono formats
-static struct vc_mipi_datafmt imx226_mono_fmts[] = {
-    { MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
-    { MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
-    { MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
-    { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
-// use 8-bit 'RGGB' instead GREY format to save 8-bit frame(s) to raw file by v4l2-ctl
-};
-static int imx226_mono_fmts_size = ARRAY_SIZE(imx226_mono_fmts);
+// static struct vc_mipi_datafmt imx226_mono_fmts[] = {
+//     { MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
+//     { MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
+//     { MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
+//     { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
+// // use 8-bit 'RGGB' instead GREY format to save 8-bit frame(s) to raw file by v4l2-ctl
+// };
+// static int imx226_mono_fmts_size = ARRAY_SIZE(imx226_mono_fmts);
 
 // IMX226 - color formats
-static struct vc_mipi_datafmt imx226_color_fmts[] = {
-    { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
-    { MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SRGGB10 'RG10'  */
-    { MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SRGGB12 'RG12'  */
-};
-static int imx226_color_fmts_size = ARRAY_SIZE(imx226_color_fmts);
+// static struct vc_mipi_datafmt imx226_color_fmts[] = {
+//     { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
+//     { MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SRGGB10 'RG10'  */
+//     { MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SRGGB12 'RG12'  */
+// };
+// static int imx226_color_fmts_size = ARRAY_SIZE(imx226_color_fmts);
 /*----------------------------------------------------------------------*/
 
 
 int vc_mipi_param_setup(struct vc_mipi_camera *camera)
 {
-	TRACE
-
 	// camera->sen_pars.gain_min         = IMX226_DIGITAL_GAIN_MIN;
 	// camera->sen_pars.gain_max         = IMX226_DIGITAL_GAIN_MAX;
 	// camera->sen_pars.gain_default     = IMX226_DIGITAL_GAIN_DEFAULT;
 	// camera->sen_pars.exposure_min     = IMX226_DIGITAL_EXPOSURE_MIN;
 	// camera->sen_pars.exposure_max     = IMX226_DIGITAL_EXPOSURE_MAX;
 	// camera->sen_pars.exposure_default = IMX226_DIGITAL_EXPOSURE_DEFAULT;
-	camera->sen_pars.frame_dx         = IMX226_DX;
-	camera->sen_pars.frame_dy         = IMX226_DY;
+	// camera->sen_pars.frame_dx         = IMX226_DX;
+	// camera->sen_pars.frame_dy         = IMX226_DY;
 
 	camera->sen_pars.sensor_start_table = (struct sensor_reg *)imx226_start;
 	camera->sen_pars.sensor_stop_table  = (struct sensor_reg *)imx226_stop;
 	camera->sen_pars.sensor_mode_table  = (struct sensor_reg *)imx226_mode_3840_3040;
 
-	camera->model = IMX226_MODEL_COLOR;
-	if(camera->model == IMX226_MODEL_MONOCHROME) {
-		camera->vc_mipi_data_fmts      = imx226_mono_fmts;
-		camera->vc_mipi_data_fmts_size = imx226_mono_fmts_size;
+	// camera->model = IMX226_MODEL_COLOR;
+	// if(camera->model == IMX226_MODEL_MONOCHROME) {
+	// 	camera->vc_mipi_data_fmts      = imx226_mono_fmts;
+	// 	camera->vc_mipi_data_fmts_size = imx226_mono_fmts_size;
 	
-	} else {
-		camera->vc_mipi_data_fmts      = imx226_color_fmts;
-		camera->vc_mipi_data_fmts_size = imx226_color_fmts_size;
-	}
+	// } else {
+	// 	camera->vc_mipi_data_fmts      = imx226_color_fmts;
+	// 	camera->vc_mipi_data_fmts_size = imx226_color_fmts_size;
+	// }
 
-	camera->pix.width  = camera->sen_pars.frame_dx; // 640;
-	camera->pix.height = camera->sen_pars.frame_dy; // 480;
+	// camera->pix.width  = camera->sen_pars.frame_dx; // 640;
+	// camera->pix.height = camera->sen_pars.frame_dy; // 480;
 
 	// vc_mipi_valid_res[0].width  = camera->sen_pars.frame_dx;
 	// vc_mipi_valid_res[0].height = camera->sen_pars.frame_dy;
 
-	camera->sensor_ext_trig = 0;    // ext. trigger flag: 0=no, 1=yes
+	// camera->sensor_ext_trig = 0;    // ext. trigger flag: 0=no, 1=yes
 
-	if(camera->model == IMX183_MODEL_MONOCHROME || camera->model == IMX183_MODEL_COLOR) {
-		camera->sen_clk = 72000000;     // clock-frequency: default=54Mhz imx183=72Mhz
-	} else {
-		camera->sen_clk = 54000000;     // clock-frequency: default=54Mhz imx183=72Mhz
-	}
+	// if(camera->model == IMX183_MODEL_MONOCHROME || camera->model == IMX183_MODEL_COLOR) {
+	// 	camera->sen_clk = 72000000;     // clock-frequency: default=54Mhz imx183=72Mhz
+	// } else {
+	// 	camera->sen_clk = 54000000;     // clock-frequency: default=54Mhz imx183=72Mhz
+	// }
 
 	camera->flash_output = 0;
-	camera->streaming = false;
+	camera->mode = 0;
+	camera->streaming = 0;
 
 	return 0;
 }
@@ -174,8 +170,6 @@ static int vc_mipi_probe(struct i2c_client *client)
 	struct fwnode_handle *endpoint;
 	struct vc_mipi_camera *camera;
 	int ret;
-
-	// TRACE
 
 	camera = devm_kzalloc(dev, sizeof(*camera), GFP_KERNEL);
 	if (!camera)
@@ -210,7 +204,8 @@ static int vc_mipi_probe(struct i2c_client *client)
 	mutex_init(&camera->lock);
 
 	camera->client_sen = client;
-	camera->client_mod = vc_mipi_mod_setup(camera->client_sen, &camera->mod_desc);
+	// TODO: Load module address from DT.
+	camera->client_mod = vc_mipi_mod_setup(camera->client_sen, 0x10, &camera->mod_desc);
 	if (camera->client_mod == 0) {
 		goto free_ctrls;
 	}
@@ -238,8 +233,6 @@ static int vc_mipi_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
 	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
-
-	TRACE
 	
 	v4l2_async_unregister_subdev(&camera->sd);
 	media_entity_cleanup(&camera->sd.entity);

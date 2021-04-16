@@ -19,12 +19,18 @@ if [[ -z $2 || $2 == "d" ]]; then
 fi
 $TARGET_SHELL /sbin/reboot
 
-#printf "Waiting for $TARGET_NAME ..."
-#sleep 5
-#while ! ping -c 1 -n -w 1 $TARGET_NAME &> /dev/null
-#do
-#        printf "."
-#done
-#printf " OK\n\n"
+printf "Waiting for $TARGET_NAME ..."
+sleep 5
+while ! ping -c 1 -n -w 1 $TARGET_NAME &> /dev/null
+do
+        printf "."
+done
+printf " OK\n\n"
 
-#$TARGET_SHELL dmesg | grep vc-mipi
+# Set loglevel=8 at boot time 
+# setenv defargs xxx loglevel=8
+#$TARGET_SHELL dmesg | grep 'mxc\|5-00'
+
+$TARGET_SHELL dmesg -n 8
+$TARGET_SHELL v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
+$TARGET_SHELL v4l2-ctl --stream-mmap --stream-count=1 --stream-to=file.raw

@@ -73,20 +73,26 @@ struct vc_mipi_camera {
 
 	struct i2c_client* client_sen;
 	struct i2c_client* client_mod;
-	struct vc_mipi_mod_desc mod_desc;
 
-	struct vc_mipi_datafmt *vc_mipi_data_fmts;
-	int vc_mipi_data_fmts_size;
-	int model;              		// sensor model
-	int sensor_ext_trig;    		// ext. trigger flag: 0=no, 1=yes
-	int sen_clk;            		// sen_clk: default=54Mhz imx183=72Mhz
- 	struct sensor_params sen_pars;
-	const struct vc_mipi_datafmt *fmt;
-	struct v4l2_captureparm streamcap;
- 	struct v4l2_pix_format pix;
- 	int flash_output;       		// flash output enable
+	// Configuration flags
+	int flash_output;       		// flash output enable
+	int ext_trig;    			// ext. trigger flag: 0=no, 1=yes
+
+	// Status flags
+	int mode;	        		// sensor mode
  	int streaming;
-	int sensor_mode;        		// sensor mode
+
+	// Sensor specific configuration
+	struct vc_mipi_mod_desc mod_desc;
+	struct sensor_params sen_pars;
+
+	// struct vc_mipi_datafmt *vc_mipi_data_fmts;
+	// int vc_mipi_data_fmts_size;
+	// int model;              		// sensor model
+	// int sen_clk;            		// sen_clk: default=54Mhz imx183=72Mhz	
+	// const struct vc_mipi_datafmt *fmt;
+	// struct v4l2_captureparm streamcap;
+ 	// struct v4l2_pix_format pix;
 	// int num_lanes;          		// # of data lanes: 1, 2, 4
 
 // 	int color;              // color flag: 0=no, 1=yes
