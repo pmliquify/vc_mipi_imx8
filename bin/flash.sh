@@ -22,7 +22,7 @@ if [[ $1 == "a" || $1 == "f" || $1 == "d" ]]; then
         
         # Apalis
         scp $KERNEL_SOURCE/arch/arm64/boot/dts/freescale/$DTO_FILE.dtbo root@$TARGET_NAME:/boot/overlays 
-        scp $WORKING_DIR/src/apalis_misc/overlays.txt root@$TARGET_NAME:/boot
+        scp $WORKING_DIR/misc/apalis/overlays.txt root@$TARGET_NAME:/boot
 fi
 
 #$TARGET_SHELL /sbin/reboot
