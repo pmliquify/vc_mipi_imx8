@@ -1,7 +1,10 @@
 #/bin/bash
 #
-. config/configure.sh $1
+. config/configure.sh
 
 echo "Patching driver sources into kernel sources ..."
-cp -Ruv $SRC_DIR/* $KERNEL_SOURCE
-cp -Ruv $WORKING_DIR/src/linux_V1/* $KERNEL_SOURCE
+CP_FLAGS=-Ruv
+if [[ $1 == "f" ]]; then
+        CP_FLAGS=-Rv       
+fi
+cp $CP_FLAGS $SRC_DIR/* $KERNEL_SOURCE

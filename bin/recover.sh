@@ -1,6 +1,7 @@
 #/bin/bash
 #
-. config/configure.sh $1
+. config/configure.sh
 
-cd $WORKING_DIR/tools/easy_apalis 
+cd $WORKING_DIR/build/easy_apalis 
 . recovery-linux.sh
+rm ~/.ssh/known_hosts

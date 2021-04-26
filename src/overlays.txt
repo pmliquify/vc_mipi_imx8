@@ -1,1 +1,0 @@
-fdt_overlays=apalis-imx8_vc_mipi_overlay.dtbo

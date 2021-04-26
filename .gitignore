@@ -2,5 +2,6 @@ build/
 logs/
 tools/
 .DS_Store
+.vscode
 .vscode-ctags
 .vscode-ctags.next

@@ -1,0 +1,47 @@
+--- vcmipidemo.c_orig	2020-03-16 15:47:15.949999834 +0000
++++ vcmipidemo.c	2020-03-16 15:48:15.239999812 +0000
+@@ -2453,7 +2453,7 @@
+ 			if(entity->id == pad->entity_id)
+ 			{
+ 				pc=acLogLine;
+-				rc =  snprintf(pc, sizeof(acLogLine)-1 - (pc-acLogLine), " Pad %u    #%8u", pad->index, pad->id);
++				rc =  snprintf(pc, sizeof(acLogLine)-1 - (pc-acLogLine), " Pad %u    #%8u", pad->reserved[0], pad->id);
+ 				if(rc<(int)sizeof(acLogLine)-1 - (pc-acLogLine)){pc += rc;}
+ 
+ 				//Scan links connected to this pad and print their connection
+@@ -2696,7 +2696,7 @@
+ 
+ 		if((*entity)->id == (*pad)->entity_id)
+ 		{
+-			syslog(LOG_DEBUG, "%s:  D. Pad #%u: Index %u, flags 0x%08x\n", __FUNCTION__, (*pad)->id, (*pad)->index, (*pad)->flags);
++			syslog(LOG_DEBUG, "%s:  D. Pad #%u: Index %u, flags 0x%08x\n", __FUNCTION__, (*pad)->id, (*pad)->reserved[0], (*pad)->flags);
+ 
+ 			break;
+ 		}
+@@ -2734,7 +2734,7 @@
+ 
+ 		if((*link)->source_id == (*pad)->id)
+ 		{
+-			syslog(LOG_DEBUG, "%s:  F. Pad #%u: Index %u, flags 0x%08x\n", __FUNCTION__, (*pad)->id, (*pad)->index, (*pad)->flags);
++			syslog(LOG_DEBUG, "%s:  F. Pad #%u: Index %u, flags 0x%08x\n", __FUNCTION__, (*pad)->id, (*pad)->reserved[0], (*pad)->flags);
+ 
+ 			break;
+ 		}
+@@ -2880,7 +2880,7 @@
+ 	rect.width  = dx;
+ 
+ 	memset(&selection, 0, sizeof(struct v4l2_subdev_selection));
+-	selection.pad    = pad->index;
++	selection.pad    = pad->reserved[0];
+ 	selection.target = V4L2_SEL_TGT_CROP;
+ 	selection.which  = V4L2_SUBDEV_FORMAT_ACTIVE;
+ 	selection.r      = rect;
+@@ -2890,7 +2890,7 @@
+ 
+ 
+ 	memset(&crop, 0, sizeof(struct v4l2_subdev_crop));
+-	crop.pad    = pad->index;
++	crop.pad    = pad->reserved[0];
+ 	crop.which  = V4L2_SUBDEV_FORMAT_ACTIVE;
+ 	crop.rect   = rect;
+ 

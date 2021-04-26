@@ -5,6 +5,7 @@
                 "vc_mipi_utils.h": "c",
                 "imx226_sd.h": "c",
                 "vc_mipi_mod.h": "c",
-                "vc_mipi.h": "c"
+                "vc_mipi.h": "c",
+                "v4l2-ctrls.h": "c"
         }
 }

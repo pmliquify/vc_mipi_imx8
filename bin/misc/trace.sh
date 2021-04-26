@@ -2,7 +2,7 @@
 #
 clear
 
-. config/configure.sh $1
+. config/configure.sh
 
 TARGET_DIR=/home/root
 TRACER=tracer.sh

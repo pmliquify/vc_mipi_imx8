@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Demo Code for a VC MIPI Camera Module</title>
+<meta name="date" content="2018-10-23" />
+<meta name="copyright" content="2018 Vision Components GmbH Ettlingen, Germany" />
+<meta name="author" content="VC Support" />
+<style type="text/css">
+
+/* Copyright 2014-2018 by Vision Components GmbH, MBE */
+
+html
+{
+	font-size:           10pt;
+	font-family:         Arial, "Liberation Sans", sans;
+	line-height:         12pt;
+
+	margin:              0em 0em 0em 0em;
+	padding:             0em 0em 0em 0em;
+}
+
+body
+{
+	margin:              0.50em 1.00em 1.00em 1.00em;
+	padding:             0.00em 1.00em 1.00em 1.00em;
+	background-color:    rgb(226, 232, 242);
+}
+
+.section
+{
+	margin:              1.5em -1.4em   0em -1.4em;
+	padding:             2.1em +1.4em 1.8em +1.4em;
+
+	background-color:    #fff;
+
+	border-width:        0px;
+	border-radius:       .5em;
+}
+
+.title
+{
+	margin:             -0.30em -1.00em 1.00em -1.00em;
+	padding:             0.75em 260px 0.45em 1.00em;
+	background-color:    #003774;
+	background-repeat:   no-repeat;
+	background-position: right 0px;
+	color:               #fff;
+	border-top-width:    6px;
+	border-top-style:    solid;
+	border-top-color:    #fff;
+	background-image:    url(data:image/png;base64,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);
+}
+
+.subtitle
+{
+	border-top-style:    none;
+	border-top-width:    0px;
+}
+
+a:link, a:visited { color: #004179; }
+a:hover           { color: #d8942c; }
+a:active          { color: #e1be23; }
+
+h1, p.topic-title, div.h1-not-numbered
+{
+	font-size:           20pt;
+	line-height:         24pt;
+}
+
+h2
+{
+	font-size:           15pt;
+	line-height:         30pt;
+
+	border-top-style:    none;
+	border-top-width:    0em;
+}
+
+.section
+{
+}
+
+#table-of-contents
+{
+	margin-bottom:       2.80em;
+	page-break-before:   always;
+	page-break-after:    always;
+}
+
+h1
+{
+}
+
+h2
+{
+}
+
+h1.title, h2.subtitle
+{
+}
+
+h1 + div
+{
+}
+
+h1 + div h2
+{
+	border-top-style:    none;
+	border-top-width:    0em;
+}
+
+h2 + div h3
+{
+}
+
+h1,h2,h3,h4
+{
+	page-break-after:    avoid;
+}
+
+h1, h2, p.topic-title, div.h1-not-numbered
+{
+	margin:              1.05em -0.45em 0.50em -0.45em;
+	padding:             0.17em +0.45em 0.25em +0.45em;
+}
+
+.section h1 
+{
+	margin-top:          0.2em;
+}
+
+p.topic-title
+{
+	font-weight:         bold;
+}
+
+h1 a:link, h1 a:visited, h2 a:link, h2 a:visited, h3 a:link, h3 a:visited
+{
+	text-decoration:     none;
+	color:               #000;
+}
+
+p
+{
+	margin:              0.20em -0.30em 0.00em -0.30em;
+	padding:             0.10em +0.30em 0.10em +0.30em;
+}
+
+ul, ol
+{
+	margin:              0.20em -0.30em 0.00em -0.30em;
+	padding:             0.20em +0.30em 0.20em +2.20em;
+}
+
+ol
+{
+	list-style-type:     decimal;
+}
+
+ol li ol
+{
+	list-style-type:     lower-roman;
+}
+
+table
+{
+	margin:              0.80em 0.00em 0.80em 0.00em;
+	padding:             0.10em 0.00em 0.10em 0.00em;
+	width:               100%;
+	border-collapse:     collapse;
+	border-width:        0px;
+	border-style:        solid;
+	border-color:        #888;
+}
+
+table + table
+{
+	margin-top:          2.0em;
+}
+
+table caption
+{
+	margin:              0.20em -0.30em 0.20em -0.30em;
+	padding:             0.10em +0.30em 0.15em +0.30em;
+	background-color:    rgb(226, 232, 242);
+
+	font-size:           12pt;
+	line-height:         14.333pt;
+	font-weight:         bold;
+	text-align:          left;
+}
+
+table thead tr th, table tbody tr td, table tbody tr th
+{
+	margin:              0.00em 0.00em 0.00em 0.00em;
+	padding:             0.10em 0.20em 0.10em 0.20em;
+
+	border-width:        1px 0px;
+	border-style:        solid;
+	border-color:        #cad3e6;
+}
+
+table thead tr th, table tbody tr th
+{
+	text-align:          left;
+}
+
+table tbody tr:nth-child(even) td,
+table tbody tr:nth-child(even) th
+{
+	background-color:    #d4dcec;
+}
+
+table tbody tr:nth-child(odd) td,
+table tbody tr:nth-child(odd) th
+{
+	background-color:    #d4dcec;
+}
+
+.section table tbody tr:nth-child(even) td,
+.section table tbody tr:nth-child(even) th
+{
+	background-color:    #fff;
+}
+
+.section table tbody tr:nth-child(odd) td,
+.section table tbody tr:nth-child(odd) th
+{
+	background-color:    #F9FAFC;
+}
+
+table.address-table
+{
+	margin:              0.80em 0.00em 0.80em 0.00em;
+	padding:             0.10em 0.00em 0.10em 0.00em;
+	background-color:    #cca;
+
+	width:               100%;
+	border-collapse:     collapse;
+	border-style:        none;
+	border-width:        0px;
+}
+
+img.float-left
+{
+	float:               left;
+	margin:              0.00em  0.80em  0.00em -0.30em;
+	padding:             0.10em +0.30em  0.10em +0.30em;
+
+	border-width:        1px 1px;
+	border-style:        solid;
+	border-color:        #ccc;
+}
+
+sub, sup
+{
+	position:            relative;
+
+	font-size:           66%;
+	vertical-align:      baseline;
+}
+
+sup
+{
+	bottom:              0.3em;
+}
+
+sub
+{
+	top:                 0.3em;
+}
+
+.warning, .note, .admonition
+{
+	margin:              0.20em -0.30em 0.00em -0.30em;
+	padding:             0.10em +0.30em 0.10em +0.30em;
+	min-height:          80px; /* Sign Height*/
+}
+
+.warning
+{
+	background-color:    #caa;
+}
+
+.note
+{
+	background-color:    #ccf;
+}
+
+.admonition-example
+{
+	background-color:    #ccc;
+}
+
+.warning .admonition-title, .note .admonition-title, .admonition .admonition-title
+{
+	font-weight:         bold;
+	background-color:    #f33;
+}
+
+.warning .admonition-title
+{
+	background-color:    #f66;
+}
+
+.note .admonition-title
+{
+	background-color:    #66f;
+}
+
+.admonition-example .admonition-title
+{
+	background-color:    #eee;
+}
+
+.warning-sign, .note-sign, .example-sign
+{
+	margin:              0.00em  0.50em  0.00em  0.00em;
+	padding:             0.00em  0.00em  0.00em  0.00em;
+	vertical-align:      text-top;
+	float:               left;
+}
+
+/*
+.warning-sign
+{
+	background-image:    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADEAAAAyCAYAAAD1CDOyAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAhXwAAIV8Betvz4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOgSURBVGje7dhvaJVVAMfx793W5pzcjTnmxMVKDMnAYsJIX4gMMvJFbxpExl5EGWVIhUVvSgpjLxQhkgUL+wPRIHKMiIgGgpQh3lWQNO7EwVYNzFgjbbg/bvv24tznck2dt7nd3cH9wXlzz3nufT7nPOee8xwopJBCCilkGWY18BUwDSSATcsR0f0geBJ8AgTOAaXLCfBQKdgPCv4DrguQV5cL4A6g75UUICqfBMQloG45IF5aA/4dAYqLFZwFtwbIh/kOqAZGPogAsZh2dWllpYI/gkUwAzTlM6KjEZyJEK2tqnr4cPqxeiqMxmkglo+AB2Iw/W0EWLVKh4cDYnJSN25U8CJYGSCt+Yg4+WTmZG5r85r09KTrDgXEBSCeT4DHV4K/RoD163V83Ouya5eCk+DGAGnLF0A5MPR25ih0d6va399vMpk0mUw6NTWl589rWZmCXwbEJHBPPiDevBscjwDNzemOj8ViEm7WgYGB8OH+/WnsI6Gue6kB9cBYV+aacPbs3IjLl3XtWgXPg6Wh/uGlRHzWnPkY7dt3zRS4IUL12LH0NS+H+r7USp/zbC+G2Z8jQHW1joxkh5iZ0aYmBS+BdaHNvlwDioAfXsgchfb26/6MbopQPXUqrOjg+6HNKFCTS8Sz1eBIBNi8Waen/x9CdfduTa3wjaHde7kCVAF/tmeOQk+PN8otEcPDWlGh4PdgLLxAbc4F4p1N4NUI0NLizXJLhOrBg+nOSL08fbfY+6p7galvIkB5uQ4O3h5iYkI3bFDwd7AitG9ZTMTXj2U+RgcOOFeyQqgeP57+zrdC+9+AlYsBeLQstUAJWl+vY2NzInp7e00kEiYSCScmJuZs686dCl4B7wqQNxYaUAqcez1zFDo7XdD09WlJiYKfB8QVoGEhEa+tA8ciwLZtOjvrgmfv3nQn7QiQzoUCrAEufRoBioo0kcjqnqqqqozH48bjcQfn+ANIZ3RUa2oU/AUsCZDtC4H4eGvqRV/QPXuy7tisJ3Zmjh5Nj8bz4dqfgOLbAWwpgpkzESAe1wsXskbU1dVZW1trbW2tQ0ND2V00PR12AOBf4OoAeWa+gBhw+unMyXzkiDnJiRPp33w3IC4ClfNB7I6Df0SAFSvCUHd05KY0NGhqZ3BfgByaD+KLF/9zirdU5aOAGJrXGdKO1DnqUgKugs8FxJn5IO5MnWSbB2UE2DbfyV0C3A9sWcLSuFj7qEIKKaSQQgopJJf5F4Hl5Awqp0obAAAAAElFTkSuQmCC);
+}
+.note-sign
+{
+	background-image:    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADEAAAAyCAYAAAD1CDOyAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAhhwAAIYcBzVcitwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANGSURBVGje7ZhfSFNRHMc/x9n+NEFMY4kma0GwBBcY0UsFFUNK7aGgiMIhaH/opQRf6qUefAsjhDaJ5ktPFUJPUSBBFBRE6UMUSflQFBhB6NZa23497G7O/XFTmN7F/cIXdtnvnnM+9/x+95x7wJChitFe4ArQWckQ1wAB7hgQBoQBAcBp4BFwsdLfUOp/eM0eBjbpaUDVQBDYv4x7gkBfibEe4D5gLyfEZa1QQ8CBEuLdSvEHmAbWF4ndAfzQ2r9VTggb8ETrKAwcXCLWrBQvTSYSWvxIEYBZLe4N0FDulLIBj7UOI1rO51MAkOFh5NixNIivyAy8AepXqzZSIHGgJ8//FwA5dQoRQebmkO3biQJRYE9WbIf2MF4DG1a7yG3aALK1RymiHg9/Q6EkhAgyM4PU1hIBvgGbs+7ZtxYAhdQCzDY0EPnyZQEg5adPkaoqYsBLwKLH9cACvDKZiL14kQuQ8s2bRLX8D+gRYhSQkRHihQBSPn6cXxpIr972SHL0KPPFAESQcBhxOvkB/Aba9QCwBQi7XPzKLORi/vgRWbeOEPAeMJdrcDuBewWcqQdKEZ+cXDzIZ8+ShZzpqanFMX4/ES2tBrLSMl+f3pVAHNE6yOfUznQbIP39xLKftNWae5/XuzgmHkfcbsJK8R0waW1+L9DnuZVAbAUuFXBKJwGZmMhNF5sNcbkW3NSUCyGCDA2lB+nS2jxToM+2cqVcJyDj47mDq6lZfP38eX6IwcE0RP1aFXUjkDh/fuUQHg9/leLz2n62KZ7Y7cjs7PIhJibSs3BVDwdk0tu7PIhIBGlrI6YU82uZSpkaA+T27dIh+vrSs3BWLyt2jVK8NZtJpNaCd+9yV+mZmeTvsbEkgNnMXb3tnVxKEdu4EfF4lrbNRryqiq+AVY+bwOgSC2S2p3V5NtPa2nq9u7tbirmrqytRXV3doUsIv99/IBAISCkOBoO6TCUcDsdDt9stpdhutw/oEsJqtX4otSYsFosuv+wAOr1e77jP55NC7unpibW3t98Adun68DUQCFwrUAux0dHRExVzilxXV/fJ4XD8bGxsnGtubv7T0tISdzqdj6kwhfPUQsVBHAK6s7wbQ4YMGTJkaJX1D0HO/OAMT8bkAAAAAElFTkSuQmCC);
+}
+.example-sign
+{
+	background-image:    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADEAAAAyCAQAAABfAfs5AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAIYcAACGHAc1XIrcAAAAHdElNRQfhCB4HFw52Drb+AAABjElEQVRYw+2VzStEURiHH5PRxBiFTERKKZJ8bJTJRk1mIQvxBygpNsrCWrITNpLlLGwUG6Vmx0aystNYKuWjacyUiCbX5nU79975unMji/M7i3N6n9P7u51z3veClpaWltbvqqoEDxCjnxayJEmQsrBeagFIcVepvZ9VMhjm+GCHGoVfSXy3UoMQZ0r6n3Gs7DiX2GbxRL6CpJXuPNFpxs31m212bXFLhCRp5mkixCJfEo+aO97Ls6guwu4YI8A9APvMyvcHTZ6xzRVYoLwgH2FZ3ZixtG12fVBWrdMHwBMHbi3Kq50teTuvjCrxBYkOebfYllRpiwHMSLzTq8GkJMoyYCPjQuq9WiQk0ZKDDErNe1ZSLNocpAMDg4dSCapLWsxRB8CzgzwSVQrwf2uEOCes4HeQLvY4ZYMGbwYRcnIXh46beBFybWnxrnWkNPJ2C1lTyISXBtKsrMNlEpcWF0pHuilAclx6Oaig/NsyTDk6VxwDg0+Wvb4oH8NEaczLeojlKUktLS0trT/WN4aJiWm5W5lgAAAAAElFTkSuQmCC);
+}
+*/
+
+p.topic-title /* Table of contents header */
+{
+}
+
+ul.auto-toc, #table-of-contents ul
+{
+	list-style-type:     none;
+	margin:              0.20em -0.30em 0.00em -0.30em;
+	padding:             0.10em +0.30em 0.10em +1.60em;
+}
+
+ul.auto-toc li, #table-of-contents ul li
+{
+	font-weight:         bold;
+	margin:              0.20em -0.30em 0.00em -0.30em;
+	padding:             0.10em +0.30em 0.10em +0.30em;
+}
+
+ul.auto-toc li a, #table-of-contents ul li a
+{
+	text-decoration:     none;
+}
+
+dl
+{
+	margin:              0.80em -0.40em 0.80em -0.40em;
+	padding:             0.10em +0.40em 0.40em +0.40em;
+
+	border-top-width:    0.1em;
+	border-top-style:    solid;
+	border-top-color:    #b0c9d9;
+	border-bottom-width: 0.1em;
+	border-bottom-style: solid;
+	border-bottom-color: #b0c9d9;
+}
+
+td dl
+{
+	margin-top:          0.00em;
+	margin-bottom:       0.00em;
+
+	border-width:        0em;
+}
+
+dt
+{
+	margin:              0.30em -0.10em 0.30em -0.10em;
+	padding:             0.10em +0.20em 0.15em +0.20em;
+
+	font-weight:         bold;
+	background-color:    #dbe6ef;
+}
+
+dd
+{
+	margin:              0.00em -0.10em 0.00em  2.20em;
+	padding:             0.00em +0.10em 0.00em +0.20em;
+}
+
+dd ul, dd ol
+{
+	margin:              0.00em -0.30em 0.00em -1.40em;
+	padding:             0.10em +0.30em 0.20em +1.40em;
+}
+
+div.figure
+{
+	display:             inline-block;
+
+	margin:              1.00em  0.80em  1.00em -0.30em;
+	padding:             0.00em +0.30em  0.00em +0.30em;
+	background-color:    #fff;
+
+	border-width:        5px 5px 1px 5px;
+	border-style:        solid;
+	border-color:        rgb(226, 232, 242);
+}
+
+h1 + div.figure, h2 + div.figure, h3 + div.figure, h4 + div.figure
+{
+	margin-top:          0em;
+}
+
+div.figure img
+{
+	margin:              0.00em -0.30em  0.00em -0.30em;
+	padding:             0.00em +0.00em  0.00em +0.00em;
+}
+
+div.figure p.caption
+{
+	font-size:           80%;
+	margin:              0.00em -0.40em 0.00em -0.40em;
+	padding:             0.20em +0.40em 0.10em +0.00em;
+	background-color:    rgb(226, 232, 242);
+}
+
+.docinfo-name, .field-name
+{
+	width:               auto;
+	white-space:         nowrap;
+	text-align:          right;
+	padding-right:       .5em;
+}
+
+.docinfo-content, .field-body
+{
+	width:               100%;
+}
+
+.footer
+{
+	margin:              2.7em    0em   0em    0em;
+	padding:               0em    0em   0em    0em;
+}
+
+div.footer table tr td
+{
+	border-width:        0px 0px;
+	background-color:    inherit;
+}
+
+div.footer table tr td p
+{
+	margin-top:          0em;
+	margin-bottom:       0em;
+}
+
+.footer hr
+{
+	display:             none;
+}
+
+
+</style>
+</head>
+<body>
+<div class="document" id="demo-code-for-a-vc-mipi-camera-module">
+<h1 class="title">Demo Code for a VC MIPI Camera Module</h1>
+<h2 class="subtitle" id="source-code-and-binaries">Source Code and Binaries</h2>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Revision:</th>
+<td>0.0</td></tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>2018-10-23</td></tr>
+<tr><th class="docinfo-name">Copyright:</th>
+<td>2018 Vision Components GmbH Ettlingen, Germany</td></tr>
+<tr><th class="docinfo-name">Author:</th>
+<td>VC Support</td></tr>
+</tbody>
+</table>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#package-structure" id="id1">Package Structure</a></li>
+<li><a class="reference internal" href="#compile-instructions" id="id2">Compile Instructions</a><ul>
+<li><a class="reference internal" href="#compiling-the-vcimgnetsrv" id="id3">Compiling the 'vcimgnetsrv'</a></li>
+<li><a class="reference internal" href="#compiling-the-vcmipidemo" id="id4">Compiling the 'vcmipidemo'</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#execution-instructions" id="id5">Execution Instructions</a><ul>
+<li><a class="reference internal" href="#using-the-vcimgnetsrv-and-the-vcimgnetclient-py" id="id6">Using the 'vcimgnetsrv' and the 'vcimgnetclient.py'</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="package-structure">
+<h1><a class="toc-backref" href="#id1">Package Structure</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">File/Directory</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>src/</td>
+<td>Source Code of programs</td>
+</tr>
+<tr><td>src/vcimgnet.c</td>
+<td>For local user program to connect to the
+'vcimgnetsrv'.</td>
+</tr>
+<tr><td>src/vcimgnetsrv.c</td>
+<td>Server for Image transfer to 'vcimgnetclient'
+over TCP/IP.</td>
+</tr>
+<tr><td>src/vcimgnetclient.py</td>
+<td>Python Client to connect to the 'vcimgnetsrv',
+needs Python version 2 and PyGTK installed.</td>
+</tr>
+<tr><td>src/vcmipidemo.c</td>
+<td>Demo for image capture and display.</td>
+</tr>
+<tr><td>bin/</td>
+<td>Pre-compiled binaries for the demo using the
+libc version 2.19</td>
+</tr>
+<tr><td>bin/vcimgnetsrv</td>
+<td>Server for Image transfer to 'vcimgnetclient'
+over TCP/IP.</td>
+</tr>
+<tr><td>bin/vcmipidemo</td>
+<td>Demo for image capture and display.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="compile-instructions">
+<h1><a class="toc-backref" href="#id2">Compile Instructions</a></h1>
+<p>Extract the demo zip file to a directory at your system, and change to the
+'src/' directory. Be sure the Gnu C compiler is installed and ready to use,
+this may be done by executing the following command:</p>
+<blockquote>
+sudo  apt-get install  build-essential</blockquote>
+<div class="section" id="compiling-the-vcimgnetsrv">
+<h2><a class="toc-backref" href="#id3">Compiling the 'vcimgnetsrv'</a></h2>
+<p>Call the Gnu C compiler by using the following command:</p>
+<blockquote>
+gcc -o vcimgnetsrv  vcimgnetsrv.c vclib-excerpt.c  -lrt</blockquote>
+</div>
+<div class="section" id="compiling-the-vcmipidemo">
+<h2><a class="toc-backref" href="#id4">Compiling the 'vcmipidemo'</a></h2>
+<p>Call the Gnu C compiler by using the following command:</p>
+<blockquote>
+gcc -o vcmipidemo  vcmipidemo.c vcimgnet.c vclib-excerpt.c  -lrt</blockquote>
+<p>A faster version can be generated using multiprocessing via openmp.
+Use the following compile options therefore:</p>
+<blockquote>
+gcc -O3 -fopenmp -o vcmipidemo  vcmipidemo.c vcimgnet.c vclib-excerpt.c  -lrt</blockquote>
+</div>
+</div>
+<div class="section" id="execution-instructions">
+<h1><a class="toc-backref" href="#id5">Execution Instructions</a></h1>
+<p>By default the captured images are output to the console as an ASCII art.
+If the 'vcimgnetsrv' program is running, the image will be also available
+over the 'vcimgnetclient.py'.</p>
+<p>A command line option enables the transfer of the image data to a framebuffer,
+see the source code for the output conversion, it may not fit your device so
+that the image itself would be malformed in color, size and skew.
+If this is the case feel free to adjust the source code to fit your needs.</p>
+<p>Other command line options are available, for example disabling the ASCII
+console output.</p>
+<div class="section" id="using-the-vcimgnetsrv-and-the-vcimgnetclient-py">
+<h2><a class="toc-backref" href="#id6">Using the 'vcimgnetsrv' and the 'vcimgnetclient.py'</a></h2>
+<ol class="arabic">
+<li><p class="first">Once start the 'vcimgnetsrv' in the background:</p>
+<blockquote>
+<p>./vcimgnetsrv &amp;</p>
+</blockquote>
+</li>
+<li><p class="first">Connect to the 'vcimgnetsrv' from your PC
+by starting the 'vcimgnetclient.py',
+changing the IP address to the host of the 'vcimgnetsrv'
+and pressing the 'Receive Image' button.
+Be aware that the client depends on 'Python' version 2 and
+the 'PyGTK' module!</p>
+</li>
+<li><p class="first">Start the demo program at the same host as the 'vcimgnetsrv':</p>
+<blockquote>
+<p>./vcmipidemo</p>
+</blockquote>
+</li>
+</ol>
+<p>You may stop the demo program while the 'vcimgnetsrv' will keep on running
+and listens for the next application to connect to.</p>
+<!-- ############################################################################ -->
+<!-- ############################################################################ -->
+<!-- ############################################################################ -->
+<!-- ############################################################################ -->
+<!-- Abbreviations done for Formatting and Replacement follow -->
+<!-- ############################################################################ -->
+<!-- ##  END OF FILE  ########################################################### -->
+<!-- ############################################################################ -->
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><p class="first">Vision Components GmbH</p>
+<p>Ottostr. 2</p>
+<p>76275 Ettlingen</p>
+<p class="last">Germany</p>
+</td>
+<td><p class="first">Phone: +49 (0) 7243 2167-0</p>
+<p>www.vc-linux.com</p>
+<p class="last">www.vision-components.com</p>
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</body>
+</html>

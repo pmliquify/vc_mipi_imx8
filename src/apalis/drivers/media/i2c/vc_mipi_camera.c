@@ -88,7 +88,7 @@ static const struct sensor_reg imx226_mode_3840_3040[] = {
 };
 
 // IMX226 - mono formats
-// static struct vc_mipi_datafmt imx226_mono_fmts[] = {
+// static struct vc_datafmt imx226_mono_fmts[] = {
 //     { MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
 //     { MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
 //     { MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
@@ -98,7 +98,7 @@ static const struct sensor_reg imx226_mode_3840_3040[] = {
 // static int imx226_mono_fmts_size = ARRAY_SIZE(imx226_mono_fmts);
 
 // IMX226 - color formats
-// static struct vc_mipi_datafmt imx226_color_fmts[] = {
+// static struct vc_datafmt imx226_color_fmts[] = {
 //     { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
 //     { MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SRGGB10 'RG10'  */
 //     { MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SRGGB12 'RG12'  */
@@ -107,7 +107,7 @@ static const struct sensor_reg imx226_mode_3840_3040[] = {
 /*----------------------------------------------------------------------*/
 
 
-int vc_mipi_param_setup(struct vc_mipi_camera *camera)
+int vc_param_setup(struct vc_camera *camera)
 {
 	// camera->sen_pars.gain_min         = IMX226_DIGITAL_GAIN_MIN;
 	// camera->sen_pars.gain_max         = IMX226_DIGITAL_GAIN_MAX;
@@ -124,19 +124,19 @@ int vc_mipi_param_setup(struct vc_mipi_camera *camera)
 
 	// camera->model = IMX226_MODEL_COLOR;
 	// if(camera->model == IMX226_MODEL_MONOCHROME) {
-	// 	camera->vc_mipi_data_fmts      = imx226_mono_fmts;
-	// 	camera->vc_mipi_data_fmts_size = imx226_mono_fmts_size;
+	// 	camera->vc_data_fmts      = imx226_mono_fmts;
+	// 	camera->vc_data_fmts_size = imx226_mono_fmts_size;
 	
 	// } else {
-	// 	camera->vc_mipi_data_fmts      = imx226_color_fmts;
-	// 	camera->vc_mipi_data_fmts_size = imx226_color_fmts_size;
+	// 	camera->vc_data_fmts      = imx226_color_fmts;
+	// 	camera->vc_data_fmts_size = imx226_color_fmts_size;
 	// }
 
 	// camera->pix.width  = camera->sen_pars.frame_dx; // 640;
 	// camera->pix.height = camera->sen_pars.frame_dy; // 480;
 
-	// vc_mipi_valid_res[0].width  = camera->sen_pars.frame_dx;
-	// vc_mipi_valid_res[0].height = camera->sen_pars.frame_dy;
+	// vc_valid_res[0].width  = camera->sen_pars.frame_dx;
+	// vc_valid_res[0].height = camera->sen_pars.frame_dy;
 
 	// camera->sensor_ext_trig = 0;    // ext. trigger flag: 0=no, 1=yes
 
@@ -153,22 +153,22 @@ int vc_mipi_param_setup(struct vc_mipi_camera *camera)
 	return 0;
 }
 
-static int vc_mipi_link_setup(struct media_entity *entity,
+static int vc_link_setup(struct media_entity *entity,
 			   const struct media_pad *local,
 			   const struct media_pad *remote, u32 flags)
 {
 	return 0;
 }
 
-static const struct media_entity_operations vc_mipi_sd_media_ops = {
-	.link_setup = vc_mipi_link_setup,
+static const struct media_entity_operations vc_sd_media_ops = {
+	.link_setup = vc_link_setup,
 };
 
-static int vc_mipi_probe(struct i2c_client *client)
+static int vc_probe(struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
 	struct fwnode_handle *endpoint;
-	struct vc_mipi_camera *camera;
+	struct vc_camera *camera;
 	int ret;
 
 	camera = devm_kzalloc(dev, sizeof(*camera), GFP_KERNEL);
@@ -188,14 +188,14 @@ static int vc_mipi_probe(struct i2c_client *client)
 		return ret;
 	}
 
-	ret = vc_mipi_sd_init(&camera->sd, client);
+	ret = vc_sd_init(&camera->sd, client);
 	if (ret)
 		goto free_ctrls;
 
 	camera->sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE |
 			    V4L2_SUBDEV_FL_HAS_EVENTS;
 	camera->pad.flags = MEDIA_PAD_FL_SOURCE;
-	camera->sd.entity.ops = &vc_mipi_sd_media_ops;
+	camera->sd.entity.ops = &vc_sd_media_ops;
 	camera->sd.entity.function = MEDIA_ENT_F_CAM_SENSOR;
 	ret = media_entity_pads_init(&camera->sd.entity, 1, &camera->pad);
 	if (ret)
@@ -205,12 +205,12 @@ static int vc_mipi_probe(struct i2c_client *client)
 
 	camera->client_sen = client;
 	// TODO: Load module address from DT.
-	camera->client_mod = vc_mipi_mod_setup(camera->client_sen, 0x10, &camera->mod_desc);
+	camera->client_mod = vc_mod_setup(camera->client_sen, 0x10, &camera->mod_desc);
 	if (camera->client_mod == 0) {
 		goto free_ctrls;
 	}
 
-	ret = vc_mipi_param_setup(camera);
+	ret = vc_param_setup(camera);
     	if(ret) {
         	goto free_ctrls;
     	}
@@ -229,10 +229,10 @@ free_ctrls:
 	return ret;
 }
 
-static int vc_mipi_remove(struct i2c_client *client)
+static int vc_remove(struct i2c_client *client)
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
-	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	struct vc_camera *camera = to_vc_camera(sd);
 	
 	v4l2_async_unregister_subdev(&camera->sd);
 	media_entity_cleanup(&camera->sd.entity);
@@ -242,29 +242,29 @@ static int vc_mipi_remove(struct i2c_client *client)
 	return 0;
 }
 
-static const struct i2c_device_id vc_mipi_id[] = {
+static const struct i2c_device_id vc_id[] = {
 	{"vc-mipi-cam", 0},
 	{},
 };
-MODULE_DEVICE_TABLE(i2c, vc_mipi_id);
+MODULE_DEVICE_TABLE(i2c, vc_id);
 
-static const struct of_device_id vc_mipi_dt_ids[] = {
+static const struct of_device_id vc_dt_ids[] = {
 	{ .compatible = "vc,vc_mipi" },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, vc_mipi_dt_ids);
+MODULE_DEVICE_TABLE(of, vc_dt_ids);
 
-static struct i2c_driver vc_mipi_i2c_driver = {
+static struct i2c_driver vc_i2c_driver = {
 	.driver = {
 		.name  = "vc-mipi-cam",
-		.of_match_table	= vc_mipi_dt_ids,
+		.of_match_table	= vc_dt_ids,
 	},
-	.id_table = vc_mipi_id,
-	.probe_new = vc_mipi_probe,
-	.remove   = vc_mipi_remove,
+	.id_table = vc_id,
+	.probe_new = vc_probe,
+	.remove   = vc_remove,
 };
 
-module_i2c_driver(vc_mipi_i2c_driver);
+module_i2c_driver(vc_i2c_driver);
 
 MODULE_DESCRIPTION("IMX226 MIPI Camera Subdev Driver");
 MODULE_LICENSE("GPL");

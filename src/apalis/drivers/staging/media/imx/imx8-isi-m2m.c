@@ -72,14 +72,15 @@ struct mxc_isi_fmt mxc_isi_input_formats[] = {
 		.color = MXC_ISI_M2M_IN_FMT_YUV422_1P8P,
 		.memplanes	= 1,
 		.colplanes	= 1,
-	}, {
-		.name		= "RGBA (R-G-B-A)",
-		.fourcc		= V4L2_PIX_FMT_RGBA,
-		.depth		= { 32 },
-		.color = MXC_ISI_M2M_IN_FMT_XBGR8,
-		.memplanes	= 1,
-		.colplanes	= 1,
 	}
+	// }, {
+	// 	.name		= "RGBA (R-G-B-A)",
+	// 	.fourcc		= V4L2_PIX_FMT_RGBA,
+	// 	.depth		= { 32 },
+	// 	.color = MXC_ISI_M2M_IN_FMT_XBGR8,
+	// 	.memplanes	= 1,
+	// 	.colplanes	= 1,
+	// }
 };
 
 static struct v4l2_m2m_buffer *to_v4l2_m2m_buffer(struct vb2_v4l2_buffer *vbuf)

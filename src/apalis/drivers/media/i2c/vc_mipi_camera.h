@@ -31,13 +31,13 @@
 
 
 // Valid sensor resolutions
-struct vc_mipi_res {
+struct vc_res {
     int width;
     int height;
 };
 
 // /* Valid sensor resolutions */
-// static struct vc_mipi_res vc_mipi_valid_res[] = {
+// static struct vc_res vc_valid_res[] = {
 //     [0] = {640, 480},
 // //    [1] = {320, 240},
 // //    [2] = {720, 480},
@@ -46,7 +46,7 @@ struct vc_mipi_res {
 // //    [5] = {2592, 1944},
 // };
 
-struct vc_mipi_datafmt {
+struct vc_datafmt {
     __u32 code;
     enum v4l2_colorspace        colorspace;
 };
@@ -65,7 +65,7 @@ struct sensor_params {
     struct sensor_reg *sensor_mode_table;
 };
 
-struct vc_mipi_camera {
+struct vc_camera {
 	struct v4l2_subdev sd;
 	struct media_pad pad;
 	struct v4l2_fwnode_endpoint ep; 	/* the parsed DT endpoint info */
@@ -83,14 +83,14 @@ struct vc_mipi_camera {
  	int streaming;
 
 	// Sensor specific configuration
-	struct vc_mipi_mod_desc mod_desc;
+	struct vc_mod_desc mod_desc;
 	struct sensor_params sen_pars;
 
-	// struct vc_mipi_datafmt *vc_mipi_data_fmts;
-	// int vc_mipi_data_fmts_size;
+	// struct vc_datafmt *vc_data_fmts;
+	// int vc_data_fmts_size;
 	// int model;              		// sensor model
 	// int sen_clk;            		// sen_clk: default=54Mhz imx183=72Mhz	
-	// const struct vc_mipi_datafmt *fmt;
+	// const struct vc_datafmt *fmt;
 	// struct v4l2_captureparm streamcap;
  	// struct v4l2_pix_format pix;
 	// int num_lanes;          		// # of data lanes: 1, 2, 4
@@ -100,9 +100,9 @@ struct vc_mipi_camera {
 // 	int fpga_addr;          // FPGA i2c address (def = 0x10)
 };
 
-static inline struct vc_mipi_camera *to_vc_mipi_camera(struct v4l2_subdev *sd)
+static inline struct vc_camera *to_vc_camera(struct v4l2_subdev *sd)
 {
-	return container_of(sd, struct vc_mipi_camera, sd);
+	return container_of(sd, struct vc_camera, sd);
 }
 
 #endif // _VC_MIPI_DRIVER_H

@@ -108,7 +108,7 @@ int i2c_write_reg(struct i2c_client *client, const __u16 addr, const __u8 data)
 #define REG_IOCTRL_DISABLE  0x00
 
 
-void vc_mipi_dump_reg_value(struct device* dev, int addr, int reg) 
+void vc_dump_reg_value(struct device* dev, int addr, int reg) 
 {
         int sval = 0;   // short 2-byte value
         if (addr & 1) { // odd addr
@@ -117,7 +117,7 @@ void vc_mipi_dump_reg_value(struct device* dev, int addr, int reg)
         }     
 }
 
-void vc_mipi_dump_hw_desc(struct device* dev, struct vc_mipi_mod_desc* mod_desc)
+void vc_dump_hw_desc(struct device* dev, struct vc_mod_desc* mod_desc)
 {
         dev_info(dev, "VC MIPI Module - Hardware Descriptor\n");
         dev_info(dev, "[ MAGIC  ] [ %s ]\n", mod_desc->magic);
@@ -127,7 +127,7 @@ void vc_mipi_dump_hw_desc(struct device* dev, struct vc_mipi_mod_desc* mod_desc)
         dev_info(dev, "[ MODES  ] [ NR=0x%04x ] [ BPM=0x%04x ]\n", mod_desc->nr_modes, mod_desc->bytes_per_mode);
 }
 
-struct i2c_client* vc_mipi_mod_get_client(struct i2c_adapter *adapter, __u8 addr)
+struct i2c_client* vc_mod_get_client(struct i2c_adapter *adapter, __u8 addr)
 {
         struct i2c_board_info info = {
                 I2C_BOARD_INFO("i2c", addr),
@@ -136,7 +136,7 @@ struct i2c_client* vc_mipi_mod_get_client(struct i2c_adapter *adapter, __u8 addr
         return i2c_new_probed_device(adapter, &info, addr_list, NULL);
 }
 
-int vc_mipi_mod_set_power(struct i2c_client* client, int enable) 
+int vc_mod_set_power(struct i2c_client* client, int enable) 
 {
         struct device *dev = &client->dev;
         int ret;
@@ -150,7 +150,7 @@ int vc_mipi_mod_set_power(struct i2c_client* client, int enable)
         return ret;
 }
 
-int vc_mipi_mod_get_status(struct i2c_client* client) 
+int vc_mod_get_status(struct i2c_client* client) 
 {
         struct device *dev = &client->dev;
         int ret;
@@ -164,7 +164,7 @@ int vc_mipi_mod_get_status(struct i2c_client* client)
         return ret;
 }
 
-int vc_mipi_mod_set_ext_trig(struct i2c_client *client, int enable)
+int vc_mod_set_ext_trig(struct i2c_client *client, int enable)
 {
         struct device *dev = &client->dev;
         int ret;
@@ -178,7 +178,7 @@ int vc_mipi_mod_set_ext_trig(struct i2c_client *client, int enable)
         return ret;  
 }
 
-int vc_mipi_mod_set_flash_output(struct i2c_client *client, int enable)
+int vc_mod_set_flash_output(struct i2c_client *client, int enable)
 {
         struct device *dev = &client->dev;
         int ret;
@@ -192,7 +192,7 @@ int vc_mipi_mod_set_flash_output(struct i2c_client *client, int enable)
         return ret;  
 }
 
-int vc_mipi_mod_wait_until_module_is_ready(struct i2c_client* client) 
+int vc_mod_wait_until_module_is_ready(struct i2c_client* client) 
 {
         struct device* dev = &client->dev;
         int status;
@@ -204,7 +204,7 @@ int vc_mipi_mod_wait_until_module_is_ready(struct i2c_client* client)
         try = 0;
         while (status == REG_STATUS_NO_COM && try < 10) {
                 mdelay(100);
-                status = vc_mipi_mod_get_status(client);
+                status = vc_mod_get_status(client);
                 try++;
         }
         if (status == REG_STATUS_ERROR) {
@@ -216,7 +216,7 @@ int vc_mipi_mod_wait_until_module_is_ready(struct i2c_client* client)
         return 0;
 }
 
-int vc_mipi_mod_set_mode(struct i2c_client* client, int mode)
+int vc_mod_set_mode(struct i2c_client* client, int mode)
 {
         struct device *dev = &client->dev;
         int ret;
@@ -230,7 +230,7 @@ int vc_mipi_mod_set_mode(struct i2c_client* client, int mode)
         return ret;
 } 
 
-int vc_mipi_mod_reset_module(struct i2c_client* client, int mode)
+int vc_mod_reset_module(struct i2c_client* client, int mode)
 {
         struct device *dev = &client->dev;
         int ret;
@@ -238,21 +238,21 @@ int vc_mipi_mod_reset_module(struct i2c_client* client, int mode)
         dev_dbg(dev, "%s(): Reset the module!\n", __FUNCTION__);
 
         // TODO: Check if it really necessary to set mode in power down state.
-        ret  = vc_mipi_mod_set_power(client, REG_RESET_PWR_DOWN);    
-        ret |= vc_mipi_mod_set_mode(client, mode);
-        ret |= vc_mipi_mod_set_power(client, REG_RESET_PWR_UP);
-        ret |= vc_mipi_mod_wait_until_module_is_ready(client);
+        ret  = vc_mod_set_power(client, REG_RESET_PWR_DOWN);    
+        ret |= vc_mod_set_mode(client, mode);
+        ret |= vc_mod_set_power(client, REG_RESET_PWR_UP);
+        ret |= vc_mod_wait_until_module_is_ready(client);
 
         return ret;
 }
 
-struct i2c_client *vc_mipi_mod_setup(struct i2c_client *client_sen, __u8 addr_mod, struct vc_mipi_mod_desc *desc)
+struct i2c_client *vc_mod_setup(struct i2c_client *client_sen, __u8 addr_mod, struct vc_mod_desc *desc)
 {
         struct i2c_adapter* adapter = client_sen->adapter;
         struct device* dev_sen = &client_sen->dev;
         struct i2c_client *client_mod;
         struct device* dev_mod;
-        int ret;
+        int ret, addr,reg;
 
         dev_dbg(dev_sen, "%s(): Setup the module\n", __FUNCTION__);
 
@@ -261,26 +261,28 @@ struct i2c_client *vc_mipi_mod_setup(struct i2c_client *client_sen, __u8 addr_mo
                 return 0;
         }
 
-        client_mod = vc_mipi_mod_get_client(adapter, addr_mod); 
-        dev_mod = &client_mod->dev;
-        if (client_mod) {
-                int addr,reg;
-                for (addr=0; addr<sizeof(*desc); addr++) {
-                        reg = i2c_read_reg(client_mod, addr+0x1000);
-                        if (reg < 0) {
-                                i2c_unregister_device(client_mod);
-                                return 0;
-                        }
-                        *((char *)(desc)+addr)=(char)reg;
-
-                        //vc_mipi_dump_reg_value(dev, addr, reg);
-                }
-
-                vc_mipi_dump_hw_desc(dev_mod, desc);
+        client_mod = vc_mod_get_client(adapter, addr_mod);
+        if (client_mod == 0) {
+                dev_err(dev_sen, "%s(): Unable to get module I2C client for address 0x%02x\n", __FUNCTION__, addr_mod);
+                return 0;
         }
 
+        dev_mod = &client_mod->dev;
+        for (addr=0; addr<sizeof(*desc); addr++) {
+                reg = i2c_read_reg(client_mod, addr+0x1000);
+                if (reg < 0) {
+                        i2c_unregister_device(client_mod);
+                        return 0;
+                }
+                *((char *)(desc)+addr)=(char)reg;
+
+                //vc_dump_reg_value(dev, addr, reg);
+        }
+
+        vc_dump_hw_desc(dev_mod, desc);
+
         // TODO: Set module mode in last parameter.
-        ret = vc_mipi_mod_reset_module(client_mod, 0); 
+        ret = vc_mod_reset_module(client_mod, 0); 
         if (ret) {
                 return 0;
         }
@@ -288,7 +290,7 @@ struct i2c_client *vc_mipi_mod_setup(struct i2c_client *client_sen, __u8 addr_mo
         return client_mod;
 }
 
-int vc_mipi_mod_is_color_module(struct vc_mipi_mod_desc *desc)
+int vc_mod_is_color_module(struct vc_mod_desc *desc)
 {
         if (desc->sen_type) {
                 __u32 len = strnlen(desc->sen_type, 16);
@@ -299,7 +301,7 @@ int vc_mipi_mod_is_color_module(struct vc_mipi_mod_desc *desc)
         return 0;
 }
 
-int vc_mipi_mod_set_exposure(struct i2c_client* client, __u32 value, __u32 sen_clk)
+int vc_mod_set_exposure(struct i2c_client* client, __u32 value, __u32 sen_clk)
 {
         struct device* dev = &client->dev;
         int ret;
@@ -343,7 +345,7 @@ int vc_mipi_mod_set_exposure(struct i2c_client* client, __u32 value, __u32 sen_c
 #define SENSOR_TABLE_END        0xffff
 
 
-int vc_mipi_sen_write_table(struct i2c_client *client, struct sensor_reg table[])
+int vc_sen_write_table(struct i2c_client *client, struct sensor_reg table[])
 {
 	struct device* dev = &client->dev;
     	const struct sensor_reg *reg;
@@ -363,7 +365,7 @@ int vc_mipi_sen_write_table(struct i2c_client *client, struct sensor_reg table[]
     	return 0;
 }
 
-__u32 vc_mipi_sen_read_vmax(struct i2c_client* client) 
+__u32 vc_sen_read_vmax(struct i2c_client* client) 
 {
         struct device* dev = &client->dev;
         int reg;
@@ -381,7 +383,7 @@ __u32 vc_mipi_sen_read_vmax(struct i2c_client* client)
         return vmax;
 }
 
-int vc_mipi_sen_write_vmax(struct i2c_client* client, __u32 vmax)
+int vc_sen_write_vmax(struct i2c_client* client, __u32 vmax)
 {
         struct device* dev = &client->dev;
         int ret;
@@ -394,7 +396,7 @@ int vc_mipi_sen_write_vmax(struct i2c_client* client, __u32 vmax)
         return ret;
 }
 
-int vc_mipi_sen_write_exposure(struct i2c_client* client, __u32 exposure)
+int vc_sen_write_exposure(struct i2c_client* client, __u32 exposure)
 {
         struct device* dev = &client->dev;
         int ret;
@@ -406,7 +408,7 @@ int vc_mipi_sen_write_exposure(struct i2c_client* client, __u32 exposure)
         return ret;
 }
 
-int vc_mipi_sen_set_exposure(struct i2c_client *client, int value)
+int vc_sen_set_exposure(struct i2c_client *client, int value)
 {
         struct device* dev = &client->dev;
         __u32 exposure = 0;
@@ -422,7 +424,7 @@ int vc_mipi_sen_set_exposure(struct i2c_client *client, int value)
         
         if (value < IMX226_EXPO_TIME_MIN2) {
                 // TODO: Find out which version is correct.
-                // __u32 vmax = vc_mipi_sen_read_vmax(client);
+                // __u32 vmax = vc_sen_read_vmax(client);
                 __u32 vmax = IMX226_EXPO_VMAX;
 
                 // exposure = (NumberOfLines - exp_time / 1Hperiod + toffset / 1Hperiod )
@@ -431,8 +433,8 @@ int vc_mipi_sen_set_exposure(struct i2c_client *client, int value)
                 dev_dbg(dev, "%s(): SHS = %d \n", __FUNCTION__, exposure);
 
                 // TODO: Is it realy nessecary to write the same vmax value back? 
-                ret  = vc_mipi_sen_write_vmax(client, vmax);
-                ret |= vc_mipi_sen_write_exposure(client, exposure);
+                ret  = vc_sen_write_vmax(client, vmax);
+                ret |= vc_sen_write_exposure(client, exposure);
         
         } else {
                 // exposure = 5 + ((unsigned long long)(value * 16384) - tOffset)/h1Period;
@@ -442,14 +444,14 @@ int vc_mipi_sen_set_exposure(struct i2c_client *client, int value)
                 exposure = 5 + (__u32)divresult;
                 dev_dbg(dev, "%s(): VMAX = %d \n", __FUNCTION__, exposure);
                 
-                ret  = vc_mipi_sen_write_exposure(client, 0x0004);
-                ret |= vc_mipi_sen_write_vmax(client, exposure);
+                ret  = vc_sen_write_exposure(client, 0x0004);
+                ret |= vc_sen_write_vmax(client, exposure);
         }
 
         return ret;
 }
 
-int vc_mipi_sen_set_gain(struct i2c_client *client, int value)
+int vc_sen_set_gain(struct i2c_client *client, int value)
 {
 	struct device *dev = &client->dev;
 	int ret = 0;
@@ -464,25 +466,25 @@ int vc_mipi_sen_set_gain(struct i2c_client *client, int value)
 	return ret;
 }
 
-int vc_mipi_sen_start_stream(struct i2c_client *client_sen, struct i2c_client *client_mod, struct sensor_reg start_table[], int flash_output)
+int vc_sen_start_stream(struct i2c_client *client_sen, struct i2c_client *client_mod, struct sensor_reg start_table[], int flash_output)
 {
         struct device *dev = &client_sen->dev;
 	int ret = 0;
 
         dev_dbg(dev, "%s(): Start streaming\n", __FUNCTION__);
 
-	ret  = vc_mipi_mod_set_ext_trig(client_mod, REG_EXTTRIG_DISABLE);
-        ret |= vc_mipi_mod_set_flash_output(client_mod, flash_output);
+	ret  = vc_mod_set_ext_trig(client_mod, REG_EXTTRIG_DISABLE);
+        ret |= vc_mod_set_flash_output(client_mod, flash_output);
 
         // Start sensor streaming
-        ret = vc_mipi_sen_write_table(client_sen, start_table);
+        ret = vc_sen_write_table(client_sen, start_table);
 	if (ret)
         	dev_err(dev, "%s(): Unable to start streaming (error=%d)\n", __FUNCTION__, ret);
 
     	return ret;
 }
 
-int vc_mipi_sen_stop_stream(struct i2c_client *client_sen, struct i2c_client *client_mod, struct sensor_reg stop_table[], int mode)
+int vc_sen_stop_stream(struct i2c_client *client_sen, struct i2c_client *client_mod, struct sensor_reg stop_table[], int mode)
 {
 	struct device *dev = &client_sen->dev;
 	int ret = 0;
@@ -490,22 +492,22 @@ int vc_mipi_sen_stop_stream(struct i2c_client *client_sen, struct i2c_client *cl
         dev_dbg(dev, "%s(): Stop streaming\n", __FUNCTION__);
 
         // TODO: Check if it really the "best" way to stop streaming by power down the sensor :)
-        ret = vc_mipi_mod_set_power(client_mod, REG_RESET_PWR_DOWN);
+        ret = vc_mod_set_power(client_mod, REG_RESET_PWR_DOWN);
         if (ret) 
                 return ret;
 
         mdelay(200);
-        vc_mipi_mod_get_status(client_mod);     // Read status just for debugging 
+        vc_mod_get_status(client_mod);     // Read status just for debugging 
 
-        ret |= vc_mipi_mod_reset_module(client_mod, mode);
-        ret |= vc_mipi_mod_set_ext_trig(client_mod, REG_EXTTRIG_DISABLE);
-        ret |= vc_mipi_mod_set_flash_output(client_mod, REG_IOCTRL_DISABLE);
+        ret |= vc_mod_reset_module(client_mod, mode);
+        ret |= vc_mod_set_ext_trig(client_mod, REG_EXTTRIG_DISABLE);
+        ret |= vc_mod_set_flash_output(client_mod, REG_IOCTRL_DISABLE);
 
         // if (sensor_ext_trig)
-        //         ret |= vc_mipi_mod_set_exposure(client_mod, 0, 0);
+        //         ret |= vc_mod_set_exposure(client_mod, 0, 0);
 
         // Stop sensor streaming
-        ret |= vc_mipi_sen_write_table(client_sen, stop_table);
+        ret |= vc_sen_write_table(client_sen, stop_table);
 
 	if (ret)
         	dev_err(dev, "%s(): Unable to stop streaming (error=%d)\n", __FUNCTION__, ret);

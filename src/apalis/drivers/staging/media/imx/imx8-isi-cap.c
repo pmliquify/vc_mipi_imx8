@@ -1153,6 +1153,21 @@ static int mxc_isi_config_parm(struct mxc_isi_cap_dev *isi_cap)
 	if (ret < 0)
 		return -EINVAL;
 
+	// *** VC MIPI ********************************************************
+	{
+	struct mxc_isi_frame *src_f = &isi_cap->src_f;
+	struct mxc_isi_frame *dst_f = &isi_cap->dst_f;
+	dev_info(&isi_cap->pdev->dev, "SRC ORG(%u, %u) CROP(%u, %u, %u, %u) OUT(%u, %u)\n", 
+		src_f->o_width, src_f->o_height, 
+		src_f->c_width, src_f->c_height, src_f->h_off, src_f->v_off, 
+		src_f->width, src_f->height);
+	dev_info(&isi_cap->pdev->dev, "DST ORG(%u, %u) CROP(%u, %u, %u, %u) OUT(%u, %u)\n", 
+		dst_f->o_width, dst_f->o_height, 
+		dst_f->c_width, dst_f->c_height, dst_f->h_off, dst_f->v_off, 
+		dst_f->width, dst_f->height);
+	}
+	// ********************************************************************
+
 	mxc_isi_channel_init(mxc_isi);
 	mxc_isi_channel_config(mxc_isi, &isi_cap->src_f, &isi_cap->dst_f);
 

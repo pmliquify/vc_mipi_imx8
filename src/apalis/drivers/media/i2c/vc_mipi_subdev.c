@@ -3,15 +3,15 @@
 #include "vc_mipi_core.h"
 #include <linux/delay.h>
 
-#define TRACE printk("        TRACE [vc-mipi] vc_mipi_subdev.c --->  %s : %d", __FUNCTION__, __LINE__);
+#define TRACE printk("        TRACE [vc-mipi] vc_subdev.c --->  %s : %d", __FUNCTION__, __LINE__);
 //#define TRACE
 
 
 // --- v4l2_subdev_core_ops ---------------------------------------------------
 
-int vc_mipi_sd_s_power(struct v4l2_subdev *sd, int on)
+int vc_sd_s_power(struct v4l2_subdev *sd, int on)
 {
-	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	struct vc_camera *camera = to_vc_camera(sd);
 	struct i2c_client *client_mod = camera->client_mod;
 	struct device *dev_mod = &client_mod->dev;
 	int ret;
@@ -32,19 +32,19 @@ int vc_mipi_sd_s_power(struct v4l2_subdev *sd, int on)
 	return ret;
 }
 
-int vc_mipi_sd_queryctrl(struct v4l2_subdev *sd, struct v4l2_queryctrl *qc)
+int vc_sd_queryctrl(struct v4l2_subdev *sd, struct v4l2_queryctrl *qc)
 {
 	return v4l2_queryctrl(sd->ctrl_handler, qc);
 }
 
-int vc_mipi_sd_try_ext_ctrls(struct v4l2_subdev *sd, struct v4l2_ext_controls *ctrls)
+int vc_sd_try_ext_ctrls(struct v4l2_subdev *sd, struct v4l2_ext_controls *ctrls)
 {
 	return 0;
 }
 
-int vc_mipi_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
+int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 {
-	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	struct vc_camera *camera = to_vc_camera(sd);
 	struct i2c_client *client_mod = camera->client_mod;
 	struct i2c_client *client_sen = camera->client_sen;
 	struct device* dev = sd->dev;
@@ -73,29 +73,29 @@ int vc_mipi_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
      	switch (ctrl->id)  {
  	case V4L2_CID_EXPOSURE:
 		if (sensor_ext_trig) { 
-			return vc_mipi_mod_set_exposure(client_mod, control->value, sen_clk);
+			return vc_mod_set_exposure(client_mod, control->value, sen_clk);
 		} else {
-	        	return vc_mipi_sen_set_exposure(client_sen, control->value);
+	        	return vc_sen_set_exposure(client_sen, control->value);
 		}
 
 	case V4L2_CID_GAIN:
-		return vc_mipi_sen_set_gain(client_sen, control->value);
+		return vc_sen_set_gain(client_sen, control->value);
     	}
 
        	dev_err(dev, "[vc-mipi subdev] %s: ctrl(id:0x%x,val:0x%x) is not handled\n", __FUNCTION__, ctrl->id, ctrl->val);
       	return -EINVAL;
 }
 
-int vc_mipi_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
+int vc_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 {
 	return v4l2_g_ctrl(sd->ctrl_handler, control);
 }
 
-__s32 vc_mipi_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id) 
+__s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id) 
 {
 	struct v4l2_control control;
 	control.id = id;
-	vc_mipi_sd_g_ctrl(sd, &control);
+	vc_sd_g_ctrl(sd, &control);
 	// TODO: Errorhandling
 	return control.value;
 }
@@ -103,21 +103,21 @@ __s32 vc_mipi_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
 
 // --- v4l2_subdev_video_ops ---------------------------------------------------
 
-// int vc_mipi_sd_g_frame_interval(struct v4l2_subdev *sd,
+// int vc_sd_g_frame_interval(struct v4l2_subdev *sd,
 // 				   struct v4l2_subdev_frame_interval *fi)
 // {
 // 	TRACE
 // 	return 0;
 // }
 
-// int vc_mipi_sd_s_frame_interval(struct v4l2_subdev *sd,
+// int vc_sd_s_frame_interval(struct v4l2_subdev *sd,
 // 				   struct v4l2_subdev_frame_interval *fi)
 // {
 //  	TRACE
 // 	return 0;
 // }
 
-int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
+int vc_sd_set_mode(struct vc_camera *camera)
 {
 	struct v4l2_subdev *sd = &camera->sd;
 	struct i2c_client *client_sen = camera->client_sen;
@@ -128,6 +128,7 @@ int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
 	int mode = 0;
 
 	dev_dbg(dev, "%s(): Set sensor mode\n", __FUNCTION__);
+	// Test
 
 	/*............. Get pixel format */
 	// TODO: mx6s_get_pix_fmt(&pix);
@@ -157,21 +158,21 @@ int vc_mipi_sd_set_mode(struct vc_mipi_camera *camera)
 		camera->mode = mode;
 
 		// TODO: Check if it is realy necessary to reset the module.
-		ret  = vc_mipi_mod_reset_module(client_mod, mode);
-		ret |= vc_mipi_sen_set_gain(client_sen, vc_mipi_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
-		ret |= vc_mipi_sen_set_exposure(client_sen, vc_mipi_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
+		ret  = vc_mod_reset_module(client_mod, mode);
+		ret |= vc_sen_set_gain(client_sen, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
+		ret |= vc_sen_set_exposure(client_sen, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
 		if (ret) {
 			dev_err(dev, "[vc-mipi driver] %s: Unable to set mode (error=%d)\n", __func__, ret);
 			return ret;
 		}
  	} 
 
-	return vc_mipi_sen_write_table(client_sen, camera->sen_pars.sensor_mode_table);
+	return vc_sen_write_table(client_sen, camera->sen_pars.sensor_mode_table);
 }
 
-int vc_mipi_sd_s_stream(struct v4l2_subdev *sd, int enable)
+int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 {
-	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	struct vc_camera *camera = to_vc_camera(sd);
 	struct device *dev = sd->dev;
 	struct i2c_client *client_sen = camera->client_sen;
 	struct i2c_client *client_mod = camera->client_mod;
@@ -182,18 +183,18 @@ int vc_mipi_sd_s_stream(struct v4l2_subdev *sd, int enable)
 	if (enable) {
 		if (camera->streaming) {
 			dev_warn(dev, "%s(): Sensor is already streaming!\n", __FUNCTION__);
-			ret = vc_mipi_sen_stop_stream(client_sen, client_mod,
+			ret = vc_sen_stop_stream(client_sen, client_mod,
 				camera->sen_pars.sensor_stop_table, camera->mode);
 		}
 
-		ret  = vc_mipi_sd_set_mode(camera);		
-		ret |= vc_mipi_sen_start_stream(client_sen, client_mod, 
+		ret  = vc_sd_set_mode(camera);		
+		ret |= vc_sen_start_stream(client_sen, client_mod, 
 			camera->sen_pars.sensor_start_table, camera->flash_output);
 		if (ret == 0)
 			camera->streaming = 1;
 
 	} else {
-	        ret = vc_mipi_sen_stop_stream(client_sen, client_mod, 
+	        ret = vc_sen_stop_stream(client_sen, client_mod, 
 			camera->sen_pars.sensor_stop_table, camera->mode);
 		if (ret == 0)
 			camera->streaming = 0;
@@ -205,31 +206,35 @@ int vc_mipi_sd_s_stream(struct v4l2_subdev *sd, int enable)
 
 // --- v4l2_subdev_pad_ops ---------------------------------------------------
 
-// int vc_mipi_sd_enum_mbus_code(struct v4l2_subdev *sd,
+// int vc_sd_enum_mbus_code(struct v4l2_subdev *sd,
 // 				struct v4l2_subdev_pad_config *cfg,
 // 				struct v4l2_subdev_mbus_code_enum *code)
 // {
-// 	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+// 	struct vc_camera *camera = to_vc_camera(sd);
 	
 // 	TRACE
 	
-//     	if (code->pad || code->index >= camera->vc_mipi_data_fmts_size)
+//     	if (code->pad || code->index >= camera->vc_data_fmts_size)
 //         	return -EINVAL;
 
-//     	code->code = 			camera->vc_mipi_data_fmts[code->index].code;
+//     	code->code = 			camera->vc_data_fmts[code->index].code;
 
 // 	return 0;
 // }
 
-int vc_mipi_sd_get_fmt(struct v4l2_subdev *sd,
+int vc_sd_get_fmt(struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_format *format)
 {
 	format->format.code = MEDIA_BUS_FMT_SRGGB8_1X8;
 	format->format.width = 3840;
 	format->format.height = 3040;
+	
+	// Was bestimmt fourcc? Wird in mxc_isi_channel_set_csc ausgewertet um eine Farbraumkonvertierung durchzuführen
+	// format->format.
+	// Cropping wird aktiviert, wenn o_height und height bzw. o_width und width unterschiedlich sind.
 
-	// struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	// struct vc_camera *camera = to_vc_camera(sd);
 	// struct v4l2_mbus_framefmt *mf = &format->format;
 
 	// TRACE
@@ -247,24 +252,24 @@ int vc_mipi_sd_get_fmt(struct v4l2_subdev *sd,
 	return 0;
 }
 
-// static const struct vc_mipi_datafmt *vc_mipi_find_datafmt(struct v4l2_subdev *sd, __u32 code)
+// static const struct vc_datafmt *vc_find_datafmt(struct v4l2_subdev *sd, __u32 code)
 // {
-// 	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+// 	struct vc_camera *camera = to_vc_camera(sd);
 // 	struct device* dev = sd->dev;
-// 	struct vc_mipi_datafmt *data_fmt;
+// 	struct vc_datafmt *data_fmt;
 // 	int i;
 
-// 	dev_info(dev, "[vc-mipi camera] %s: Try to find vc_mipi_datafmt with code: 0x%08x\n", __FUNCTION__, code);
+// 	dev_info(dev, "[vc-mipi camera] %s: Try to find vc_datafmt with code: 0x%08x\n", __FUNCTION__, code);
 
-// 	for (i = 0; i < camera->vc_mipi_data_fmts_size; i++) {
-// 		if (camera->vc_mipi_data_fmts[i].code == code) {
-// 			data_fmt = &camera->vc_mipi_data_fmts[i];
-// 			dev_info(dev, "[vc-mipi camera] %s: Found vc_mipi_datafmt with colorspace: %u\n", __FUNCTION__, data_fmt->colorspace);
+// 	for (i = 0; i < camera->vc_data_fmts_size; i++) {
+// 		if (camera->vc_data_fmts[i].code == code) {
+// 			data_fmt = &camera->vc_data_fmts[i];
+// 			dev_info(dev, "[vc-mipi camera] %s: Found vc_datafmt with colorspace: %u\n", __FUNCTION__, data_fmt->colorspace);
 // 			return data_fmt;
 // 		}
 // 	}
 
-// 	dev_info(dev, "[vc-mipi camera] %s: No vc_mipi_datafmt found!\n", __FUNCTION__);
+// 	dev_info(dev, "[vc-mipi camera] %s: No vc_datafmt found!\n", __FUNCTION__);
 
 // 	return NULL;
 // }
@@ -273,22 +278,22 @@ int vc_mipi_sd_get_fmt(struct v4l2_subdev *sd,
 // {
 // 	int i;
 	
-// 	for (i = 0; i < ARRAY_SIZE(vc_mipi_valid_res); i++) {
-// 		if ((vc_mipi_valid_res[i].width == width) && (vc_mipi_valid_res[i].height == height)) {
+// 	for (i = 0; i < ARRAY_SIZE(vc_valid_res); i++) {
+// 		if ((vc_valid_res[i].width == width) && (vc_valid_res[i].height == height)) {
 // 		return i;
 // 		}
 // 	}
 // 	return -1;
 // }
 
-int vc_mipi_sd_set_fmt(struct v4l2_subdev *sd,
+int vc_sd_set_fmt(struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_format *format)
 {
-	// struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+	// struct vc_camera *camera = to_vc_camera(sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
 	struct device *dev = sd->dev;
-	// const struct vc_mipi_datafmt *fmt = vc_mipi_find_datafmt(sd, mf->code);
+	// const struct vc_datafmt *fmt = vc_find_datafmt(sd, mf->code);
 	// int capturemode;
 
 	dev_dbg(dev, "%s(): v4l2_subdev_format (which: %u, pad: %u)\n", __FUNCTION__, format->which, format->pad);
@@ -297,9 +302,9 @@ int vc_mipi_sd_set_fmt(struct v4l2_subdev *sd,
 	return 0;
 
 	// if (!fmt) {
-	// 	mf->code = 		camera->vc_mipi_data_fmts[0].code;
-	// 	mf->colorspace = 	camera->vc_mipi_data_fmts[0].colorspace;
-	// 	fmt = 		       &camera->vc_mipi_data_fmts[0];
+	// 	mf->code = 		camera->vc_data_fmts[0].code;
+	// 	mf->colorspace = 	camera->vc_data_fmts[0].colorspace;
+	// 	fmt = 		       &camera->vc_data_fmts[0];
 	// }
 
 	// mf->field = V4L2_FIELD_NONE;
@@ -323,11 +328,11 @@ int vc_mipi_sd_set_fmt(struct v4l2_subdev *sd,
 	// return -EINVAL;
 }
 
-// int vc_mipi_sd_enum_frame_size(struct v4l2_subdev *sd,
+// int vc_sd_enum_frame_size(struct v4l2_subdev *sd,
 // 				struct v4l2_subdev_pad_config *cfg,
 // 				struct v4l2_subdev_frame_size_enum *fse)
 // {
-// 	struct vc_mipi_camera *camera = to_vc_mipi_camera(sd);
+// 	struct vc_camera *camera = to_vc_camera(sd);
 
 // 	TRACE
 
@@ -342,7 +347,7 @@ int vc_mipi_sd_set_fmt(struct v4l2_subdev *sd,
 // 	return 0;
 // }
 
-// int vc_mipi_sd_enum_frame_interval(struct v4l2_subdev *sd,
+// int vc_sd_enum_frame_interval(struct v4l2_subdev *sd,
 // 				struct v4l2_subdev_pad_config *cfg,
 // 				struct v4l2_subdev_frame_interval_enum *fie)
 // {
@@ -353,46 +358,46 @@ int vc_mipi_sd_set_fmt(struct v4l2_subdev *sd,
 
 // *** Initialisation *********************************************************
 
-const struct v4l2_subdev_core_ops vc_mipi_core_ops = {
-	.s_power = vc_mipi_sd_s_power,
-	.queryctrl = vc_mipi_sd_queryctrl,
-	.try_ext_ctrls = vc_mipi_sd_try_ext_ctrls,
-	.s_ctrl = vc_mipi_sd_s_ctrl,
-	.g_ctrl = vc_mipi_sd_g_ctrl,
+const struct v4l2_subdev_core_ops vc_core_ops = {
+	.s_power = vc_sd_s_power,
+	.queryctrl = vc_sd_queryctrl,
+	.try_ext_ctrls = vc_sd_try_ext_ctrls,
+	.s_ctrl = vc_sd_s_ctrl,
+	.g_ctrl = vc_sd_g_ctrl,
 };
 
-const struct v4l2_subdev_video_ops vc_mipi_video_ops = {
-	// .g_frame_interval = vc_mipi_sd_g_frame_interval,
-	// .s_frame_interval = vc_mipi_sd_s_frame_interval,
-	.s_stream = vc_mipi_sd_s_stream,
+const struct v4l2_subdev_video_ops vc_video_ops = {
+	// .g_frame_interval = vc_sd_g_frame_interval,
+	// .s_frame_interval = vc_sd_s_frame_interval,
+	.s_stream = vc_sd_s_stream,
 };
 
-const struct v4l2_subdev_pad_ops vc_mipi_pad_ops = {
-	// .enum_mbus_code = vc_mipi_sd_enum_mbus_code,
-	.get_fmt = vc_mipi_sd_get_fmt,
-	.set_fmt = vc_mipi_sd_set_fmt,
-	// .enum_frame_size = vc_mipi_sd_enum_frame_size,
-	// .enum_frame_interval = vc_mipi_sd_enum_frame_interval,
+const struct v4l2_subdev_pad_ops vc_pad_ops = {
+	// .enum_mbus_code = vc_sd_enum_mbus_code,
+	.get_fmt = vc_sd_get_fmt,
+	.set_fmt = vc_sd_set_fmt,
+	// .enum_frame_size = vc_sd_enum_frame_size,
+	// .enum_frame_interval = vc_sd_enum_frame_interval,
 };
 
-const struct v4l2_subdev_ops vc_mipi_subdev_ops = {
-	.core = &vc_mipi_core_ops,
-	.video = &vc_mipi_video_ops,
-	.pad = &vc_mipi_pad_ops,
+const struct v4l2_subdev_ops vc_subdev_ops = {
+	.core = &vc_core_ops,
+	.video = &vc_video_ops,
+	.pad = &vc_pad_ops,
 };
 
 // imx8-mipi-csi2.c don't uses the ctrl ops. We have to handle all ops thru the subdev.
-const struct v4l2_ctrl_ops vc_mipi_ctrl_ops = {
-	// .queryctrl = vc_mipi_queryctrl,
-	// .try_ext_ctrls = vc_mipi_try_ext_ctrls,
-	// .s_ctrl = vc_mipi_s_ctrl,
-	// .g_ctrl = vc_mipi_g_ctrl,
+const struct v4l2_ctrl_ops vc_ctrl_ops = {
+	// .queryctrl = vc_queryctrl,
+	// .try_ext_ctrls = vc_try_ext_ctrls,
+	// .s_ctrl = vc_s_ctrl,
+	// .g_ctrl = vc_g_ctrl,
 };
 
 struct v4l2_ctrl_config ctrl_config_list[] =
 {
 {
-	// .ops = &vc_mipi_ctrl_ops,
+	// .ops = &vc_ctrl_ops,
 	.id = V4L2_CID_GAIN,
 	.name = "Gain",			// Do not change the name field for the controls!
 	.type = V4L2_CTRL_TYPE_INTEGER,
@@ -403,7 +408,7 @@ struct v4l2_ctrl_config ctrl_config_list[] =
 	.step = 1,
 },
 {
-	// .ops = &vc_mipi_ctrl_ops,
+	// .ops = &vc_ctrl_ops,
 	.id = V4L2_CID_EXPOSURE,
 	.name = "Exposure",		// Do not change the name field for the controls!
 	.type = V4L2_CTRL_TYPE_INTEGER,
@@ -415,7 +420,7 @@ struct v4l2_ctrl_config ctrl_config_list[] =
 },
 };
 
-int vc_mipi_sd_init(struct v4l2_subdev *sd, struct i2c_client *client)
+int vc_sd_init(struct v4l2_subdev *sd, struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
 	struct v4l2_ctrl_handler* ctrl_hdl;
@@ -426,7 +431,7 @@ int vc_mipi_sd_init(struct v4l2_subdev *sd, struct i2c_client *client)
 	// TRACE
 
 	// Initializes the subdevice
-	v4l2_i2c_subdev_init(sd, client, &vc_mipi_subdev_ops);
+	v4l2_i2c_subdev_init(sd, client, &vc_subdev_ops);
 
 	// Initializes the ctrls
 	ctrl_hdl = devm_kzalloc(dev, sizeof(*ctrl_hdl), GFP_KERNEL);
@@ -437,7 +442,7 @@ int vc_mipi_sd_init(struct v4l2_subdev *sd, struct i2c_client *client)
 	}
 
 	for (i = 0; i < num_ctrls; i++) {
-		// ctrl_config_list[i].ops = &vc_mipi_ctrl_ops;
+		// ctrl_config_list[i].ops = &vc_ctrl_ops;
 		ctrl = v4l2_ctrl_new_custom(ctrl_hdl, &ctrl_config_list[i], NULL);
 		if (ctrl == NULL) {
 			dev_err(dev, "[vc-mipi subdev] %s: Failed to init %s ctrl\n",  __FUNCTION__, ctrl_config_list[i].name);
