@@ -1007,7 +1007,9 @@ static int mipi_csi2_set_fmt(struct v4l2_subdev *sd,
 	struct media_pad *source_pad;
 	int ret;
 
-	v4l2_err(&csi2dev->sd, "%s\n", __FUNCTION__);
+	// *** VC MIPI ********************************************************
+	// v4l2_err(&csi2dev->sd, "%s\n", __FUNCTION__);
+	// ********************************************************************
 
 	/* Get remote source pad */
 	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);

@@ -3,9 +3,6 @@
 #include "vc_mipi_core.h"
 #include <linux/delay.h>
 
-#define TRACE printk("        TRACE [vc-mipi] vc_subdev.c --->  %s : %d", __FUNCTION__, __LINE__);
-//#define TRACE
-
 
 // --- v4l2_subdev_core_ops ---------------------------------------------------
 
@@ -54,8 +51,6 @@ int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 					// 0=free run, 1=ext. trigger, 2=trigger self test
 	int sensor_ext_trig = 0; 	// ext. trigger flag: 0=no, 1=yes
 	int sen_clk = 54000000; 	// sen_clk default=54Mhz, imx183=72Mhz
-
-	// TRACE
 
 	ctrl = v4l2_ctrl_find(sd->ctrl_handler, control->id);
 	if (ctrl == NULL)
@@ -106,14 +101,12 @@ __s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
 // int vc_sd_g_frame_interval(struct v4l2_subdev *sd,
 // 				   struct v4l2_subdev_frame_interval *fi)
 // {
-// 	TRACE
 // 	return 0;
 // }
 
 // int vc_sd_s_frame_interval(struct v4l2_subdev *sd,
 // 				   struct v4l2_subdev_frame_interval *fi)
 // {
-//  	TRACE
 // 	return 0;
 // }
 
@@ -154,8 +147,8 @@ int vc_sd_set_mode(struct vc_camera *camera)
 	// }
 
 	// Change VC MIPI sensor mode
-	if (camera->mode != mode) {
-		camera->mode = mode;
+	if (camera->state.mode != mode) {
+		camera->state.mode = mode;
 
 		// TODO: Check if it is realy necessary to reset the module.
 		ret  = vc_mod_reset_module(client_mod, mode);
@@ -167,7 +160,7 @@ int vc_sd_set_mode(struct vc_camera *camera)
 		}
  	} 
 
-	return vc_sen_write_table(client_sen, camera->sen_pars.sensor_mode_table);
+	return vc_sen_write_table(client_sen, camera->sen_pars.mode_table);
 }
 
 int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
@@ -181,23 +174,23 @@ int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 	dev_dbg(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable?"on":"off");
 
 	if (enable) {
-		if (camera->streaming) {
+		if (camera->state.streaming) {
 			dev_warn(dev, "%s(): Sensor is already streaming!\n", __FUNCTION__);
 			ret = vc_sen_stop_stream(client_sen, client_mod,
-				camera->sen_pars.sensor_stop_table, camera->mode);
+				camera->sen_pars.stop_table, camera->state.mode);
 		}
 
 		ret  = vc_sd_set_mode(camera);		
 		ret |= vc_sen_start_stream(client_sen, client_mod, 
-			camera->sen_pars.sensor_start_table, camera->flash_output);
+			camera->sen_pars.start_table, camera->state.flash_output);
 		if (ret == 0)
-			camera->streaming = 1;
+			camera->state.streaming = 1;
 
 	} else {
 	        ret = vc_sen_stop_stream(client_sen, client_mod, 
-			camera->sen_pars.sensor_stop_table, camera->mode);
+			camera->sen_pars.stop_table, camera->state.mode);
 		if (ret == 0)
-			camera->streaming = 0;
+			camera->state.streaming = 0;
 	}
 	
 	return ret;
@@ -212,8 +205,6 @@ int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 // {
 // 	struct vc_camera *camera = to_vc_camera(sd);
 	
-// 	TRACE
-	
 //     	if (code->pad || code->index >= camera->vc_data_fmts_size)
 //         	return -EINVAL;
 
@@ -226,18 +217,19 @@ int vc_sd_get_fmt(struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_format *format)
 {
-	format->format.code = MEDIA_BUS_FMT_SRGGB8_1X8;
-	format->format.width = 3840;
-	format->format.height = 3040;
+	struct vc_camera *camera = to_vc_camera(sd);
+	struct v4l2_mbus_framefmt *mf = &format->format;
+	struct device *dev = sd->dev;
 	
-	// Was bestimmt fourcc? Wird in mxc_isi_channel_set_csc ausgewertet um eine Farbraumkonvertierung durchzuführen
-	// format->format.
-	// Cropping wird aktiviert, wenn o_height und height bzw. o_width und width unterschiedlich sind.
+	mf->code = camera->state.code;
+	mf->width = camera->state.width;
+	mf->height = camera->state.height;
 
+	dev_dbg(dev, "%s(): v4l2_mbus_framefmt <- (code: 0x%04x, width: %u, height: %u)\n", 
+		__FUNCTION__, mf->code, mf->width, mf->height);
+	
 	// struct vc_camera *camera = to_vc_camera(sd);
 	// struct v4l2_mbus_framefmt *mf = &format->format;
-
-	// TRACE
 
 	// if (format->pad) {
 	// 	return -EINVAL;
@@ -290,14 +282,42 @@ int vc_sd_set_fmt(struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_format *format)
 {
-	// struct vc_camera *camera = to_vc_camera(sd);
+	struct vc_camera *camera = to_vc_camera(sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
 	struct device *dev = sd->dev;
 	// const struct vc_datafmt *fmt = vc_find_datafmt(sd, mf->code);
 	// int capturemode;
 
-	dev_dbg(dev, "%s(): v4l2_subdev_format (which: %u, pad: %u)\n", __FUNCTION__, format->which, format->pad);
-	dev_dbg(dev, "%s(): v4l2_mbus_framefmt (code: 0x%04x, width: %u, height: %u)\n", __FUNCTION__, mf->code, mf->width, mf->height);
+	dev_dbg(dev, "%s(): v4l2_mbus_framefmt -> (code: 0x%04x, width: %u, height: %u)\n", 
+		__FUNCTION__, mf->code, mf->width, mf->height);
+
+	switch(mf->code) {
+		case MEDIA_BUS_FMT_Y8_1X8:
+		case MEDIA_BUS_FMT_Y10_1X10:
+		case MEDIA_BUS_FMT_Y12_1X12:
+		case MEDIA_BUS_FMT_SRGGB8_1X8:
+		case MEDIA_BUS_FMT_SRGGB10_1X10:
+		case MEDIA_BUS_FMT_SRGGB12_1X12:
+			camera->state.code = mf->code;
+			break;
+
+		default:
+			camera->state.code = 0;	
+	}
+	if(mf->width > camera->sen_pars.o_width) {
+		camera->state.width = camera->sen_pars.o_width;
+	} else if(mf->width < 0) {
+		camera->state.width = 0;
+	} else {
+		camera->state.width = mf->width;
+	}
+	if(mf->height > camera->sen_pars.o_height) {
+		camera->state.height = camera->sen_pars.o_height;	
+	} else if(mf->height < 0) {
+		camera->state.height = 0;
+	} else {
+		camera->state.height = mf->height;
+	}
 
 	return 0;
 
@@ -334,8 +354,6 @@ int vc_sd_set_fmt(struct v4l2_subdev *sd,
 // {
 // 	struct vc_camera *camera = to_vc_camera(sd);
 
-// 	TRACE
-
 // 	if (fse->index > 0)
 // 		return -EINVAL;
 
@@ -351,7 +369,6 @@ int vc_sd_set_fmt(struct v4l2_subdev *sd,
 // 				struct v4l2_subdev_pad_config *cfg,
 // 				struct v4l2_subdev_frame_interval_enum *fie)
 // {
-// 	TRACE
 // 	return 0;
 // }
 
@@ -427,8 +444,6 @@ int vc_sd_init(struct v4l2_subdev *sd, struct i2c_client *client)
 	struct v4l2_ctrl *ctrl;
 	int num_ctrls = ARRAY_SIZE(ctrl_config_list);
 	int ret, i;
-
-	// TRACE
 
 	// Initializes the subdevice
 	v4l2_i2c_subdev_init(sd, client, &vc_subdev_ops);

@@ -1,5 +1,5 @@
-#ifndef _VC_MIPI_MOD_H
-#define _VC_MIPI_MOD_H
+#ifndef _VC_MIPI_CORE_H
+#define _VC_MIPI_CORE_H
 
 #define DEBUG
 
@@ -48,4 +48,4 @@ int vc_sen_start_stream(struct i2c_client *client_sen, struct i2c_client *client
 int vc_sen_stop_stream(struct i2c_client *client_sen, struct i2c_client *client_mod, struct sensor_reg stop_table[], int mode);
 
 
-#endif // _VC_MIPI_MOD_H
+#endif // _VC_MIPI_CORE_H

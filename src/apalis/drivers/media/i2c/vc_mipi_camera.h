@@ -1,10 +1,5 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-/*
- * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
- * Copyright (C) 2014-2017 Mentor Graphics Inc.
- */
-#ifndef _VC_MIPI_DRIVER_H
-#define _VC_MIPI_DRIVER_H
+#ifndef _VC_MIPI_CAMERA_H
+#define _VC_MIPI_CAMERA_H
 
 #define DEBUG
 
@@ -30,11 +25,11 @@
 #include "vc_mipi_core.h"
 
 
-// Valid sensor resolutions
-struct vc_res {
-    int width;
-    int height;
-};
+// // Valid sensor resolutions
+// struct vc_res {
+//     int width;
+//     int height;
+// };
 
 // /* Valid sensor resolutions */
 // static struct vc_res vc_valid_res[] = {
@@ -46,23 +41,30 @@ struct vc_res {
 // //    [5] = {2592, 1944},
 // };
 
-struct vc_datafmt {
-    __u32 code;
-    enum v4l2_colorspace        colorspace;
+// struct vc_datafmt {
+//     __u32 code;
+//     enum v4l2_colorspace colorspace;
+// };
+
+struct vc_sen_pars {
+	__u32 o_width;
+	__u32 o_height;
+	struct sensor_reg *start_table;
+	struct sensor_reg *stop_table;
+	struct sensor_reg *mode_table;
 };
 
-struct sensor_params {
-//     __u32 gain_min;
-//     __u32 gain_max;
-//     __u32 gain_default;
-//     __u32 exposure_min;
-//     __u32 exposure_max;
-//     __u32 exposure_default;
-    __u32 frame_dx;
-    __u32 frame_dy;
-    struct sensor_reg *sensor_start_table;
-    struct sensor_reg *sensor_stop_table;
-    struct sensor_reg *sensor_mode_table;
+struct vc_state {
+	// Frame and Format
+	__u32 code;
+	__u32 width;
+	__u32 height;
+	// Configuration flags
+	int flash_output;       		// flash output enable
+	int ext_trig;    			// ext. trigger flag: 0=no, 1=yes
+	// Status flags
+	int mode;	        		// sensor mode
+ 	int streaming;
 };
 
 struct vc_camera {
@@ -74,17 +76,10 @@ struct vc_camera {
 	struct i2c_client* client_sen;
 	struct i2c_client* client_mod;
 
-	// Configuration flags
-	int flash_output;       		// flash output enable
-	int ext_trig;    			// ext. trigger flag: 0=no, 1=yes
-
-	// Status flags
-	int mode;	        		// sensor mode
- 	int streaming;
-
 	// Sensor specific configuration
 	struct vc_mod_desc mod_desc;
-	struct sensor_params sen_pars;
+	struct vc_sen_pars sen_pars;
+	struct vc_state state;
 
 	// struct vc_datafmt *vc_data_fmts;
 	// int vc_data_fmts_size;
@@ -105,4 +100,4 @@ static inline struct vc_camera *to_vc_camera(struct v4l2_subdev *sd)
 	return container_of(sd, struct vc_camera, sd);
 }
 
-#endif // _VC_MIPI_DRIVER_H
+#endif // _VC_MIPI_CAMERA_H

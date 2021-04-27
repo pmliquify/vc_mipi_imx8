@@ -5,122 +5,16 @@
  */
 #include "vc_mipi_camera.h"
 #include "vc_mipi_subdev.h"
-
-
-/*............. Sensor models */
-enum sen_model {
-    SEN_MODEL_UNKNOWN = 0,
-    OV7251_MODEL_MONOCHROME,
-    OV7251_MODEL_COLOR,
-//    OV9281_MODEL,
-    OV9281_MODEL_MONOCHROME,
-    OV9281_MODEL_COLOR,
-
-    IMX183_MODEL_MONOCHROME,
-    IMX183_MODEL_COLOR,
-    IMX226_MODEL_MONOCHROME,
-    IMX226_MODEL_COLOR,
-    IMX250_MODEL_MONOCHROME,
-    IMX250_MODEL_COLOR,
-    IMX252_MODEL_MONOCHROME,
-    IMX252_MODEL_COLOR,
-    IMX273_MODEL_MONOCHROME,
-    IMX273_MODEL_COLOR,
-
-    IMX290_MODEL_MONOCHROME,
-    IMX290_MODEL_COLOR,
-    IMX296_MODEL_MONOCHROME,
-    IMX296_MODEL_COLOR,
-    IMX297_MODEL_MONOCHROME,
-    IMX297_MODEL_COLOR,
-
-    IMX327C_MODEL,
-    IMX327_MODEL_MONOCHROME,
-    IMX327_MODEL_COLOR,
-    IMX412_MODEL_MONOCHROME,
-    IMX412_MODEL_COLOR,
-    IMX415_MODEL_MONOCHROME,
-    IMX415_MODEL_COLOR,
-};
-
-/*----------------------------------------------------------------------*/
-/*   IMX226                                                             */
-/*----------------------------------------------------------------------*/
-#define SENSOR_TABLE_END        0xffff
-
-/* In dB*10 */
-#define IMX226_DIGITAL_GAIN_MIN        0x00
-#define IMX226_DIGITAL_GAIN_MAX        0x7A5     // 1957
-#define IMX226_DIGITAL_GAIN_DEFAULT    0x10
-
-/* In usec */
-#define IMX226_DIGITAL_EXPOSURE_MIN     160         // microseconds (us)
-#define IMX226_DIGITAL_EXPOSURE_MAX     10000000
-#define IMX226_DIGITAL_EXPOSURE_DEFAULT 10000
-
-#if 1
-  #define IMX226_DX 3840
-  #define IMX226_DY 3040
-#else    // test mode
-  #define IMX226_DX 1440    // IMX273
-  #define IMX226_DY 1080
-//#define IMX226_DX 1920    // IMX327
-//#define IMX226_DY 1080
-//#define IMX226_DX 1280    // OV9281
-//#define IMX226_DY 800
-#endif
-
-static const struct sensor_reg imx226_start[] = {
-    {0x7000, 0x01},         /* mode select streaming on */
-    {SENSOR_TABLE_END, 0x00}
-};
-static const struct sensor_reg imx226_stop[] = {
-    {0x7000, 0x00},         /* mode select streaming off */
-    {SENSOR_TABLE_END, 0x00}
-};
-/* MCLK:25MHz  3840 x 3040   MIPI LANE2 */
-static const struct sensor_reg imx226_mode_3840_3040[] = {
-#if 1
-    { 0x6015, IMX226_DX & 0xFF }, { 0x6016, (IMX226_DX>>8) & 0xFF },   // hor. output width  L,H  = 0x6015,0x6016,
-    { 0x6010, IMX226_DY & 0xFF }, { 0x6011, (IMX226_DY>>8) & 0xFF },   // ver. output height L,H  = 0x6010,0x6011,
-#endif
-    {SENSOR_TABLE_END, 0x00}
-};
-
-// IMX226 - mono formats
-// static struct vc_datafmt imx226_mono_fmts[] = {
-//     { MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
-//     { MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
-//     { MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
-//     { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
-// // use 8-bit 'RGGB' instead GREY format to save 8-bit frame(s) to raw file by v4l2-ctl
-// };
-// static int imx226_mono_fmts_size = ARRAY_SIZE(imx226_mono_fmts);
-
-// IMX226 - color formats
-// static struct vc_datafmt imx226_color_fmts[] = {
-//     { MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
-//     { MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SRGGB10 'RG10'  */
-//     { MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SRGGB12 'RG12'  */
-// };
-// static int imx226_color_fmts_size = ARRAY_SIZE(imx226_color_fmts);
-/*----------------------------------------------------------------------*/
+#include "vc_mipi_modules.h"
 
 
 int vc_param_setup(struct vc_camera *camera)
 {
-	// camera->sen_pars.gain_min         = IMX226_DIGITAL_GAIN_MIN;
-	// camera->sen_pars.gain_max         = IMX226_DIGITAL_GAIN_MAX;
-	// camera->sen_pars.gain_default     = IMX226_DIGITAL_GAIN_DEFAULT;
-	// camera->sen_pars.exposure_min     = IMX226_DIGITAL_EXPOSURE_MIN;
-	// camera->sen_pars.exposure_max     = IMX226_DIGITAL_EXPOSURE_MAX;
-	// camera->sen_pars.exposure_default = IMX226_DIGITAL_EXPOSURE_DEFAULT;
-	// camera->sen_pars.frame_dx         = IMX226_DX;
-	// camera->sen_pars.frame_dy         = IMX226_DY;
-
-	camera->sen_pars.sensor_start_table = (struct sensor_reg *)imx226_start;
-	camera->sen_pars.sensor_stop_table  = (struct sensor_reg *)imx226_stop;
-	camera->sen_pars.sensor_mode_table  = (struct sensor_reg *)imx226_mode_3840_3040;
+	camera->sen_pars.o_width     = IMX226_DX;
+	camera->sen_pars.o_height    = IMX226_DY;
+	camera->sen_pars.start_table = (struct sensor_reg *)imx226_start;
+	camera->sen_pars.stop_table  = (struct sensor_reg *)imx226_stop;
+	camera->sen_pars.mode_table  = (struct sensor_reg *)imx226_mode_3840_3040;
 
 	// camera->model = IMX226_MODEL_COLOR;
 	// if(camera->model == IMX226_MODEL_MONOCHROME) {
@@ -132,23 +26,19 @@ int vc_param_setup(struct vc_camera *camera)
 	// 	camera->vc_data_fmts_size = imx226_color_fmts_size;
 	// }
 
-	// camera->pix.width  = camera->sen_pars.frame_dx; // 640;
-	// camera->pix.height = camera->sen_pars.frame_dy; // 480;
-
-	// vc_valid_res[0].width  = camera->sen_pars.frame_dx;
-	// vc_valid_res[0].height = camera->sen_pars.frame_dy;
-
-	// camera->sensor_ext_trig = 0;    // ext. trigger flag: 0=no, 1=yes
-
 	// if(camera->model == IMX183_MODEL_MONOCHROME || camera->model == IMX183_MODEL_COLOR) {
 	// 	camera->sen_clk = 72000000;     // clock-frequency: default=54Mhz imx183=72Mhz
 	// } else {
 	// 	camera->sen_clk = 54000000;     // clock-frequency: default=54Mhz imx183=72Mhz
 	// }
 
-	camera->flash_output = 0;
-	camera->mode = 0;
-	camera->streaming = 0;
+	camera->state.code = 0;
+	camera->state.width = camera->sen_pars.o_width;
+	camera->state.height = camera->sen_pars.o_height;
+	camera->state.flash_output = 0;
+	camera->state.ext_trig = 0;
+	camera->state.mode = 0;
+	camera->state.streaming = 0;
 
 	return 0;
 }

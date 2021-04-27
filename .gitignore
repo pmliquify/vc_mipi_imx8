@@ -1,6 +1,6 @@
 build/
-logs/
-tools/
+docs/
+examples/
 .DS_Store
 .vscode
 .vscode-ctags
