@@ -1,0 +1,1395 @@
+-- Logs begin at Mon 2021-04-26 12:04:16 UTC, end at Mon 2021-04-26 12:10:53 UTC. --
+Apr 26 12:04:16 apalis-imx8 kernel: Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+Apr 26 12:04:16 apalis-imx8 kernel: Linux version 5.4.91-33089-g82e97870feb6 (peter@mb) (gcc version 9.2.1 20191025 (GNU Toolchain for the A-profile Architecture 9.2-2019.12 (arm-9.10))) #1 SMP PREEMPT Mon Apr 26 10:56:35 CEST 2021
+Apr 26 12:04:16 apalis-imx8 kernel: Machine model: Toradex Apalis iMX8QM V1.1 on Apalis Evaluation Board
+Apr 26 12:04:16 apalis-imx8 kernel: efi: Getting EFI parameters from FDT:
+Apr 26 12:04:16 apalis-imx8 kernel: efi: UEFI not found.
+Apr 26 12:04:16 apalis-imx8 kernel: Reserved memory: created CMA memory pool at 0x0000000096000000, size 960 MiB
+Apr 26 12:04:16 apalis-imx8 kernel: OF: reserved mem: initialized node linux,cma, compatible id shared-dma-pool
+Apr 26 12:04:16 apalis-imx8 kernel: Reserved memory: created DMA memory pool at 0x0000000090400000, size 1 MiB
+Apr 26 12:04:16 apalis-imx8 kernel: OF: reserved mem: initialized node vdevbuffer, compatible id shared-dma-pool
+Apr 26 12:04:16 apalis-imx8 kernel: NUMA: No NUMA configuration found
+Apr 26 12:04:16 apalis-imx8 kernel: NUMA: Faking a node at [mem 0x0000000080200000-0x00000008ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: NUMA: NODE_DATA [mem 0x8ff7c3500-0x8ff7c4fff]
+Apr 26 12:04:16 apalis-imx8 kernel: Zone ranges:
+Apr 26 12:04:16 apalis-imx8 kernel:   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   Normal   [mem 0x0000000100000000-0x00000008ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: Movable zone start for each node
+Apr 26 12:04:16 apalis-imx8 kernel: Early memory node ranges
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000080200000-0x0000000083ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000086400000-0x0000000087ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000090000000-0x00000000901fffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000090500000-0x0000000091ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000094c00000-0x0000000094ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000095400000-0x00000000ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel:   node   0: [mem 0x0000000880000000-0x00000008ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: Initmem setup node 0 [mem 0x0000000080200000-0x00000008ffffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: On node 0 totalpages: 993024
+Apr 26 12:04:16 apalis-imx8 kernel:   DMA32 zone: 7324 pages used for memmap
+Apr 26 12:04:16 apalis-imx8 kernel:   DMA32 zone: 0 pages reserved
+Apr 26 12:04:16 apalis-imx8 kernel:   DMA32 zone: 468736 pages, LIFO batch:63
+Apr 26 12:04:16 apalis-imx8 kernel:   Normal zone: 8192 pages used for memmap
+Apr 26 12:04:16 apalis-imx8 kernel:   Normal zone: 524288 pages, LIFO batch:63
+Apr 26 12:04:16 apalis-imx8 kernel: psci: probing for conduit method from DT.
+Apr 26 12:04:16 apalis-imx8 kernel: psci: PSCIv1.1 detected in firmware.
+Apr 26 12:04:16 apalis-imx8 kernel: psci: Using standard PSCI v0.2 function IDs
+Apr 26 12:04:16 apalis-imx8 kernel: psci: MIGRATE_INFO_TYPE not supported.
+Apr 26 12:04:16 apalis-imx8 kernel: psci: SMC Calling Convention v1.1
+Apr 26 12:04:16 apalis-imx8 kernel: percpu: Embedded 24 pages/cpu s58904 r8192 d31208 u98304
+Apr 26 12:04:16 apalis-imx8 kernel: pcpu-alloc: s58904 r8192 d31208 u98304 alloc=24*4096
+Apr 26 12:04:16 apalis-imx8 kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 
+Apr 26 12:04:16 apalis-imx8 kernel: Detected VIPT I-cache on CPU0
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: ARM erratum 845719
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: GIC system register CPU interface
+Apr 26 12:04:16 apalis-imx8 kernel: Speculative Store Bypass Disable mitigation not required
+Apr 26 12:04:16 apalis-imx8 kernel: Built 1 zonelists, mobility grouping on.  Total pages: 977508
+Apr 26 12:04:16 apalis-imx8 kernel: Policy zone: Normal
+Apr 26 12:04:16 apalis-imx8 kernel: Kernel command line: pci=nomsi root=PARTUUID=f6360192-02 ro rootwait
+Apr 26 12:04:16 apalis-imx8 kernel: Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: mem auto-init: stack:off, heap alloc:off, heap free:off
+Apr 26 12:04:16 apalis-imx8 kernel: software IO TLB: mapped [mem 0xf9601000-0xfd601000] (64MB)
+Apr 26 12:04:16 apalis-imx8 kernel: Memory: 2817320K/3972096K available (14140K kernel code, 1006K rwdata, 6216K rodata, 2496K init, 1015K bss, 171736K reserved, 983040K cma-reserved)
+Apr 26 12:04:16 apalis-imx8 kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=6, Nodes=1
+Apr 26 12:04:16 apalis-imx8 kernel: rcu: Preemptible hierarchical RCU implementation.
+Apr 26 12:04:16 apalis-imx8 kernel: rcu:         RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=6.
+Apr 26 12:04:16 apalis-imx8 kernel:         Tasks RCU enabled.
+Apr 26 12:04:16 apalis-imx8 kernel: rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+Apr 26 12:04:16 apalis-imx8 kernel: rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=6
+Apr 26 12:04:16 apalis-imx8 kernel: NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: GIC: Using split EOI/Deactivate mode
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: 512 SPIs implemented
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: 0 Extended SPIs implemented
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: Distributor has no Range Selector support
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: 16 PPIs implemented
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: no VLPI support, no direct LPI support
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU0: found redistributor 0 region 0:0x0000000051b00000
+Apr 26 12:04:16 apalis-imx8 kernel: ITS: No ITS available, not enabling LPIs
+Apr 26 12:04:16 apalis-imx8 kernel: random: get_random_bytes called from start_kernel+0x2b8/0x44c with crng_init=0
+Apr 26 12:04:16 apalis-imx8 kernel: arch_timer: cp15 timer(s) running at 8.00MHz (phys).
+Apr 26 12:04:16 apalis-imx8 kernel: clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 440795202120 ns
+Apr 26 12:04:16 apalis-imx8 kernel: sched_clock: 56 bits at 8MHz, resolution 125ns, wraps every 2199023255500ns
+Apr 26 12:04:16 apalis-imx8 kernel: Console: colour dummy device 80x25
+Apr 26 12:04:16 apalis-imx8 kernel: printk: console [tty0] enabled
+Apr 26 12:04:16 apalis-imx8 kernel: Calibrating delay loop (skipped), value calculated using timer frequency.. 16.00 BogoMIPS (lpj=32000)
+Apr 26 12:04:16 apalis-imx8 kernel: pid_max: default: 32768 minimum: 301
+Apr 26 12:04:16 apalis-imx8 kernel: LSM: Security Framework initializing
+Apr 26 12:04:16 apalis-imx8 kernel: Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: ASID allocator initialised with 32768 entries
+Apr 26 12:04:16 apalis-imx8 kernel: rcu: Hierarchical SRCU implementation.
+Apr 26 12:04:16 apalis-imx8 kernel: EFI services will not be available.
+Apr 26 12:04:16 apalis-imx8 kernel: smp: Bringing up secondary CPUs ...
+Apr 26 12:04:16 apalis-imx8 kernel: Detected VIPT I-cache on CPU1
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU1: found redistributor 1 region 0:0x0000000051b20000
+Apr 26 12:04:16 apalis-imx8 kernel: CPU1: Booted secondary processor 0x0000000001 [0x410fd034]
+Apr 26 12:04:16 apalis-imx8 kernel: Detected VIPT I-cache on CPU2
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU2: found redistributor 2 region 0:0x0000000051b40000
+Apr 26 12:04:16 apalis-imx8 kernel: CPU2: Booted secondary processor 0x0000000002 [0x410fd034]
+Apr 26 12:04:16 apalis-imx8 kernel: Detected VIPT I-cache on CPU3
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU3: found redistributor 3 region 0:0x0000000051b60000
+Apr 26 12:04:16 apalis-imx8 kernel: CPU3: Booted secondary processor 0x0000000003 [0x410fd034]
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: EL2 vector hardening
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: Branch predictor hardening
+Apr 26 12:04:16 apalis-imx8 kernel: Detected PIPT I-cache on CPU4
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU4: found redistributor 100 region 0:0x0000000051b80000
+Apr 26 12:04:16 apalis-imx8 kernel: CPU4: Booted secondary processor 0x0000000100 [0x410fd082]
+Apr 26 12:04:16 apalis-imx8 kernel: Detected PIPT I-cache on CPU5
+Apr 26 12:04:16 apalis-imx8 kernel: GICv3: CPU5: found redistributor 101 region 0:0x0000000051ba0000
+Apr 26 12:04:16 apalis-imx8 kernel: CPU5: Booted secondary processor 0x0000000101 [0x410fd082]
+Apr 26 12:04:16 apalis-imx8 kernel: smp: Brought up 1 node, 6 CPUs
+Apr 26 12:04:16 apalis-imx8 kernel: SMP: Total of 6 processors activated.
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: 32-bit EL0 Support
+Apr 26 12:04:16 apalis-imx8 kernel: CPU features: detected: CRC32 instructions
+Apr 26 12:04:16 apalis-imx8 kernel: CPU: All CPU(s) started at EL2
+Apr 26 12:04:16 apalis-imx8 kernel: alternatives: patching kernel code
+Apr 26 12:04:16 apalis-imx8 kernel: devtmpfs: initialized
+Apr 26 12:04:16 apalis-imx8 kernel: clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+Apr 26 12:04:16 apalis-imx8 kernel: futex hash table entries: 2048 (order: 5, 131072 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: pinctrl core: initialized pinctrl subsystem
+Apr 26 12:04:16 apalis-imx8 kernel: DMI not present or invalid.
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 16
+Apr 26 12:04:16 apalis-imx8 kernel: DMA: preallocated 256 KiB pool for atomic allocations
+Apr 26 12:04:16 apalis-imx8 kernel: audit: initializing netlink subsys (disabled)
+Apr 26 12:04:16 apalis-imx8 kernel: audit: type=2000 audit(0.068:1): state=initialized audit_enabled=0 res=1
+Apr 26 12:04:16 apalis-imx8 kernel: cpuidle: using governor menu
+Apr 26 12:04:16 apalis-imx8 kernel: hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+Apr 26 12:04:16 apalis-imx8 kernel: Serial: AMBA PL011 UART driver
+Apr 26 12:04:16 apalis-imx8 kernel: imx mu driver is registered.
+Apr 26 12:04:16 apalis-imx8 kernel: imx rpmsg driver is registered.
+Apr 26 12:04:16 apalis-imx8 kernel: HugeTLB registered 1.00 GiB page size, pre-allocated 0 pages
+Apr 26 12:04:16 apalis-imx8 kernel: HugeTLB registered 32.0 MiB page size, pre-allocated 0 pages
+Apr 26 12:04:16 apalis-imx8 kernel: HugeTLB registered 2.00 MiB page size, pre-allocated 0 pages
+Apr 26 12:04:16 apalis-imx8 kernel: HugeTLB registered 64.0 KiB page size, pre-allocated 0 pages
+Apr 26 12:04:16 apalis-imx8 kernel: cryptd: max_cpu_qlen set to 1000
+Apr 26 12:04:16 apalis-imx8 kernel: ACPI: Interpreter disabled.
+Apr 26 12:04:16 apalis-imx8 kernel: iommu: Default domain type: Translated 
+Apr 26 12:04:16 apalis-imx8 kernel: vgaarb: loaded
+Apr 26 12:04:16 apalis-imx8 kernel: SCSI subsystem initialized
+Apr 26 12:04:16 apalis-imx8 kernel: libata version 3.00 loaded.
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver usbfs
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver hub
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new device driver usb
+Apr 26 12:04:16 apalis-imx8 kernel: mc: Linux media interface: v0.10
+Apr 26 12:04:16 apalis-imx8 kernel: videodev: Linux video capture interface: v2.00
+Apr 26 12:04:16 apalis-imx8 kernel: pps_core: LinuxPPS API ver. 1 registered
+Apr 26 12:04:16 apalis-imx8 kernel: pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+Apr 26 12:04:16 apalis-imx8 kernel: PTP clock support registered
+Apr 26 12:04:16 apalis-imx8 kernel: EDAC MC: Ver: 3.0.0
+Apr 26 12:04:16 apalis-imx8 kernel: No BMan portals available!
+Apr 26 12:04:16 apalis-imx8 kernel: QMan: Allocated lookup table at (____ptrval____), entry count 65537
+Apr 26 12:04:16 apalis-imx8 kernel: No QMan portals available!
+Apr 26 12:04:16 apalis-imx8 kernel: No USDPAA memory, no 'fsl,usdpaa-mem' in device-tree
+Apr 26 12:04:16 apalis-imx8 kernel: FPGA manager framework
+Apr 26 12:04:16 apalis-imx8 kernel: Advanced Linux Sound Architecture Driver Initialized.
+Apr 26 12:04:16 apalis-imx8 kernel: imx-scu scu: NXP i.MX SCU Initialized
+Apr 26 12:04:16 apalis-imx8 kernel: random: fast init done
+Apr 26 12:04:16 apalis-imx8 kernel: imx8qm-pinctrl scu:pinctrl: initialized IMX pinctrl driver
+Apr 26 12:04:16 apalis-imx8 kernel: clocksource: Switched to clocksource arch_sys_counter
+Apr 26 12:04:16 apalis-imx8 kernel: VFS: Disk quotas dquot_6.6.0
+Apr 26 12:04:16 apalis-imx8 kernel: VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+Apr 26 12:04:16 apalis-imx8 kernel: pnp: PnP ACPI: disabled
+Apr 26 12:04:16 apalis-imx8 kernel: thermal_sys: Registered thermal governor 'step_wise'
+Apr 26 12:04:16 apalis-imx8 kernel: thermal_sys: Registered thermal governor 'power_allocator'
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 2
+Apr 26 12:04:16 apalis-imx8 kernel: tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: TCP bind hash table entries: 32768 (order: 7, 524288 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: TCP: Hash tables configured (established 32768 bind 32768)
+Apr 26 12:04:16 apalis-imx8 kernel: UDP hash table entries: 2048 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: UDP-Lite hash table entries: 2048 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 1
+Apr 26 12:04:16 apalis-imx8 kernel: RPC: Registered named UNIX socket transport module.
+Apr 26 12:04:16 apalis-imx8 kernel: RPC: Registered udp transport module.
+Apr 26 12:04:16 apalis-imx8 kernel: RPC: Registered tcp transport module.
+Apr 26 12:04:16 apalis-imx8 kernel: RPC: Registered tcp NFSv4.1 backchannel transport module.
+Apr 26 12:04:16 apalis-imx8 kernel: PCI: CLS 0 bytes, default 64
+Apr 26 12:04:16 apalis-imx8 kernel: hw perfevents: enabled with armv8_pmuv3 PMU driver, 7 counters available
+Apr 26 12:04:16 apalis-imx8 kernel: kvm [1]: IPA Size Limit: 40bits
+Apr 26 12:04:16 apalis-imx8 kernel: kvm [1]: vgic-v2@52020000
+Apr 26 12:04:16 apalis-imx8 kernel: kvm [1]: GIC system register CPU interface enabled
+Apr 26 12:04:16 apalis-imx8 kernel: kvm [1]: vgic interrupt IRQ1
+Apr 26 12:04:16 apalis-imx8 kernel: kvm [1]: Hyp mode initialized successfully
+Apr 26 12:04:16 apalis-imx8 kernel: Initialise system trusted keyrings
+Apr 26 12:04:16 apalis-imx8 kernel: workingset: timestamp_bits=44 max_order=20 bucket_order=0
+Apr 26 12:04:16 apalis-imx8 kernel: NFS: Registering the id_resolver key type
+Apr 26 12:04:16 apalis-imx8 kernel: Key type id_resolver registered
+Apr 26 12:04:16 apalis-imx8 kernel: Key type id_legacy registered
+Apr 26 12:04:16 apalis-imx8 kernel: nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+Apr 26 12:04:16 apalis-imx8 kernel: jffs2: version 2.2. (NAND) © 2001-2006 Red Hat, Inc.
+Apr 26 12:04:16 apalis-imx8 kernel: Key type asymmetric registered
+Apr 26 12:04:16 apalis-imx8 kernel: Asymmetric key parser 'x509' registered
+Apr 26 12:04:16 apalis-imx8 kernel: Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+Apr 26 12:04:16 apalis-imx8 kernel: io scheduler mq-deadline registered
+Apr 26 12:04:16 apalis-imx8 kernel: io scheduler kyber registered
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: 5f000000.pcie supply epdev_on not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: EINJ: ACPI disabled.
+Apr 26 12:04:16 apalis-imx8 kernel: mxs-dma 5b810000.dma-apbh: initialized
+Apr 26 12:04:16 apalis-imx8 kernel: Bus freq driver module loaded
+Apr 26 12:04:16 apalis-imx8 kernel: Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+Apr 26 12:04:16 apalis-imx8 kernel: 5a060000.serial: ttyLP0 at MMIO 0x5a060010 (irq = 47, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-lpuart 5a060000.serial: DMA tx channel request failed, operating without tx DMA
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-lpuart 5a060000.serial: DMA rx channel request failed, operating without rx DMA
+Apr 26 12:04:16 apalis-imx8 kernel: 5a070000.serial: ttyLP1 at MMIO 0x5a070010 (irq = 48, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-lpuart 5a070000.serial: Serial: Console lpuart rounded baud ratefrom 35971 to 115200
+Apr 26 12:04:16 apalis-imx8 kernel: printk: console [ttyLP1] enabled
+Apr 26 12:04:16 apalis-imx8 kernel: 5a080000.serial: ttyLP2 at MMIO 0x5a080010 (irq = 49, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-lpuart 5a080000.serial: DMA tx channel request failed, operating without tx DMA
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-lpuart 5a080000.serial: DMA rx channel request failed, operating without rx DMA
+Apr 26 12:04:16 apalis-imx8 kernel: 5a090000.serial: ttyLP3 at MMIO 0x5a090010 (irq = 50, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu: probing hardware configuration...
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu: SMMUv2 with:
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         stage 1 translation
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         stage 2 translation
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         nested translation
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         stream matching with 32 register groups
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         32 context banks (0 stage-2 only)
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         Supported page sizes: 0x61311000
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         Stage-1: 48-bit VA -> 48-bit IPA
+Apr 26 12:04:16 apalis-imx8 kernel: arm-smmu 51400000.iommu:         Stage-2: 48-bit IPA -> 48-bit PA
+Apr 26 12:04:16 apalis-imx8 kernel: imx-drm display-subsystem: parent device of /bus@57240000/ldb@572410e0/lvds-channel@0 is not available
+Apr 26 12:04:16 apalis-imx8 kernel: loop: module loaded
+Apr 26 12:04:16 apalis-imx8 kernel: zram: Added device: zram0
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: Adding to iommu group 0
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: can't get sata_ext clock.
+Apr 26 12:04:16 apalis-imx8 kernel: imx ahci driver is registered.
+Apr 26 12:04:16 apalis-imx8 kernel: libphy: Fixed MDIO Bus: probed
+Apr 26 12:04:16 apalis-imx8 kernel: tun: Universal TUN/TAP device driver, 1.6
+Apr 26 12:04:16 apalis-imx8 kernel: fec 5b040000.ethernet: Adding to iommu group 1
+Apr 26 12:04:16 apalis-imx8 kernel: Freescale FM module, FMD API version 21.1.0
+Apr 26 12:04:16 apalis-imx8 kernel: Freescale FM Ports module
+Apr 26 12:04:16 apalis-imx8 kernel: VFIO - User Level meta-driver version: 0.3
+Apr 26 12:04:16 apalis-imx8 kernel: cdns-usb3 5b110000.usb3: Adding to iommu group 2
+Apr 26 12:04:16 apalis-imx8 kernel: ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Apr 26 12:04:16 apalis-imx8 kernel: ehci-pci: EHCI PCI platform driver
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver usb-storage
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver usbserial_generic
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for generic
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver cp210x
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for cp210x
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver ftdi_sio
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for FTDI USB Serial Device
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver pl2303
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for pl2303
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver usb_serial_simple
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for carelink
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for zio
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for funsoft
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for flashloader
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for google
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for libtransistor
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for vivopay
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for moto_modem
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for motorola_tetra
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for novatel_gps
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for hp4x
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for suunto
+Apr 26 12:04:16 apalis-imx8 kernel: usbserial: USB Serial support registered for siemens_mpi
+Apr 26 12:04:16 apalis-imx8 kernel: input: sc-powerkey as /devices/platform/sc-powerkey/input/input0
+Apr 26 12:04:16 apalis-imx8 kernel: imx-sc-rtc scu:rtc: registered as rtc1
+Apr 26 12:04:16 apalis-imx8 kernel: i2c /dev entries driver
+Apr 26 12:04:16 apalis-imx8 kernel: pps_ldisc: PPS line discipline registered
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci: Secure Digital Host Controller Interface driver
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci: Copyright(c) Pierre Ossman
+Apr 26 12:04:16 apalis-imx8 kernel: Synopsys Designware Multimedia Card Interface Driver
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-pltfm: SDHCI platform and OF driver helper
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-esdhc-imx 5b010000.mmc: Adding to iommu group 3
+Apr 26 12:04:16 apalis-imx8 kernel: mmc0: SDHCI controller on 5b010000.mmc [5b010000.mmc] using ADMA
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-esdhc-imx 5b020000.mmc: Adding to iommu group 3
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-esdhc-imx 5b030000.mmc: Adding to iommu group 3
+Apr 26 12:04:16 apalis-imx8 kernel: ledtrig-cpu: registered to indicate activity on CPUs
+Apr 26 12:04:16 apalis-imx8 kernel: caam 31400000.crypto: device ID = 0x0a16040000000100 (Era 9)
+Apr 26 12:04:16 apalis-imx8 kernel: caam 31400000.crypto: job rings = 2, qi = 0
+Apr 26 12:04:16 apalis-imx8 kernel: caam algorithms registered in /proc/crypto
+Apr 26 12:04:16 apalis-imx8 kernel: caam 31400000.crypto: caam pkc algorithms registered in /proc/crypto
+Apr 26 12:04:16 apalis-imx8 kernel: caam 31400000.crypto: registering rng-caam
+Apr 26 12:04:16 apalis-imx8 kernel: Device caam-keygen registered
+Apr 26 12:04:16 apalis-imx8 kernel: random: crng init done
+Apr 26 12:04:16 apalis-imx8 kernel: hidraw: raw HID events driver (C) Jiri Kosina
+Apr 26 12:04:16 apalis-imx8 kernel: usbcore: registered new interface driver usbhid
+Apr 26 12:04:16 apalis-imx8 kernel: usbhid: USB HID core driver
+Apr 26 12:04:16 apalis-imx8 kernel: mmc0: new HS400 MMC card at address 0001
+Apr 26 12:04:16 apalis-imx8 kernel: No fsl,qman node
+Apr 26 12:04:16 apalis-imx8 kernel: mmcblk0: mmc0:0001 S0J56X 14.8 GiB 
+Apr 26 12:04:16 apalis-imx8 kernel: Freescale USDPAA process driver
+Apr 26 12:04:16 apalis-imx8 kernel: mmcblk0boot0: mmc0:0001 S0J56X partition 1 31.5 MiB
+Apr 26 12:04:16 apalis-imx8 kernel: fsl-usdpaa: no region found
+Apr 26 12:04:16 apalis-imx8 kernel: Freescale USDPAA process IRQ driver
+Apr 26 12:04:16 apalis-imx8 kernel: mmcblk0boot1: mmc0:0001 S0J56X partition 2 31.5 MiB
+Apr 26 12:04:16 apalis-imx8 kernel: mmcblk0rpmb: mmc0:0001 S0J56X partition 3 4.00 MiB, chardev (237:0)
+Apr 26 12:04:16 apalis-imx8 kernel: Galcore version 6.4.3.p1.305572
+Apr 26 12:04:16 apalis-imx8 kernel:  mmcblk0: p1 p2
+Apr 26 12:04:16 apalis-imx8 kernel: [drm] Initialized vivante 1.0.0 20170808 for 80000000.imx8_gpu1_ss on minor 0
+Apr 26 12:04:16 apalis-imx8 kernel: [VPU Decoder] warning: init rtx channel failed, ret: -517
+Apr 26 12:04:16 apalis-imx8 kernel: [VPU Decoder] failed to request mailbox, ret = -517
+Apr 26 12:04:16 apalis-imx8 kernel: [VPU Encoder] warning:  init rtx channel failed, ret: -517
+Apr 26 12:04:16 apalis-imx8 kernel: [VPU Encoder] warning:  init rtx channel failed, ret: -517
+Apr 26 12:04:16 apalis-imx8 kernel: [VPU Encoder] fail to request mailbox, ret = -517
+Apr 26 12:04:16 apalis-imx8 kernel: dvbdev: DVB: registering new adapter (PPM DVB adapter)
+Apr 26 12:04:16 apalis-imx8 kernel: dvbdev: DVB: registering new adapter (PPM DVB adapter)
+Apr 26 12:04:16 apalis-imx8 kernel: imx-spdif sound-spdif: snd-soc-dummy-dai <-> 59020000.spdif mapping ok
+Apr 26 12:04:16 apalis-imx8 kernel: imx-spdif sound-spdif: ASoC: no DMI vendor name!
+Apr 26 12:04:16 apalis-imx8 kernel: imx-audmix imx-audmix.0: failed to find SAI platform device
+Apr 26 12:04:16 apalis-imx8 kernel: imx-audmix: probe of imx-audmix.0 failed with error -22
+Apr 26 12:04:16 apalis-imx8 kernel: pktgen: Packet Generator for packet performance testing. Version: 2.75
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 26
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 10
+Apr 26 12:04:16 apalis-imx8 kernel: Segment Routing with IPv6
+Apr 26 12:04:16 apalis-imx8 kernel: NET: Registered protocol family 17
+Apr 26 12:04:16 apalis-imx8 kernel: tsn generic netlink module v1 init...
+Apr 26 12:04:16 apalis-imx8 kernel: Key type dns_resolver registered
+Apr 26 12:04:16 apalis-imx8 kernel: registered taskstats version 1
+Apr 26 12:04:16 apalis-imx8 kernel: Loading compiled-in X.509 certificates
+Apr 26 12:04:16 apalis-imx8 kernel: mxs_phy 5b100000.usbphy: 5b100000.usbphy supply phy-3p0 not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: usb_phy_generic bus@5b000000:usb3-phy: bus@5b000000:usb3-phy supply vcc not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: usb_phy_generic bus@5b000000:usbphynop2: bus@5b000000:usbphynop2 supply vcc not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: imx-lpi2c 5a800000.i2c: can't get pinctrl, bus recovery not supported
+Apr 26 12:04:16 apalis-imx8 kernel: i2c i2c-2: LPI2C adapter registered
+Apr 26 12:04:16 apalis-imx8 kernel: sgtl5000 3-000a: sgtl5000 revision 0x11
+Apr 26 12:04:16 apalis-imx8 kernel: usb3503 3-0008: switched to HUB mode
+Apr 26 12:04:16 apalis-imx8 kernel: usb3503 3-0008: usb3503_probe: probed in hub mode
+Apr 26 12:04:16 apalis-imx8 kernel: i2c i2c-3: LPI2C adapter registered
+Apr 26 12:04:16 apalis-imx8 kernel: rtc-ds1307 4-0068: registered as rtc0
+Apr 26 12:04:16 apalis-imx8 kernel: i2c i2c-4: LPI2C adapter registered
+Apr 26 12:04:16 apalis-imx8 kernel: i2c i2c-5: LPI2C adapter registered
+Apr 26 12:04:16 apalis-imx8 kernel: pwm-backlight backlight: backlight supply power not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: 5f000000.pcie supply epdev_on not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: pcie_ext clock source missing or invalid
+Apr 26 12:04:16 apalis-imx8 kernel: dpu-core 56180000.dpu: driver probed
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: No cache used with register defaults set!
+Apr 26 12:04:16 apalis-imx8 kernel: dpu-core 57180000.dpu: driver probed
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: phy impedance ratio is not specified.
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: No cache used with register defaults set!
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: 5f020000.sata supply ahci not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: 5f020000.sata supply phy not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: 5f020000.sata supply target not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: external osc is used.
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: no ahb clock.
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: AHCI 0001.0301 32 slots 1 ports 6 Gbps 0x1 impl platform mode
+Apr 26 12:04:16 apalis-imx8 kernel: ahci-imx 5f020000.sata: flags: 64bit ncq sntf pm clo only pmp fbs pio slum part ccc sadm sds apst 
+Apr 26 12:04:16 apalis-imx8 kernel: scsi host0: ahci-imx
+Apr 26 12:04:16 apalis-imx8 kernel: ata1: SATA max UDMA/133 mmio [mem 0x5f020000-0x5f02ffff] port 0x100 irq 106
+Apr 26 12:04:16 apalis-imx8 kernel: pps pps0: new PPS source ptp0
+Apr 26 12:04:16 apalis-imx8 kernel: libphy: fec_enet_mii_bus: probed
+Apr 26 12:04:16 apalis-imx8 kernel: fec 5b040000.ethernet eth0: registered PHC device 0
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: xHCI Host Controller
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: new USB bus registered, assigned bus number 1
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: hcc params 0x200073c8 hci version 0x100 quirks 0x0000001000018010
+Apr 26 12:04:16 apalis-imx8 kernel: hub 1-0:1.0: USB hub found
+Apr 26 12:04:16 apalis-imx8 kernel: hub 1-0:1.0: 1 port detected
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: xHCI Host Controller
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: new USB bus registered, assigned bus number 2
+Apr 26 12:04:16 apalis-imx8 kernel:  xhci-cdns3: Host supports USB 3.0 SuperSpeed
+Apr 26 12:04:16 apalis-imx8 kernel: usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+Apr 26 12:04:16 apalis-imx8 kernel: hub 2-0:1.0: USB hub found
+Apr 26 12:04:16 apalis-imx8 kernel: hub 2-0:1.0: 1 port detected
+Apr 26 12:04:16 apalis-imx8 kernel: imx_usb 5b0d0000.usb: 5b0d0000.usb supply vbus not found, using dummy regulator
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: PCIe PLL locked after 0 us.
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: host bridge /bus@5f000000/pcie@0x5f000000 ranges:
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie:    IO 0x6ff80000..0x6ff8ffff -> 0x00000000
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie:   MEM 0x60000000..0x6fefffff -> 0x60000000
+Apr 26 12:04:16 apalis-imx8 kernel: ata1: SATA link down (SStatus 0 SControl 300)
+Apr 26 12:04:16 apalis-imx8 kernel: usb 1-1: new high-speed USB device number 2 using cdns-usb3
+Apr 26 12:04:16 apalis-imx8 kernel: ci_hdrc ci_hdrc.1: EHCI Host Controller
+Apr 26 12:04:16 apalis-imx8 kernel: ci_hdrc ci_hdrc.1: new USB bus registered, assigned bus number 3
+Apr 26 12:04:16 apalis-imx8 kernel: ci_hdrc ci_hdrc.1: USB 2.0 started, EHCI 1.00
+Apr 26 12:04:16 apalis-imx8 kernel: hub 3-0:1.0: USB hub found
+Apr 26 12:04:16 apalis-imx8 kernel: hub 3-0:1.0: 1 port detected
+Apr 26 12:04:16 apalis-imx8 kernel: gpio-fan gpio-fan: GPIO fan initialized
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-esdhc-imx 5b020000.mmc: Got CD GPIO
+Apr 26 12:04:16 apalis-imx8 kernel: mmc1: SDHCI controller on 5b020000.mmc [5b020000.mmc] using ADMA
+Apr 26 12:04:16 apalis-imx8 kernel: sdhci-esdhc-imx 5b030000.mmc: Got CD GPIO
+Apr 26 12:04:16 apalis-imx8 kernel: mmc2: SDHCI controller on 5b030000.mmc [5b030000.mmc] using ADMA
+Apr 26 12:04:16 apalis-imx8 kernel: debugfs: Directory '59050000.sai' with parent 'apalis-imx8qm-sgtl5000' already present!
+Apr 26 12:04:16 apalis-imx8 kernel: asoc-simple-card sound: sgtl5000 <-> 59050000.sai mapping ok
+Apr 26 12:04:16 apalis-imx8 kernel: asoc-simple-card sound: ASoC: no DMI vendor name!
+Apr 26 12:04:16 apalis-imx8 kernel: imx8qxp-lpcg-clk 5b260000.clock-controller: ignoring dependency for device, assuming no driver
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: No cache used with register defaults set!
+Apr 26 12:04:16 apalis-imx8 kernel: input: gpio-keys as /devices/platform/gpio-keys/input/input1
+Apr 26 12:04:16 apalis-imx8 kernel: rtc-ds1307 4-0068: setting system clock to 2021-04-26T12:04:14 UTC (1619438654)
+Apr 26 12:04:16 apalis-imx8 kernel: ALSA device list:
+Apr 26 12:04:16 apalis-imx8 kernel:   #0: imx-spdif
+Apr 26 12:04:16 apalis-imx8 kernel:   #1: apalis-imx8qm-sgtl5000
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: PCIe PLL locked after 0 us.
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: host bridge /bus@5f000000/pcie@0x5f010000 ranges:
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie:    IO 0x7ff80000..0x7ff8ffff -> 0x00000000
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie:   MEM 0x70000000..0x7fefffff -> 0x70000000
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: Link up
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: Link: Gen2 disabled
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: Link up, Gen1
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f010000.pcie: PCI host bridge to bus 0000:00
+Apr 26 12:04:16 apalis-imx8 kernel: pci_bus 0000:00: root bus resource [bus 00-ff]
+Apr 26 12:04:16 apalis-imx8 kernel: pci_bus 0000:00: root bus resource [io  0x10000-0x1ffff] (bus address [0x0000-0xffff])
+Apr 26 12:04:16 apalis-imx8 kernel: pci_bus 0000:00: root bus resource [mem 0x70000000-0x7fefffff]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: [1957:0000] type 01 class 0x060400
+Apr 26 12:04:16 apalis-imx8 kernel: usb 3-1: new high-speed USB device number 2 using ci_hdrc
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: reg 0x10: [mem 0x00000000-0x00ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: reg 0x38: [mem 0x00000000-0x00ffffff pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: supports D1 D2
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: PME# supported from D0 D1 D2 D3hot
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: [1b4b:2b42] type 00 class 0x020000
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: reg 0x10: [mem 0x00000000-0x000fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: reg 0x18: [mem 0x00000000-0x000fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: supports D1 D2
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: PME# supported from D0 D1 D3hot D3cold
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: 2.000 Gb/s available PCIe bandwidth, limited by 2.5 GT/s x1 link at 0000:00:00.0 (capable of 4.000 Gb/s with 5 GT/s x1 link)
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: BAR 0: assigned [mem 0x70000000-0x70ffffff]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: BAR 6: assigned [mem 0x71000000-0x71ffffff pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: BAR 15: assigned [mem 0x72000000-0x721fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: BAR 0: assigned [mem 0x72000000-0x720fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:01:00.0: BAR 2: assigned [mem 0x72100000-0x721fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0: PCI bridge to [bus 01-ff]
+Apr 26 12:04:16 apalis-imx8 kernel: pci 0000:00:00.0:   bridge window [mem 0x72000000-0x721fffff 64bit pref]
+Apr 26 12:04:16 apalis-imx8 kernel: pcieport 0000:00:00.0: PME: Signaling with IRQ 568
+Apr 26 12:04:16 apalis-imx8 kernel: hub 3-1:1.0: USB hub found
+Apr 26 12:04:16 apalis-imx8 kernel: hub 3-1:1.0: 3 ports detected
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: Phy link never came up
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: failed to initialize host
+Apr 26 12:04:16 apalis-imx8 kernel: imx6q-pcie 5f000000.pcie: unable to add pcie port.
+Apr 26 12:04:16 apalis-imx8 kernel: EXT4-fs (mmcblk0p2): INFO: recovery required on readonly filesystem
+Apr 26 12:04:16 apalis-imx8 kernel: EXT4-fs (mmcblk0p2): write access will be enabled during recovery
+Apr 26 12:04:16 apalis-imx8 kernel: EXT4-fs (mmcblk0p2): recovery complete
+Apr 26 12:04:16 apalis-imx8 kernel: EXT4-fs (mmcblk0p2): mounted filesystem with ordered data mode. Opts: (null)
+Apr 26 12:04:16 apalis-imx8 kernel: VFS: Mounted root (ext4 filesystem) readonly on device 179:2.
+Apr 26 12:04:16 apalis-imx8 kernel: devtmpfs: mounted
+Apr 26 12:04:16 apalis-imx8 kernel: Freeing unused kernel memory: 2496K
+Apr 26 12:04:16 apalis-imx8 kernel: Run /sbin/init as init process
+Apr 26 12:04:16 apalis-imx8 systemd[1]: systemd 244.5+ running in system mode. (+PAM -AUDIT -SELINUX +IMA -APPARMOR -SMACK +SYSVINIT +UTMP -LIBCRYPTSETUP -GCRYPT -GNUTLS +ACL +XZ -LZ4 -SECCOMP +BLKID -ELFUTILS +KMOD -IDN2 -IDN -PCRE2 default-hierarchy=hybrid)
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Detected architecture arm64.
+Apr 26 12:04:16 apalis-imx8 kernel: usb 3-1.3: new full-speed USB device number 3 using ci_hdrc
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Set hostname to <apalis-imx8>.
+Apr 26 12:04:16 apalis-imx8 kernel: input: Logitech USB Receiver as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.0/0003:046D:C52B.0001/input/input2
+Apr 26 12:04:16 apalis-imx8 kernel: hid-generic 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboard [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input0
+Apr 26 12:04:16 apalis-imx8 kernel: input: Logitech USB Receiver Mouse as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input3
+Apr 26 12:04:16 apalis-imx8 kernel: input: Logitech USB Receiver Consumer Control as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input4
+Apr 26 12:04:16 apalis-imx8 systemd[1]: /lib/systemd/system/gpsd.socket:5: ListenStream= references a path below legacy directory /var/run/, updating /var/run/gpsd.sock → /run/gpsd.sock; please update the unit file accordingly.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Created slice system-getty.slice.
+Apr 26 12:04:16 apalis-imx8 kernel: input: Logitech USB Receiver System Control as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input5
+Apr 26 12:04:16 apalis-imx8 kernel: hid-generic 0003:046D:C52B.0002: input,hidraw1: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input1
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Created slice system-serial\x2dgetty.slice.
+Apr 26 12:04:16 apalis-imx8 kernel: hid-generic 0003:046D:C52B.0003: hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input2
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Created slice system-weston.slice.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Created slice User and Session Slice.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Dispatch Password Requests to Console Directory Watch.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Forward Password Requests to Wall Directory Watch.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Host and Network Name Lookups.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Paths.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Remote File Systems.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Slices.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Swap.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on RPCbind Server Activation Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target RPC Port Mapper.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on Syslog Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on initctl Compatibility Named Pipe.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on Journal Audit Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on Journal Socket (/dev/log).
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on Journal Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on Network Service Netlink Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on udev Control Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Listening on udev Kernel Socket.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting Huge Pages File System...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting POSIX Message Queue File System...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting Kernel Debug File System...
+Apr 26 12:04:16 apalis-imx8 kernel: switch cluster 0 cpu-freq governor to schedutil
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting Temporary Directory (/tmp)...
+Apr 26 12:04:16 apalis-imx8 kernel: switch cluster 1 cpu-freq governor to schedutil
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Create list of static device nodes for the current kernel...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Hardware RNG Entropy Gatherer Daemon.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting RPC Bind...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting File System Check on Root Device...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Journal Service...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Load Kernel Modules...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting udev Coldplug all Devices...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started RPC Bind.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted Huge Pages File System.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted POSIX Message Queue File System.
+Apr 26 12:04:16 apalis-imx8 systemd-journald[417]: Journal started
+Apr 26 12:04:16 apalis-imx8 systemd-journald[417]: Runtime Journal (/run/log/journal/99b5fd9803c941dbba8fd9fdafd527dd) is 8.0M, max 64.0M, 56.0M free.
+Apr 26 12:04:16 apalis-imx8 systemd-modules-load[419]: Module 'galcore' is built in
+Apr 26 12:04:16 apalis-imx8 systemd-modules-load[419]: Inserted module 'libcomposite'
+Apr 26 12:04:16 apalis-imx8 rngd[409]: Initializing available sources
+Apr 26 12:04:16 apalis-imx8 rngd[409]: [hwrng ]: Initialized
+Apr 26 12:04:16 apalis-imx8 rngd[409]: [jitter]: Initializing AES buffer
+Apr 26 12:04:16 apalis-imx8 systemd-fsck[422]: RFS: clean, 129749/969136 files, 1302316/3871744 blocks
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Journal Service.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted Kernel Debug File System.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted Temporary Directory (/tmp).
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Create list of static device nodes for the current kernel.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started File System Check on Root Device.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Load Kernel Modules.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in FUSE Control File System being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting Kernel Configuration File System...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Remount Root and Kernel File Systems...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Apply Kernel Variables...
+Apr 26 12:04:16 apalis-imx8 kernel: EXT4-fs (mmcblk0p2): re-mounted. Opts: (null)
+Apr 26 12:04:16 apalis-imx8 systemd-sysctl[430]: Couldn't write 'fq_codel' to 'net/core/default_qdisc', ignoring: No such file or directory
+Apr 26 12:04:16 apalis-imx8 systemd-sysctl[430]: Couldn't write '1' to 'net/ipv4/tcp_syncookies', ignoring: No such file or directory
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted Kernel Configuration File System.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Remount Root and Kernel File Systems.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Apply Kernel Variables.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Hardware Database being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Flush Journal to Persistent Storage...
+Apr 26 12:04:16 apalis-imx8 systemd-journald[417]: Runtime Journal (/run/log/journal/99b5fd9803c941dbba8fd9fdafd527dd) is 8.0M, max 64.0M, 56.0M free.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Create System Users being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Create Static Device Nodes in /dev...
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: /etc/tmpfiles.d/connman_resolvconf.conf:1: Line references path below legacy directory /var/run/, updating /var/run/connman → /run/connman; please update the tmpfiles.d/ drop-in file accordingly.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev/mapper.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev/snd/timer.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev/loop-control.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev/net/tun.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[433]: Detected unsafe path transition / -> /dev during canonicalization of /dev/kvm.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Flush Journal to Persistent Storage.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Create Static Device Nodes in /dev.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Local File Systems (Pre).
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounting /var/volatile...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting udev Kernel Device Manager...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started udev Coldplug all Devices.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Mounted /var/volatile.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started udev Kernel Device Manager.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Bind mount volatile /var/cache being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Bind mount volatile /var/lib being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Load/Save Random Seed...
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Bind mount volatile /var/spool being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Bind mount volatile /srv being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target Local File Systems.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Dynamic Linker Cache being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Commit a transient machine-id on disk being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Create Volatile Files and Directories...
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: /etc/tmpfiles.d/connman_resolvconf.conf:1: Line references path below legacy directory /var/run/, updating /var/run/connman → /run/connman; please update the tmpfiles.d/ drop-in file accordingly.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Load/Save Random Seed.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/volatile.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/volatile.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/lib.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/lock.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd/netif.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/systemd/netif.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/lib.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/lib/systemd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/lib.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/log.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/cache.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/log.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/log.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var/log.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /var during canonicalization of /var.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /tmp during canonicalization of /tmp.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /tmp during canonicalization of /tmp.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /tmp during canonicalization of /tmp.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /tmp during canonicalization of /tmp.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /tmp during canonicalization of /tmp.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/log/journal.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/log/journal/99b5fd9803c941dbba8fd9fdafd527dd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/log/journal/99b5fd9803c941dbba8fd9fdafd527dd.
+Apr 26 12:04:16 apalis-imx8 systemd-tmpfiles[452]: Detected unsafe path transition / -> /run during canonicalization of /run/log/journal/99b5fd9803c941dbba8fd9fdafd527dd/system.journal.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Started Create Volatile Files and Directories.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Run pending postinsts being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Journal Catalog being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:16 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target System Time Set.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Reached target System Time Synchronized.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Condition check resulted in Update is Completed being skipped.
+Apr 26 12:04:16 apalis-imx8 systemd[1]: Starting Update UTMP about System Boot/Shutdown...
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Scheduled restart job, restart counter is at 1.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Created slice system-systemd\x2dbacklight.slice.
+Apr 26 12:04:17 apalis-imx8 kernel: [VPU Encoder] enable mu for core[0]
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in FUSE Control File System being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Dynamic Linker Cache being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Run pending postinsts being skipped.
+Apr 26 12:04:17 apalis-imx8 kernel: [VPU Encoder] vpu encoder core[0] firmware version is 1.3.0
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Starting Load/Save Screen Backlight Brightness of backlight:backlight...
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Hardware Database being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Rebuild Journal Catalog being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Commit a transient machine-id on disk being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Stopped Network Time Synchronization.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] No driver support for vblank timestamp query.
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-drm-dpu-bliteng.2 (ops dpu_bliteng_ops)
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Create System Users being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-drm-dpu-bliteng.5 (ops dpu_bliteng_ops)
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-dpu-crtc.0 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel: mxc-jpeg 58400000.jpegdec: decoder device registered as /dev/video0 (81,2)
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Update is Completed being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started Load/Save Screen Backlight Brightness of backlight:backlight.
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-dpu-crtc.1 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel: mxc-jpeg 58450000.jpegenc: encoder device registered as /dev/video1 (81,3)
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Scheduled restart job, restart counter is at 2.
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-dpu-crtc.3 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound imx-dpu-crtc.4 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel: CAN device driver interface
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started Update UTMP about System Boot/Shutdown.
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[453]: Using default interface naming scheme 'v243'.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Stopped Network Time Synchronization.
+Apr 26 12:04:17 apalis-imx8 kernel: flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[453]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:17 apalis-imx8 kernel: flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Reached target System Initialization.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started Daily Cleanup of Temporary Directories.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Reached target Timers.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Listening on Avahi mDNS/DNS-SD Stack Activation Socket.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Listening on D-Bus System Message Bus Socket.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Started firmware!
+Apr 26 12:04:17 apalis-imx8 kernel: cfg80211: Loading compiled-in X.509 certificates for regulatory database
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] HDP FW Version - ver 34219 verlib 20560
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Listening on dropbear.socket.
+Apr 26 12:04:17 apalis-imx8 kernel: cfg80211: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Listening on GPS (Global Positioning System) Daemon Sockets.
+Apr 26 12:04:17 apalis-imx8 kernel: cdns-mhdp-imx 56268000.hdmi: lane-mapping 0x93
+Apr 26 12:04:17 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: enabling device (0000 -> 0002)
+Apr 26 12:04:17 apalis-imx8 kernel: imx-drm display-subsystem: bound 56268000.hdmi (ops cdns_mhdp_imx_ops [cdns_mhdp_imx])
+Apr 26 12:04:17 apalis-imx8 kernel: mwifiex_pcie: PCI memory map Virt0: 00000000ffc39652 PCI memory map Virt2: 000000001d4a3545
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Reached target Sockets.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Initialized imx-drm 1.0.0 20120507 for display-subsystem on minor 1
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Reached target Basic System.
+Apr 26 12:04:17 apalis-imx8 kernel: debugfs: Directory '59090000.sai' with parent 'imx-audio-hdmi-tx' already present!
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Condition check resulted in Bluetooth service being skipped.
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[466]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started Bluetooth Audio ALSA Backend.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started Kernel Logging Service.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: klogd started: BusyBox v1.31.1 ()
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Linux version 5.4.91-33089-g82e97870feb6 (peter@mb) (gcc version 9.2.1 20191025 (GNU Toolchain for the A-profile Architecture 9.2-2019.12 (arm-9.10))) #1 SMP PREEMPT Mon Apr 26 10:56:35 CEST 2021
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Machine model: Toradex Apalis iMX8QM V1.1 on Apalis Evaluation Board
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] efi: Getting EFI parameters from FDT:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] efi: UEFI not found.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Reserved memory: created CMA memory pool at 0x0000000096000000, size 960 MiB
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] OF: reserved mem: initialized node linux,cma, compatible id shared-dma-pool
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Reserved memory: created DMA memory pool at 0x0000000090400000, size 1 MiB
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] OF: reserved mem: initialized node vdevbuffer, compatible id shared-dma-pool
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] NUMA: No NUMA configuration found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] NUMA: Faking a node at [mem 0x0000000080200000-0x00000008ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] NUMA: NODE_DATA [mem 0x8ff7c3500-0x8ff7c4fff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Zone ranges:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   Normal   [mem 0x0000000100000000-0x00000008ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Movable zone start for each node
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Early memory node ranges
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000080200000-0x0000000083ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000086400000-0x0000000087ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000090000000-0x00000000901fffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000090500000-0x0000000091ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000094c00000-0x0000000094ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000095400000-0x00000000ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   node   0: [mem 0x0000000880000000-0x00000008ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Initmem setup node 0 [mem 0x0000000080200000-0x00000008ffffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] On node 0 totalpages: 993024
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   DMA32 zone: 7324 pages used for memmap
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   DMA32 zone: 0 pages reserved
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   DMA32 zone: 468736 pages, LIFO batch:63
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   Normal zone: 8192 pages used for memmap
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]   Normal zone: 524288 pages, LIFO batch:63
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] psci: probing for conduit method from DT.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] psci: PSCIv1.1 detected in firmware.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] psci: Using standard PSCI v0.2 function IDs
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] psci: SMC Calling Convention v1.1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] percpu: Embedded 24 pages/cpu s58904 r8192 d31208 u98304
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] pcpu-alloc: s58904 r8192 d31208 u98304 alloc=24*4096
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Detected VIPT I-cache on CPU0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] CPU features: detected: ARM erratum 845719
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] CPU features: detected: GIC system register CPU interface
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Speculative Store Bypass Disable mitigation not required
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 977508
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Policy zone: Normal
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Kernel command line: pci=nomsi root=PARTUUID=f6360192-02 ro rootwait
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] software IO TLB: mapped [mem 0xf9601000-0xfd601000] (64MB)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] Memory: 2817320K/3972096K available (14140K kernel code, 1006K rwdata, 6216K rodata, 2496K init, 1015K bss, 171736K reserved, 983040K cma-reserved)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=6, Nodes=1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] rcu: Preemptible hierarchical RCU implementation.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] rcu:         RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=6.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000]         Tasks RCU enabled.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=6
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: GIC: Using split EOI/Deactivate mode
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: 512 SPIs implemented
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: 0 Extended SPIs implemented
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: Distributor has no Range Selector support
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: 16 PPIs implemented
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: no VLPI support, no direct LPI support
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x0000000051b00000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] ITS: No ITS available, not enabling LPIs
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] random: get_random_bytes called from start_kernel+0x2b8/0x44c with crng_init=0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] arch_timer: cp15 timer(s) running at 8.00MHz (phys).
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 440795202120 ns
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000003] sched_clock: 56 bits at 8MHz, resolution 125ns, wraps every 2199023255500ns
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.000709] Console: colour dummy device 80x25
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001220] printk: console [tty0] enabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001305] Calibrating delay loop (skipped), value calculated using timer frequency.. 16.00 BogoMIPS (lpj=32000)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001326] pid_max: default: 32768 minimum: 301
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001410] LSM: Security Framework initializing
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001483] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.001512] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.002958] ASID allocator initialised with 32768 entries
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.003037] rcu: Hierarchical SRCU implementation.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.005390] EFI services will not be available.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.005628] smp: Bringing up secondary CPUs ...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.006398] Detected VIPT I-cache on CPU1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.006423] GICv3: CPU1: found redistributor 1 region 0:0x0000000051b20000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.006456] CPU1: Booted secondary processor 0x0000000001 [0x410fd034]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.007227] Detected VIPT I-cache on CPU2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.007243] GICv3: CPU2: found redistributor 2 region 0:0x0000000051b40000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.007260] CPU2: Booted secondary processor 0x0000000002 [0x410fd034]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.008016] Detected VIPT I-cache on CPU3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.008029] GICv3: CPU3: found redistributor 3 region 0:0x0000000051b60000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.008046] CPU3: Booted secondary processor 0x0000000003 [0x410fd034]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.009633] CPU features: detected: EL2 vector hardening
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.009646] CPU features: detected: Branch predictor hardening
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.009652] Detected PIPT I-cache on CPU4
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.009667] GICv3: CPU4: found redistributor 100 region 0:0x0000000051b80000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.009686] CPU4: Booted secondary processor 0x0000000100 [0x410fd082]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010448] Detected PIPT I-cache on CPU5
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010459] GICv3: CPU5: found redistributor 101 region 0:0x0000000051ba0000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010471] CPU5: Booted secondary processor 0x0000000101 [0x410fd082]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010528] smp: Brought up 1 node, 6 CPUs
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010671] SMP: Total of 6 processors activated.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010683] CPU features: detected: 32-bit EL0 Support
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.010694] CPU features: detected: CRC32 instructions
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.020501] CPU: All CPU(s) started at EL2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.020538] alternatives: patching kernel code
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.021573] devtmpfs: initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.038881] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.038922] futex hash table entries: 2048 (order: 5, 131072 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.064650] pinctrl core: initialized pinctrl subsystem
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.065165] DMI not present or invalid.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.065441] NET: Registered protocol family 16
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.071858] DMA: preallocated 256 KiB pool for atomic allocations
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.071879] audit: initializing netlink subsys (disabled)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.072048] audit: type=2000 audit(0.068:1): state=initialized audit_enabled=0 res=1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.072633] cpuidle: using governor menu
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.074044] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.075935] Serial: AMBA PL011 UART driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.075990] imx mu driver is registered.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.076014] imx rpmsg driver is registered.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.128758] HugeTLB registered 1.00 GiB page size, pre-allocated 0 pages
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.128785] HugeTLB registered 32.0 MiB page size, pre-allocated 0 pages
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.128799] HugeTLB registered 2.00 MiB page size, pre-allocated 0 pages
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.128811] HugeTLB registered 64.0 KiB page size, pre-allocated 0 pages
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.129960] cryptd: max_cpu_qlen set to 1000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.133846] ACPI: Interpreter disabled.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136065] iommu: Default domain type: Translated
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136197] vgaarb: loaded
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136523] SCSI subsystem initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136641] libata version 3.00 loaded.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136860] usbcore: registered new interface driver usbfs
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136901] usbcore: registered new interface driver hub
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.136940] usbcore: registered new device driver usb
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.138986] mc: Linux media interface: v0.10
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.139015] videodev: Linux video capture interface: v2.00
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.139086] pps_core: LinuxPPS API ver. 1 registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.139097] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.139121] PTP clock support registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.139483] EDAC MC: Ver: 3.0.0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.141097] No BMan portals available!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.141492] QMan: Allocated lookup table at (____ptrval____), entry count 65537
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.142290] No QMan portals available!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.143486] No USDPAA memory, no 'fsl,usdpaa-mem' in device-tree
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.144052] FPGA manager framework
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.144146] Advanced Linux Sound Architecture Driver Initialized.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.145683] imx-scu scu: NXP i.MX SCU Initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.152108] random: fast init done
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.188945] imx8qm-pinctrl scu:pinctrl: initialized IMX pinctrl driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.192771] clocksource: Switched to clocksource arch_sys_counter
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.192954] VFS: Disk quotas dquot_6.6.0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.193012] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.193191] pnp: PnP ACPI: disabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.222066] thermal_sys: Registered thermal governor 'step_wise'
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.222070] thermal_sys: Registered thermal governor 'power_allocator'
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.222909] NET: Registered protocol family 2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.223265] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.223324] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.223545] TCP bind hash table entries: 32768 (order: 7, 524288 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224012] TCP: Hash tables configured (established 32768 bind 32768)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224116] UDP hash table entries: 2048 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224202] UDP-Lite hash table entries: 2048 (order: 4, 65536 bytes, linear)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224394] NET: Registered protocol family 1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224730] RPC: Registered named UNIX socket transport module.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224742] RPC: Registered udp transport module.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224752] RPC: Registered tcp transport module.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224774] RPC: Registered tcp NFSv4.1 backchannel transport module.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.224793] PCI: CLS 0 bytes, default 64
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.225585] hw perfevents: enabled with armv8_pmuv3 PMU driver, 7 counters available
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.227144] kvm [1]: IPA Size Limit: 40bits
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.227806] kvm [1]: vgic-v2@52020000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.227834] kvm [1]: GIC system register CPU interface enabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.227935] kvm [1]: vgic interrupt IRQ1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.228079] kvm [1]: Hyp mode initialized successfully
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.231423] Initialise system trusted keyrings
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.231528] workingset: timestamp_bits=44 max_order=20 bucket_order=0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.237502] NFS: Registering the id_resolver key type
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.237532] Key type id_resolver registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.237543] Key type id_legacy registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.237560] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.237590] jffs2: version 2.2. (NAND) © 2001-2006 Red Hat, Inc.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.250977] Key type asymmetric registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.250990] Asymmetric key parser 'x509' registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.251026] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.251043] io scheduler mq-deadline registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.251053] io scheduler kyber registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.265922] imx6q-pcie 5f000000.pcie: 5f000000.pcie supply epdev_on not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.267815] EINJ: ACPI disabled.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.382598] mxs-dma 5b810000.dma-apbh: initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.384264] Bus freq driver module loaded
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.390442] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.394805] 5a060000.serial: ttyLP0 at MMIO 0x5a060010 (irq = 47, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.395146] fsl-lpuart 5a060000.serial: DMA tx channel request failed, operating without tx DMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.395165] fsl-lpuart 5a060000.serial: DMA rx channel request failed, operating without rx DMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.395525] 5a070000.serial: ttyLP1 at MMIO 0x5a070010 (irq = 48, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    0.395547] fsl-lpuart 5a070000.serial: Serial: Console lpuart rounded baud ratefrom 35971 to 115200
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.465734] printk: console [ttyLP1] enabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.470902] 5a080000.serial: ttyLP2 at MMIO 0x5a080010 (irq = 49, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.480535] fsl-lpuart 5a080000.serial: DMA tx channel request failed, operating without tx DMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.489258] fsl-lpuart 5a080000.serial: DMA rx channel request failed, operating without rx DMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.498448] 5a090000.serial: ttyLP3 at MMIO 0x5a090010 (irq = 50, base_baud = 5000000) is a FSL_LPUART
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.510922] arm-smmu 51400000.iommu: probing hardware configuration...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.517480] arm-smmu 51400000.iommu: SMMUv2 with:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.522200] arm-smmu 51400000.iommu:         stage 1 translation
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.527611] arm-smmu 51400000.iommu:         stage 2 translation
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.533027] arm-smmu 51400000.iommu:         nested translation
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.538353] arm-smmu 51400000.iommu:         stream matching with 32 register groups
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.545505] arm-smmu 51400000.iommu:         32 context banks (0 stage-2 only)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.552141] arm-smmu 51400000.iommu:         Supported page sizes: 0x61311000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.558686] arm-smmu 51400000.iommu:         Stage-1: 48-bit VA -> 48-bit IPA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.565231] arm-smmu 51400000.iommu:         Stage-2: 48-bit IPA -> 48-bit PA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.643001] imx-drm display-subsystem: parent device of /bus@57240000/ldb@572410e0/lvds-channel@0 is not available
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.677193] loop: module loaded
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.680705] zram: Added device: zram0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.688888] ahci-imx 5f020000.sata: Adding to iommu group 0
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started System Logging Service.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.694672] ahci-imx 5f020000.sata: can't get sata_ext clock.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.700808] imx ahci driver is registered.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.712684] libphy: Fixed MDIO Bus: probed
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.717035] tun: Universal TUN/TAP device driver, 1.6
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.723772] fec 5b040000.ethernet: Adding to iommu group 1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.731790] Freescale FM module, FMD API version 21.1.0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.737913] Freescale FM Ports module
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.743162] VFIO - User Level meta-driver version: 0.3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.752265] cdns-usb3 5b110000.usb3: Adding to iommu group 2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.758877] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.765435] ehci-pci: EHCI PCI platform driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.771233] usbcore: registered new interface driver usb-storage
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.777338] usbcore: registered new interface driver usbserial_generic
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.783893] usbserial: USB Serial support registered for generic
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.789954] usbcore: registered new interface driver cp210x
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.795560] usbserial: USB Serial support registered for cp210x
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.801514] usbcore: registered new interface driver ftdi_sio
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.807286] usbserial: USB Serial support registered for FTDI USB Serial Device
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.814637] usbcore: registered new interface driver pl2303
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.820251] usbserial: USB Serial support registered for pl2303
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.826302] usbcore: registered new interface driver usb_serial_simple
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.832867] usbserial: USB Serial support registered for carelink
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.838992] usbserial: USB Serial support registered for zio
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.844675] usbserial: USB Serial support registered for funsoft
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.850715] usbserial: USB Serial support registered for flashloader
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.857098] usbserial: USB Serial support registered for google
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.863039] usbserial: USB Serial support registered for libtransistor
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.869593] usbserial: USB Serial support registered for vivopay
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.875631] usbserial: USB Serial support registered for moto_modem
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.881928] usbserial: USB Serial support registered for motorola_tetra
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.888574] usbserial: USB Serial support registered for novatel_gps
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.894959] usbserial: USB Serial support registered for hp4x
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.900736] usbserial: USB Serial support registered for suunto
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.906684] usbserial: USB Serial support registered for siemens_mpi
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.920035] input: sc-powerkey as /devices/platform/sc-powerkey/input/input0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.929712] imx-sc-rtc scu:rtc: registered as rtc1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.935180] i2c /dev entries driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.940702] pps_ldisc: PPS line discipline registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.954930] sdhci: Secure Digital Host Controller Interface driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.961150] sdhci: Copyright(c) Pierre Ossman
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.966059] Synopsys Designware Multimedia Card Interface Driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.973966] sdhci-pltfm: SDHCI platform and OF driver helper
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    1.981591] sdhci-esdhc-imx 5b010000.mmc: Adding to iommu group 3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.019681] mmc0: SDHCI controller on 5b010000.mmc [5b010000.mmc] using ADMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.027804] sdhci-esdhc-imx 5b020000.mmc: Adding to iommu group 3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.034775] sdhci-esdhc-imx 5b030000.mmc: Adding to iommu group 3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.046150] ledtrig-cpu: registered to indicate activity on CPUs
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.054806] caam 31400000.crypto: device ID = 0x0a16040000000100 (Era 9)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.061539] caam 31400000.crypto: job rings = 2, qi = 0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.080519] caam algorithms registered in /proc/crypto
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.087513] caam 31400000.crypto: caam pkc algorithms registered in /proc/crypto
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.095246] caam 31400000.crypto: registering rng-caam
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.100958] Device caam-keygen registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.110099] random: crng init done
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.110831] hidraw: raw HID events driver (C) Jiri Kosina
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.119169] usbcore: registered new interface driver usbhid
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.124762] usbhid: USB HID core driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.131909] mmc0: new HS400 MMC card at address 0001
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.132836] No fsl,qman node
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.137533] mmcblk0: mmc0:0001 S0J56X 14.8 GiB
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.139776] Freescale USDPAA process driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.144564] mmcblk0boot0: mmc0:0001 S0J56X partition 1 31.5 MiB
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.148512] fsl-usdpaa: no region found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.148515] Freescale USDPAA process IRQ driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.154706] mmcblk0boot1: mmc0:0001 S0J56X partition 2 31.5 MiB
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.168891] mmcblk0rpmb: mmc0:0001 S0J56X partition 3 4.00 MiB, chardev (237:0)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.173392] Galcore version 6.4.3.p1.305572
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.177737]  mmcblk0: p1 p2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.336736] [drm] Initialized vivante 1.0.0 20170808 for 80000000.imx8_gpu1_ss on minor 0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.348979] [VPU Decoder] warning: init rtx channel failed, ret: -517
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.355538] [VPU Decoder] failed to request mailbox, ret = -517
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.364949] [VPU Encoder] warning:  init rtx channel failed, ret: -517
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.371507] [VPU Encoder] warning:  init rtx channel failed, ret: -517
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.378082] [VPU Encoder] fail to request mailbox, ret = -517
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.386847] dvbdev: DVB: registering new adapter (PPM DVB adapter)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.393908] dvbdev: DVB: registering new adapter (PPM DVB adapter)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.456306] imx-spdif sound-spdif: snd-soc-dummy-dai <-> 59020000.spdif mapping ok
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.463945] imx-spdif sound-spdif: ASoC: no DMI vendor name!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.470648] imx-audmix imx-audmix.0: failed to find SAI platform device
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.477313] imx-audmix: probe of imx-audmix.0 failed with error -22
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.486851] pktgen: Packet Generator for packet performance testing. Version: 2.75
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.495127] NET: Registered protocol family 26
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.499897] NET: Registered protocol family 10
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.504785] Segment Routing with IPv6
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.508478] NET: Registered protocol family 17
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.512948] tsn generic netlink module v1 init...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.517700] Key type dns_resolver registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.522206] registered taskstats version 1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.526317] Loading compiled-in X.509 certificates
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.548887] mxs_phy 5b100000.usbphy: 5b100000.usbphy supply phy-3p0 not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.567934] usb_phy_generic bus@5b000000:usb3-phy: bus@5b000000:usb3-phy supply vcc not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.578603] usb_phy_generic bus@5b000000:usbphynop2: bus@5b000000:usbphynop2 supply vcc not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.589838] imx-lpi2c 5a800000.i2c: can't get pinctrl, bus recovery not supported
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.597520] i2c i2c-2: LPI2C adapter registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    2.604533] sgtl5000 3-000a: sgtl5000 revision 0x11
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.176959] usb3503 3-0008: switched to HUB mode
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.181616] usb3503 3-0008: usb3503_probe: probed in hub mode
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.187466] i2c i2c-3: LPI2C adapter registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.195338] rtc-ds1307 4-0068: registered as rtc0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.200093] i2c i2c-4: LPI2C adapter registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.205567] i2c i2c-5: LPI2C adapter registered
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.214659] pwm-backlight backlight: backlight supply power not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.214784] imx6q-pcie 5f000000.pcie: 5f000000.pcie supply epdev_on not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.215317] imx6q-pcie 5f010000.pcie: pcie_ext clock source missing or invalid
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.229409] dpu-core 56180000.dpu: driver probed
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.232459] imx6q-pcie 5f000000.pcie: No cache used with register defaults set!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.241081] dpu-core 57180000.dpu: driver probed
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.256300] ahci-imx 5f020000.sata: phy impedance ratio is not specified.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.263146] ahci-imx 5f020000.sata: No cache used with register defaults set!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.270460] ahci-imx 5f020000.sata: 5f020000.sata supply ahci not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.279132] ahci-imx 5f020000.sata: 5f020000.sata supply phy not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.287700] ahci-imx 5f020000.sata: 5f020000.sata supply target not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.296686] ahci-imx 5f020000.sata: external osc is used.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.304895] ahci-imx 5f020000.sata: no ahb clock.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.309654] ahci-imx 5f020000.sata: AHCI 0001.0301 32 slots 1 ports 6 Gbps 0x1 impl platform mode
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.318541] ahci-imx 5f020000.sata: flags: 64bit ncq sntf pm clo only pmp fbs pio slum part ccc sadm sds apst
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.329051] scsi host0: ahci-imx
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.332447] ata1: SATA max UDMA/133 mmio [mem 0x5f020000-0x5f02ffff] port 0x100 irq 106
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.355458] pps pps0: new PPS source ptp0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.361235] libphy: fec_enet_mii_bus: probed
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.367136] fec 5b040000.ethernet eth0: registered PHC device 0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.376816]  xhci-cdns3: xHCI Host Controller
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.381196]  xhci-cdns3: new USB bus registered, assigned bus number 1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.389087]  xhci-cdns3: hcc params 0x200073c8 hci version 0x100 quirks 0x0000001000018010
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.398260] hub 1-0:1.0: USB hub found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.402102] hub 1-0:1.0: 1 port detected
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.406367]  xhci-cdns3: xHCI Host Controller
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.410742]  xhci-cdns3: new USB bus registered, assigned bus number 2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.417283]  xhci-cdns3: Host supports USB 3.0 SuperSpeed
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.422718] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.431104] hub 2-0:1.0: USB hub found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.434878] hub 2-0:1.0: 1 port detected
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.439626] imx_usb 5b0d0000.usb: 5b0d0000.usb supply vbus not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.488817] imx6q-pcie 5f000000.pcie: PCIe PLL locked after 0 us.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.495038] imx6q-pcie 5f000000.pcie: host bridge /bus@5f000000/pcie@0x5f000000 ranges:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.503356] imx6q-pcie 5f000000.pcie:    IO 0x6ff80000..0x6ff8ffff -> 0x00000000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.510773] imx6q-pcie 5f000000.pcie:   MEM 0x60000000..0x6fefffff -> 0x60000000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.655487] ata1: SATA link down (SStatus 0 SControl 300)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.740811] usb 1-1: new high-speed USB device number 2 using cdns-usb3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.753413] ci_hdrc ci_hdrc.1: EHCI Host Controller
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.758331] ci_hdrc ci_hdrc.1: new USB bus registered, assigned bus number 3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.780800] ci_hdrc ci_hdrc.1: USB 2.0 started, EHCI 1.00
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.787085] hub 3-0:1.0: USB hub found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.790906] hub 3-0:1.0: 1 port detected
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.796172] gpio-fan gpio-fan: GPIO fan initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.802135] sdhci-esdhc-imx 5b020000.mmc: Got CD GPIO
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.838696] mmc1: SDHCI controller on 5b020000.mmc [5b020000.mmc] using ADMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.847768] sdhci-esdhc-imx 5b030000.mmc: Got CD GPIO
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.884507] mmc2: SDHCI controller on 5b030000.mmc [5b030000.mmc] using ADMA
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.914894] debugfs: Directory '59050000.sai' with parent 'apalis-imx8qm-sgtl5000' already present!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.924516] asoc-simple-card sound: sgtl5000 <-> 59050000.sai mapping ok
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.931239] asoc-simple-card sound: ASoC: no DMI vendor name!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.941148] imx8qxp-lpcg-clk 5b260000.clock-controller: ignoring dependency for device, assuming no driver
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.949587] imx6q-pcie 5f010000.pcie: No cache used with register defaults set!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.959684] input: gpio-keys as /devices/platform/gpio-keys/input/input1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.967892] rtc-ds1307 4-0068: setting system clock to 2021-04-26T12:04:14 UTC (1619438654)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.983838] ALSA device list:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.986828]   #0: imx-spdif
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    3.989652]   #1: apalis-imx8qm-sgtl5000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.096821] imx6q-pcie 5f010000.pcie: PCIe PLL locked after 0 us.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.103056] imx6q-pcie 5f010000.pcie: host bridge /bus@5f000000/pcie@0x5f010000 ranges:
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.111353] imx6q-pcie 5f010000.pcie:    IO 0x7ff80000..0x7ff8ffff -> 0x00000000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.118788] imx6q-pcie 5f010000.pcie:   MEM 0x70000000..0x7fefffff -> 0x70000000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.226394] imx6q-pcie 5f010000.pcie: Link up
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.230791] imx6q-pcie 5f010000.pcie: Link: Gen2 disabled
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.236224] imx6q-pcie 5f010000.pcie: Link up, Gen1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.241525] imx6q-pcie 5f010000.pcie: PCI host bridge to bus 0000:00
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.247903] pci_bus 0000:00: root bus resource [bus 00-ff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.253420] pci_bus 0000:00: root bus resource [io  0x10000-0x1ffff] (bus address [0x0000-0xffff])
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.262408] pci_bus 0000:00: root bus resource [mem 0x70000000-0x7fefffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.269318] pci 0000:00:00.0: [1957:0000] type 01 class 0x060400
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.272789] usb 3-1: new high-speed USB device number 2 using ci_hdrc
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.275362] pci 0000:00:00.0: reg 0x10: [mem 0x00000000-0x00ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.288078] pci 0000:00:00.0: reg 0x38: [mem 0x00000000-0x00ffffff pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.294858] pci 0000:00:00.0: supports D1 D2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.299144] pci 0000:00:00.0: PME# supported from D0 D1 D2 D3hot
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.311694] pci 0000:01:00.0: [1b4b:2b42] type 00 class 0x020000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.317812] pci 0000:01:00.0: reg 0x10: [mem 0x00000000-0x000fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.325088] pci 0000:01:00.0: reg 0x18: [mem 0x00000000-0x000fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.332611] pci 0000:01:00.0: supports D1 D2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.336892] pci 0000:01:00.0: PME# supported from D0 D1 D3hot D3cold
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.343390] pci 0000:01:00.0: 2.000 Gb/s available PCIe bandwidth, limited by 2.5 GT/s x1 link at 0000:00:00.0 (capable of 4.000 Gb/s with 5 GT/s x1 link)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.380361] pci 0000:00:00.0: BAR 0: assigned [mem 0x70000000-0x70ffffff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.387443] pci 0000:00:00.0: BAR 6: assigned [mem 0x71000000-0x71ffffff pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.394707] pci 0000:00:00.0: BAR 15: assigned [mem 0x72000000-0x721fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.402575] pci 0000:01:00.0: BAR 0: assigned [mem 0x72000000-0x720fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.410363] pci 0000:01:00.0: BAR 2: assigned [mem 0x72100000-0x721fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.418148] pci 0000:00:00.0: PCI bridge to [bus 01-ff]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.423391] pci 0000:00:00.0:   bridge window [mem 0x72000000-0x721fffff 64bit pref]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.431586] pcieport 0000:00:00.0: PME: Signaling with IRQ 568
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.437676] hub 3-1:1.0: USB hub found
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.441684] hub 3-1:1.0: 3 ports detected
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.517040] imx6q-pcie 5f000000.pcie: Phy link never came up
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.522779] imx6q-pcie 5f000000.pcie: failed to initialize host
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.528784] imx6q-pcie 5f000000.pcie: unable to add pcie port.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.541704] EXT4-fs (mmcblk0p2): INFO: recovery required on readonly filesystem
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.549055] EXT4-fs (mmcblk0p2): write access will be enabled during recovery
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.566836] EXT4-fs (mmcblk0p2): recovery complete
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.573066] EXT4-fs (mmcblk0p2): mounted filesystem with ordered data mode. Opts: (null)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.581236] VFS: Mounted root (ext4 filesystem) readonly on device 179:2.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.589959] devtmpfs: mounted
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.594097] Freeing unused kernel memory: 2496K
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.598973] Run /sbin/init as init process
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.693367] systemd[1]: systemd 244.5+ running in system mode. (+PAM -AUDIT -SELINUX +IMA -APPARMOR -SMACK +SYSVINIT +UTMP -LIBCRYPTSETUP -GCRYPT -GNUTLS +ACL +XZ -LZ4 -SECCOMP +BLKID -ELFUTILS +KMOD -IDN2 -IDN -PCRE2 default-hierarchy=hybrid)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.715794] systemd[1]: Detected architecture arm64.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.732806] usb 3-1.3: new full-speed USB device number 3 using ci_hdrc
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.761285] systemd[1]: Set hostname to <apalis-imx8>.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.851003] input: Logitech USB Receiver as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.0/0003:046D:C52B.0001/input/input2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.925403] hid-generic 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboard [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.941518] input: Logitech USB Receiver Mouse as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input3
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.956280] input: Logitech USB Receiver Consumer Control as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input4
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    4.990968] systemd[1]: /lib/systemd/system/gpsd.socket:5: ListenStream= references a path below legacy directory /var/run/, updating /var/run/gpsd.sock → /run/gpsd.sock; please update the unit file accordingly.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.022340] systemd[1]: Created slice system-getty.slice.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.029163] input: Logitech USB Receiver System Control as /devices/platform/bus@5b000000/5b0e0000.usb/ci_hdrc.1/usb3/3-1/3-1.3/3-1.3:1.1/0003:046D:C52B.0002/input/input5
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.049694] hid-generic 0003:046D:C52B.0002: input,hidraw1: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.050705] systemd[1]: Created slice system-serial\x2dgetty.slice.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.064381] hid-generic 0003:046D:C52B.0003: hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on usb-ci_hdrc.1-1.3/input2
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.098948] systemd[1]: Created slice system-weston.slice.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.122735] systemd[1]: Created slice User and Session Slice.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.145220] systemd[1]: Started Dispatch Password Requests to Console Directory Watch.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.173127] systemd[1]: Started Forward Password Requests to Wall Directory Watch.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.201127] systemd[1]: Reached target Host and Network Name Lookups.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.224908] systemd[1]: Reached target Paths.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.244933] systemd[1]: Reached target Remote File Systems.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.265024] systemd[1]: Reached target Slices.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.284884] systemd[1]: Reached target Swap.
+Apr 26 12:04:17 apalis-imx8 kernel: imx-cdnhdmi sound-hdmi: i2s-hifi <-> 59090000.sai mapping ok
+Apr 26 12:04:17 apalis-imx8 kernel: cdns-mhdp-imx 56268000.hdmi: 0,ff,ff,ff,ff,ff,ff,0
+Apr 26 12:04:17 apalis-imx8 kernel: imx-cdnhdmi sound-hdmi: ASoC: no DMI vendor name!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.323639] systemd[1]: Listening on RPCbind Server Activation Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.349135] systemd[1]: Reached target RPC Port Mapper.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.373445] systemd[1]: Listening on Syslog Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.393243] systemd[1]: Listening on initctl Compatibility Named Pipe.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.417974] systemd[1]: Listening on Journal Audit Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.441460] systemd[1]: Listening on Journal Socket (/dev/log).
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.465693] systemd[1]: Listening on Journal Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.485415] systemd[1]: Listening on Network Service Netlink Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.509438] systemd[1]: Listening on udev Control Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.533227] systemd[1]: Listening on udev Kernel Socket.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.558415] systemd[1]: Mounting Huge Pages File System...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.586209] systemd[1]: Mounting POSIX Message Queue File System...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.612713] systemd[1]: Mounting Kernel Debug File System...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.621213] switch cluster 0 cpu-freq governor to schedutil
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.637110] systemd[1]: Mounting Temporary Directory (/tmp)...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.648922] switch cluster 1 cpu-freq governor to schedutil
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.666116] systemd[1]: Starting Create list of static device nodes for the current kernel...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.699074] systemd[1]: Started Hardware RNG Entropy Gatherer Daemon.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.725972] systemd[1]: Starting RPC Bind...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.749046] systemd[1]: Starting File System Check on Root Device...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.761927] systemd[1]: Starting Journal Service...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.774668] systemd[1]: Starting Load Kernel Modules...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.785489] systemd[1]: Starting udev Coldplug all Devices...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.796507] systemd[1]: Started RPC Bind.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.802347] systemd[1]: Mounted Huge Pages File System.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.812199] systemd[1]: Mounted POSIX Message Queue File System.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    5.849390] systemd[1]: Started Journal Service.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.010807] EXT4-fs (mmcblk0p2): re-mounted. Opts: (null)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.104958] systemd-journald[417]: Received client request to flush runtime journal.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.508292] [VPU Encoder] enable mu for core[0]
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.520696] [VPU Encoder] vpu encoder core[0] firmware version is 1.3.0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.567310] [drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.578427] [drm] No driver support for vblank timestamp query.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.592451] imx-drm display-subsystem: bound imx-drm-dpu-bliteng.2 (ops dpu_bliteng_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.608393] imx-drm display-subsystem: bound imx-drm-dpu-bliteng.5 (ops dpu_bliteng_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.619541] imx-drm display-subsystem: bound imx-dpu-crtc.0 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.637277] mxc-jpeg 58400000.jpegdec: decoder device registered as /dev/video0 (81,2)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.649073] imx-drm display-subsystem: bound imx-dpu-crtc.1 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.658082] mxc-jpeg 58450000.jpegenc: encoder device registered as /dev/video1 (81,3)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.672954] imx-drm display-subsystem: bound imx-dpu-crtc.3 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.688276] imx-drm display-subsystem: bound imx-dpu-crtc.4 (ops dpu_crtc_ops)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.702242] CAN device driver interface
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.719013] flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.749938] flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.858143] [drm] Started firmware!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.881486] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.884814] [drm] HDP FW Version - ver 34219 verlib 20560
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.913538] cfg80211: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.936905] cdns-mhdp-imx 56268000.hdmi: lane-mapping 0x93
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.944598] mwifiex_pcie 0000:01:00.0: enabling device (0000 -> 0002)
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.957967] imx-drm display-subsystem: bound 56268000.hdmi (ops cdns_mhdp_imx_ops [cdns_mhdp_imx])
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.961568] mwifiex_pcie: PCI memory map Virt0: 00000000ffc39652 PCI memory map Virt2: 000000001d4a3545
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    6.984701] [drm] Initialized imx-drm 1.0.0 20120507 for display-subsystem on minor 1
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.003769] debugfs: Directory '59090000.sai' with parent 'imx-audio-hdmi-tx' already present!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.017493] imx-cdnhdmi sound-hdmi: i2s-hifi <-> 59090000.sai mapping ok
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.043444] cdns-mhdp-imx 56268000.hdmi: 0,ff,ff,ff,ff,ff,ff,0
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.097837] imx-cdnhdmi sound-hdmi: ASoC: no DMI vendor name!
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Started D-Bus System Message Bus.
+Apr 26 12:04:17 apalis-imx8 kernel: Bluetooth: Core ver 2.22
+Apr 26 12:04:17 apalis-imx8 kernel: NET: Registered protocol family 31
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.108694] Bluetooth: Core ver 2.22
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.112369] NET: Registered protocol family 31
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[453]: controlC0: Process '/usr/sbin/alsactl restore 0' failed with exit code 99.
+Apr 26 12:04:17 apalis-imx8 kernel: Bluetooth: HCI device and connection manager initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.119741] Bluetooth: HCI device and connection manager initialized
+Apr 26 12:04:17 apalis-imx8 kernel: Bluetooth: HCI socket layer initialized
+Apr 26 12:04:17 apalis-imx8 kernel: Bluetooth: L2CAP socket layer initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.131699] Bluetooth: HCI socket layer initialized
+Apr 26 12:04:17 apalis-imx8 kernel: debugfs: File 'Capture' in directory 'dapm' already present!
+Apr 26 12:04:17 apalis-imx8 kernel: Bluetooth: SCO socket layer initialized
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Starting IPv6 Packet Filtering Framework...
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.136713] Bluetooth: L2CAP socket layer initialized
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.137464] debugfs: File 'Capture' in directory 'dapm' already present!
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.141991] Bluetooth: SCO socket layer initialized
+Apr 26 12:04:17 apalis-imx8 kernel: input: imx-audio-hdmi-tx HDMI Jack as /devices/platform/sound-hdmi/sound/card2/input7
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.154783] input: imx-audio-hdmi-tx HDMI Jack as /devices/platform/sound-hdmi/sound/card2/input7
+Apr 26 12:04:17 apalis-imx8 bluealsa[537]: /usr/bin/bluealsa: No HCI device available
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Starting IPv4 Packet Filtering Framework...
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Starting Telephony service...
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-logind.service: Failed to run 'start-pre' task: Not a directory
+Apr 26 12:04:17 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[463]: controlC1: Process '/usr/sbin/alsactl restore 1' failed with exit code 99.
+Apr 26 12:04:17 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Mode: 3840x2160p297000
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.228599] [drm] Mode: 3840x2160p297000
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Pixel clock: 297000 KHz, character clock: 297000, bpc is 8-bit.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] VCO frequency is 2970000 KHz
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.268872] [drm] Pixel clock: 297000 KHz, character clock: 297000, bpc is 8-bit.
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.268881] [drm] VCO frequency is 2970000 KHz
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[446]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[467]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:17 apalis-imx8 kernel: [drm] Sink Not Support SCDC
+Apr 26 12:04:17 apalis-imx8 kernel[544]: [    7.400153] [drm] Sink Not Support SCDC
+Apr 26 12:04:17 apalis-imx8 systemd-udevd[448]: controlC2: Process '/usr/sbin/alsactl restore 2' failed with exit code 99.
+Apr 26 12:04:18 apalis-imx8 kernel: FAT-fs (mmcblk0p1): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.541981] FAT-fs (mmcblk0p1): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+Apr 26 12:04:18 apalis-imx8 kernel: Console: switching to colour frame buffer device 480x135
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.605231] Console: switching to colour frame buffer device 480x135
+Apr 26 12:04:18 apalis-imx8 kernel: imx-drm display-subsystem: fb0: imx-drmdrmfb frame buffer device
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.671980] imx-drm display-subsystem: fb0: imx-drmdrmfb frame buffer device
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Timestamping service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Starting Load default USB gadget schema g1.schema...
+Apr 26 12:04:18 apalis-imx8 systemd[1]: bluez-alsa.service: Main process exited, code=exited, status=1/FAILURE
+Apr 26 12:04:18 apalis-imx8 systemd[1]: bluez-alsa.service: Failed with result 'exit-code'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started IPv6 Packet Filtering Framework.
+Apr 26 12:04:18 apalis-imx8 kernel: using random self ethernet address
+Apr 26 12:04:18 apalis-imx8 kernel: using random host ethernet address
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.755706] using random self ethernet address
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.760205] using random host ethernet address
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started IPv4 Packet Filtering Framework.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Scheduled restart job, restart counter is at 3.
+Apr 26 12:04:18 apalis-imx8 sh[678]: /bin/sh: warning: command substitution: ignored null byte in input
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Scheduled restart job, restart counter is at 1.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Telephony service.
+Apr 26 12:04:18 apalis-imx8 systemd-udevd[461]: Using default interface naming scheme 'v243'.
+Apr 26 12:04:18 apalis-imx8 systemd-udevd[461]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:18 apalis-imx8 kernel: usb0: HOST MAC 00:14:2d:ff:ff:fe
+Apr 26 12:04:18 apalis-imx8 kernel: usb0: MAC 00:14:2d:ff:ff:ff
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.858013] usb0: HOST MAC 00:14:2d:ff:ff:fe
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    7.862599] usb0: MAC 00:14:2d:ff:ff:ff
+Apr 26 12:04:18 apalis-imx8 systemd[1]: usbg.service: Succeeded.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Load default USB gadget schema g1.schema.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Reached target Network (Pre).
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Reached target Hardware activated USB gadget.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Listening on Load/Save RF Kill Switch Status /dev/rfkill Watch.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Starting Save/Restore Sound Card State...
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: No state is present for card imxspdif
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: /usr/sbin/alsactl: sysfs_init:48: sysfs path '/sys' is invalid
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Found hardware: "imx-spdif" "" "" "" ""
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Hardware is initialized using a generic method
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: No state is present for card imxspdif
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: /usr/sbin/alsactl: sysfs_init:48: sysfs path '/sys' is invalid
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Found hardware: "apalis-imx8qm-s" "" "" "" ""
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Hardware is initialized using a generic method
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: No state is present for card imxaudiohdmitx
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: /usr/sbin/alsactl: sysfs_init:48: sysfs path '/sys' is invalid
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Found hardware: "imx-audio-hdmi-" "" "" "" ""
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: Hardware is initialized using a generic method
+Apr 26 12:04:18 apalis-imx8 alsactl[692]: No state is present for card imxaudiohdmitx
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Condition check resulted in Manage Sound Card State (restore and store) being skipped.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Starting Connection service...
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Stopped Login Service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Failed to run 'start-pre' task: Not a directory
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Starting Network Service...
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Stopped Network Time Synchronization.
+Apr 26 12:04:18 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: info: FW download over, size 634228 bytes
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    8.168247] mwifiex_pcie 0000:01:00.0: info: FW download over, size 634228 bytes
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:18 apalis-imx8 kernel: Microchip KSZ9131 Gigabit PHY 5b040000.ethernet-1:07: attached PHY driver [Microchip KSZ9131 Gigabit PHY] (mii_bus:phy_addr=5b040000.ethernet-1:07, irq=305)
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    8.193073] Microchip KSZ9131 Gigabit PHY 5b040000.ethernet-1:07: attached PHY driver [Microchip KSZ9131 Gigabit PHY] (mii_bus:phy_addr=5b040000.ethernet-1:07, irq=305)
+Apr 26 12:04:18 apalis-imx8 systemd-networkd[694]: Enumeration completed
+Apr 26 12:04:18 apalis-imx8 systemd-networkd[694]: usb0: IPv6 successfully enabled
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Network Service.
+Apr 26 12:04:18 apalis-imx8 systemd-networkd[694]: usb0: Link UP
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Save/Restore Sound Card State.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Started Connection service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Scheduled restart job, restart counter is at 4.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Scheduled restart job, restart counter is at 2.
+Apr 26 12:04:18 apalis-imx8 kernel: configfs-gadget gadget: high-speed config #1: c
+Apr 26 12:04:18 apalis-imx8 kernel: IPv6: ADDRCONF(NETDEV_CHANGE): usb0: link becomes ready
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    8.279410] configfs-gadget gadget: high-speed config #1: c
+Apr 26 12:04:18 apalis-imx8 kernel[544]: [    8.285279] IPv6: ADDRCONF(NETDEV_CHANGE): usb0: link becomes ready
+Apr 26 12:04:18 apalis-imx8 systemd-networkd[694]: usb0: Gained carrier
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Reached target Sound Card.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Starting Avahi mDNS/DNS-SD Stack...
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-hostnamed.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-hostnamed.service: Failed with result 'resources'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Failed to start Hostname Service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Stopped Login Service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Failed to run 'start-pre' task: Not a directory
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Stopped Network Time Synchronization.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed to run 'start' task: Not a directory
+Apr 26 12:04:18 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:18 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Starting WPA supplicant...
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Scheduled restart job, restart counter is at 3.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-timesyncd.service: Scheduled restart job, restart counter is at 5.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Avahi mDNS/DNS-SD Stack.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Stopped Login Service.
+Apr 26 12:04:19 apalis-imx8 wpa_supplicant[698]: Successfully initialized wpa_supplicant
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Failed to run 'start-pre' task: Not a directory
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Stopped Network Time Synchronization.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-timesyncd.service: Start request repeated too quickly.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-timesyncd.service: Failed with result 'resources'.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Failed to start Network Time Synchronization.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Scheduled restart job, restart counter is at 4.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started WPA supplicant.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Reached target Network.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started NFS status monitor for NFSv2/3 locking..
+Apr 26 12:04:19 apalis-imx8 rpc.statd[700]: sm-notify: Version 2.4.3 starting
+Apr 26 12:04:19 apalis-imx8 rpc.statd[700]: sm-notify: No hosts to notify; exiting
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Stopped Login Service.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Failed to run 'start-pre' task: Not a directory
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Starting Permit User Sessions...
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Permit User Sessions.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Scheduled restart job, restart counter is at 5.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Getty on tty1.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Serial Getty on ttyLP1.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Condition check resulted in Serial Getty on ttymxc0 being skipped.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Reached target Login Prompts.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Stopped Login Service.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Start request repeated too quickly.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: systemd-logind.service: Failed with result 'resources'.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Failed to start Login Service.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Weston Wayland Compositor.
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Starting Start a wayland application...
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: WLAN FW is active
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    8.932782] mwifiex_pcie 0000:01:00.0: WLAN FW is active
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: Unknown api_id: 3
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: Unknown api_id: 4
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: Unknown GET_HW_SPEC TLV type: 0x217
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    8.967909] mwifiex_pcie 0000:01:00.0: Unknown api_id: 3
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    8.973316] mwifiex_pcie 0000:01:00.0: Unknown api_id: 4
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    8.978716] mwifiex_pcie 0000:01:00.0: Unknown GET_HW_SPEC TLV type: 0x217
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Starting Load/Save RF Kill Switch Status...
+Apr 26 12:04:19 apalis-imx8 systemd-udevd[449]: Using default interface naming scheme 'v243'.
+Apr 26 12:04:19 apalis-imx8 systemd-udevd[449]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:19 apalis-imx8 systemd-udevd[461]: ethtool: autonegotiation is unset or enabled, the speed and duplex are not writable.
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: info: MWIFIEX VERSION: mwifiex 1.0 (16.68.1.p195) 
+Apr 26 12:04:19 apalis-imx8 kernel: mwifiex_pcie 0000:01:00.0: driver_version = mwifiex 1.0 (16.68.1.p195) 
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    9.006644] mwifiex_pcie 0000:01:00.0: info: MWIFIEX VERSION: mwifiex 1.0 (16.68.1.p195)
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    9.017205] mwifiex_pcie 0000:01:00.0: driver_version = mwifiex 1.0 (16.68.1.p195)
+Apr 26 12:04:19 apalis-imx8 systemd[1]: Started Load/Save RF Kill Switch Status.
+Apr 26 12:04:19 apalis-imx8 systemd-networkd[694]: uap0: found matching network '/lib/systemd/network/hostapd-example.network', based on potentially unpredictable ifname
+Apr 26 12:04:19 apalis-imx8 systemd-networkd[694]: uap0: IPv6 successfully enabled
+Apr 26 12:04:19 apalis-imx8 systemd-networkd[694]: uap0: Could not bring up interface: Operation not possible due to RF-kill
+Apr 26 12:04:19 apalis-imx8 kernel: usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    9.067161] usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:19 apalis-imx8 kernel: usb 3-1.1: new high-speed USB device number 4 using ci_hdrc
+Apr 26 12:04:19 apalis-imx8 kernel: cdns-mhdp-imx 56268000.hdmi: 0,ff,ff,ff,ff,ff,ff,0
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    9.368788] usb 3-1.1: new high-speed USB device number 4 using ci_hdrc
+Apr 26 12:04:19 apalis-imx8 kernel[544]: [    9.371259] cdns-mhdp-imx 56268000.hdmi: 0,ff,ff,ff,ff,ff,ff,0
+Apr 26 12:04:20 apalis-imx8 kernel: usbcore: registered new interface driver btusb
+Apr 26 12:04:20 apalis-imx8 kernel: Bluetooth: hci0: unexpected event for opcode 0x0000
+Apr 26 12:04:20 apalis-imx8 kernel[544]: [    9.512378] usbcore: registered new interface driver btusb
+Apr 26 12:04:20 apalis-imx8 kernel[544]: [    9.514221] Bluetooth: hci0: unexpected event for opcode 0x0000
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Starting Bluetooth service...
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Started Bluetooth service.
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Reached target Bluetooth.
+Apr 26 12:04:20 apalis-imx8 systemd-networkd[694]: usb0: Gained IPv6LL
+Apr 26 12:04:20 apalis-imx8 wayland-app-launch.sh[705]: /usr/bin/wayland-app-launch.sh: line 14: cd: HOME not set
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Started Start a wayland application.
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Reached target Multi-User System.
+Apr 26 12:04:20 apalis-imx8 systemd[1]: Reached target Graphical Interface.
+Apr 26 12:04:21 apalis-imx8 systemd[1]: Starting Update UTMP about System Runlevel Changes...
+Apr 26 12:04:21 apalis-imx8 systemd[1]: systemd-update-utmp-runlevel.service: Succeeded.
+Apr 26 12:04:21 apalis-imx8 systemd[1]: Started Update UTMP about System Runlevel Changes.
+Apr 26 12:04:21 apalis-imx8 systemd[1]: Startup finished in 4.662s (kernel) + 5.855s (userspace) = 10.518s.
+Apr 26 12:04:21 apalis-imx8 wayland-app-launch.sh[751]: libpng warning: iCCP: known incorrect sRGB profile
+Apr 26 12:04:21 apalis-imx8 wayland-app-launch.sh[751]: libpng warning: iCCP: known incorrect sRGB profile
+Apr 26 12:04:21 apalis-imx8 wayland-app-launch.sh[751]: qt.qpa.wayland: Wayland does not support QWindow::requestActivate()
+Apr 26 12:04:22 apalis-imx8 rngd[409]: [jitter]: Enabling JITTER rng support
+Apr 26 12:04:22 apalis-imx8 rngd[409]: [jitter]: Initialized
+Apr 26 12:04:23 apalis-imx8 kernel: fec 5b040000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+Apr 26 12:04:23 apalis-imx8 kernel: IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+Apr 26 12:04:23 apalis-imx8 kernel[544]: [   13.114065] fec 5b040000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+Apr 26 12:04:23 apalis-imx8 kernel[544]: [   13.121720] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+Apr 26 12:04:23 apalis-imx8 systemd-networkd[694]: eth0: Gained carrier
+Apr 26 12:04:23 apalis-imx8 kernel: 8021q: 802.1Q VLAN Support v1.8
+Apr 26 12:04:23 apalis-imx8 kernel[544]: [   13.135938] 8021q: 802.1Q VLAN Support v1.8
+Apr 26 12:04:24 apalis-imx8 systemd-networkd[694]: eth0: Gained IPv6LL
+Apr 26 12:04:25 apalis-imx8 systemd[1]: systemd-rfkill.service: Succeeded.
+Apr 26 12:04:35 apalis-imx8 kernel: usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:35 apalis-imx8 kernel[544]: [   24.672885] usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:35 apalis-imx8 kernel: usb 1-1: new high-speed USB device number 3 using cdns-usb3
+Apr 26 12:04:35 apalis-imx8 kernel[544]: [   24.912809] usb 1-1: new high-speed USB device number 3 using cdns-usb3
+Apr 26 12:04:40 apalis-imx8 kernel: usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:40 apalis-imx8 systemd-journald[417]: Forwarding to syslog missed 309 messages.
+Apr 26 12:04:40 apalis-imx8 kernel[544]: [   30.048895] usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:46 apalis-imx8 kernel: pcie_switch: disabling
+Apr 26 12:04:46 apalis-imx8 kernel[544]: [   35.808851] pcie_switch: disabling
+Apr 26 12:04:56 apalis-imx8 kernel: usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:56 apalis-imx8 kernel[544]: [   45.664851] usb 1-1: device no response, device descriptor read/64, error -110
+Apr 26 12:04:56 apalis-imx8 kernel: usb usb1-port1: attempt power cycle
+Apr 26 12:04:56 apalis-imx8 kernel[544]: [   45.777024] usb usb1-port1: attempt power cycle
+Apr 26 12:04:56 apalis-imx8 kernel: usb 1-1: new high-speed USB device number 4 using cdns-usb3
+Apr 26 12:04:56 apalis-imx8 kernel[544]: [   46.432830] usb 1-1: new high-speed USB device number 4 using cdns-usb3
+Apr 26 12:05:02 apalis-imx8 kernel:  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:02 apalis-imx8 kernel[544]: [   51.680879]  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:07 apalis-imx8 kernel:  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:07 apalis-imx8 kernel[544]: [   57.056877]  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:07 apalis-imx8 kernel: usb 1-1: device not accepting address 4, error -62
+Apr 26 12:05:07 apalis-imx8 kernel[544]: [   57.268816] usb 1-1: device not accepting address 4, error -62
+Apr 26 12:05:07 apalis-imx8 kernel: usb 1-1: new high-speed USB device number 5 using cdns-usb3
+Apr 26 12:05:07 apalis-imx8 kernel[544]: [   57.400823] usb 1-1: new high-speed USB device number 5 using cdns-usb3
+Apr 26 12:05:12 apalis-imx8 kernel:  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:12 apalis-imx8 systemd-journald[417]: Forwarding to syslog missed 9 messages.
+Apr 26 12:05:12 apalis-imx8 kernel[544]: [   62.432889]  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:17 apalis-imx8 systemd-udevd[435]: usb1: Worker [444] processing SEQNUM=3754 is taking a long time
+Apr 26 12:05:18 apalis-imx8 kernel:  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:18 apalis-imx8 kernel[544]: [   67.808890]  xhci-cdns3: Timeout while waiting for setup device command
+Apr 26 12:05:18 apalis-imx8 kernel: usb 1-1: device not accepting address 5, error -62
+Apr 26 12:05:18 apalis-imx8 kernel: usb usb1-port1: unable to enumerate USB device
+Apr 26 12:05:18 apalis-imx8 kernel[544]: [   68.020802] usb 1-1: device not accepting address 5, error -62
+Apr 26 12:05:18 apalis-imx8 kernel[544]: [   68.026881] usb usb1-port1: unable to enumerate USB device
+Apr 26 12:06:13 apalis-imx8 systemd-journald[417]: Forwarding to syslog missed 5 messages.
+Apr 26 12:09:49 apalis-imx8 systemd[1]: serial-getty@ttyLP1.service: Succeeded.
+Apr 26 12:09:49 apalis-imx8 systemd-journald[417]: Forwarding to syslog missed 1 messages.
+Apr 26 12:09:50 apalis-imx8 systemd[1]: serial-getty@ttyLP1.service: Scheduled restart job, restart counter is at 1.
+Apr 26 12:09:50 apalis-imx8 systemd[1]: Stopped Serial Getty on ttyLP1.
+Apr 26 12:09:50 apalis-imx8 systemd[1]: Started Serial Getty on ttyLP1.
+Apr 26 12:10:53 apalis-imx8 systemd-journald[417]: Forwarding to syslog missed 3 messages.

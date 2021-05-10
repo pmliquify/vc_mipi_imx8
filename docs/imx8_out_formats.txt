@@ -1,0 +1,37 @@
+
+Wie wird mxc_isi_out_formats[] verwendet?
+
+v4l2_ioctl_ops
+
+                Wird intern nicht verwendet >>> -+-- mxc_isi_get_format
+                                                        Liefert mxc_isi_fmt anhand index
+
+mxc_isi_cap_enum_framesizes                     -+-- mxc_isi_find_format 
+        Ermittelt fmt anhand pixel_format        |      Liefert mxc_isi_fmt anhand pixelformat, mbus_code oder index
+        Ruft sd mit enum_frame_size auf          |
+        Liefert v4l2_frmsizeenum                 |
+mxc_isi_cap_enum_frameintervals                 -+   
+        Ermittelt fmt anhand pixel_format
+        Ruft sd mit enum_frame_interval auf
+        Liefert v4l2_frmivalenum
+mxc_isi_cap_enum_fmt
+        Liefert v4l2_fmtdesc anhand 
+        v4l2_fmtdesc->index
+mxc_isi_cap_try_fmt_mplane
+        Prüft v4l2_format anhand pixelformat
+        und width, height > 0
+mxc_isi_cap_s_fmt_mplane                        <-- v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
+        Ermittelt fmt anhand pixelformat == fourcc
+        Setzt dst_f->fmt, width und height
+
+
+v4l2_subdev_pad_ops
+
+mxc_isi_subdev_get_fmt
+        Anhand des pads wird dst_f oder src_f verwendet
+        um v4l2_mbus_framefmt zu liefern
+mxc_isi_subdev_set_fmt
+        Anhand des mbus_code wird dst_f 
+        aktualisiert
+mxc_isi_register_cap_device
+        Initialisiert dst_f mit Standardwerten
