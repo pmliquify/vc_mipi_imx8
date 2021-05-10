@@ -1,7 +1,7 @@
 #ifndef _VC_MIPI_SUBDEV_H
 #define _VC_MIPI_SUBDEV_H
 
-#define DEBUG
+// #define DEBUG
 
 #include <media/v4l2-subdev.h>
 #include <media/v4l2-ctrls.h>

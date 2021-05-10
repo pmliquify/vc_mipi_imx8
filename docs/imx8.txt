@@ -88,6 +88,7 @@ imx8-isi-hw.c
 - mxc_isi_channel_config
         - mxc_isi_channel_set_csc
           Legt fest ob eine Farbraumkonvertierung durchgeführt werden muss.
+!!!       Anhand von Koeffizienten (coeffs[]) wird die Farbraumkonvertierung durchgeführt.
         - mxc_isi_channel_set_crop
           Cropping wird aktiviert, wenn o_height und height bzw. o_width und width unterschiedlich sind.
         - mxc_isi_channel_set_scaling

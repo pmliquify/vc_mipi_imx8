@@ -4,7 +4,7 @@ clear
 
 . config/configure.sh
 
-./patch.sh
+./patch.sh f
 
 #CONFIG=defconfig
 CONFIG=toradex_defconfig

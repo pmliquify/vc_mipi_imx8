@@ -1,7 +1,7 @@
 #ifndef _VC_MIPI_CAMERA_H
 #define _VC_MIPI_CAMERA_H
 
-#define DEBUG
+// #define DEBUG
 
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
