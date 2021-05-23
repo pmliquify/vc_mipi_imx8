@@ -12,15 +12,15 @@ CONFIG=toradex_defconfig
 cd $KERNEL_SOURCE 
 make $CONFIG
 
-if [[ $1 == "a" || $1 == "k" ]]; then 
+if [[ $1 == "all" || $1 == "k" ]]; then 
     echo "Build Kernel ..."       
     make -j$(nproc) Image.gz
 fi
 
-if [[ $1 == "a" || $1 == "m" ]]; then 
+if [[ $1 == "all" || $1 == "m" ]]; then 
     echo "Build Modules ..."   
     rm -Rf $MODULES_DIR
-    rm $BUILD_DIR/modules.tar.gz 
+    rm -f $BUILD_DIR/modules.tar.gz 
     
     make -j$(nproc) modules
     mkdir -p $MODULES_DIR
@@ -31,7 +31,7 @@ if [[ $1 == "a" || $1 == "m" ]]; then
     tar -czf ../modules.tar.gz .
 fi
 
-if [[ $1 == "a" || $1 == "d" ]]; then 
+if [[ $1 == "all" || $1 == "d" ]]; then 
     echo "Build Device Tree ..."
     cd $KERNEL_SOURCE 
     #make dtbs
@@ -51,7 +51,7 @@ if [[ $1 == "a" || $1 == "d" ]]; then
     dtc -@ -Hepapr -I dts -O dtb -i $KERNEL_SOURCE/arch/arm64/boot/dts/ -o $DTO_FILE.dtbo $DTO_FILE.dts.preprocessed
 fi
 
-if [[ $1 == "v" ]]; then 
+if [[ $1 == "test" ]]; then 
     cd $WORKING_DIR/src/vcmipidemo/src
     make clean
     make vcmipidemo

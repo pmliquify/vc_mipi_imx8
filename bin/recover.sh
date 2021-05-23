@@ -11,4 +11,4 @@ fi
 
 cd $BUILD_DIR/$TEZI_RECOVER
 . recovery-linux.sh
-rm ~/.ssh/known_hosts
+rm -f ~/.ssh/known_hosts

@@ -1,11 +1,12 @@
 #/bin/bash
 #
 
-SRC_DIR=$WORKING_DIR/src/apalis
-MISC_DIR=$WORKING_DIR/misc/apalis
+BOARD=apalis
 
+TARGET_IP=192.168.10.2
 TARGET_NAME=apalis-imx8
-TARGET_SHELL="ssh root@$TARGET_NAME"
+TARGET_USER=root
+
 #DTB_FILE=imx8qm-apalis-v1.1-eval.dtb
 DTO_FILE=apalis-imx8_vc_mipi_overlay
 

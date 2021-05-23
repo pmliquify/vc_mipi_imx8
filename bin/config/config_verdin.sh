@@ -1,7 +1,9 @@
 #/bin/bash
 #
 
-SRC_DIR=$WORKING_DIR/src/verdin
+BOARD=apalis
+
 TARGET_NAME=verdin-imx8mm
-TARGET_SHELL="ssh root@$TARGET_NAME"
+TARGET_USER=root
+
 DTB_FILE=imx8mm-verdin-wifi-v1.1-dev.dtb

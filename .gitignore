@@ -1,6 +1,4 @@
-build/
-examples/
-.DS_Store
-.vscode
 .vscode-ctags
 .vscode-ctags.next
+build/
+temp/

@@ -6,17 +6,17 @@
 #        ./build.sh $1
 #fi
 
-if [[ $1 == "a" || $1 == "f" || $1 == "k" ]]; then
+if [[ $1 == "all" || $1 == "k" ]]; then
         scp $KERNEL_SOURCE/arch/arm64/boot/Image.gz root@$TARGET_NAME:/boot
 fi
-if [[ $1 == "a" || $1 == "f" || $1 == "m" ]]; then
+if [[ $1 == "all" || $1 == "m" ]]; then
         #scp -r $BUILD_DIR/modules/* root@$TARGET_NAME:/
 
         scp $BUILD_DIR/modules.tar.gz root@$TARGET_NAME:/home/root
         $TARGET_SHELL tar -xzf modules.tar.gz -C /
         $TARGET_SHELL rm modules.tar.gz
 fi
-if [[ $1 == "a" || $1 == "f" || $1 == "d" ]]; then
+if [[ $1 == "all" || $1 == "d" ]]; then
         # Verdin
         #scp $BUILD_DIR/image/$DTB_FILE root@$TARGET_NAME:/boot 
         

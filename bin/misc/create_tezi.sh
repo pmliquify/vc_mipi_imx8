@@ -14,11 +14,11 @@ fi
 
 mkdir -p $WORKING_DIR/build
 cd $WORKING_DIR/build
-rm $TEZI.tar
-rm -R $TEZI
+rm -f $TEZI.tar
+rm -Rf $TEZI
 wget $TEZI_URL/$TEZI.tar
 tar xf $TEZI.tar
-rm $TEZI.tar
+rm -f $TEZI.tar
 
 cd $TEZI
 mkdir $BOOTFS
