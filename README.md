@@ -23,39 +23,39 @@
 When we use the **$** sign it is meant that the command is executed on the host PC. A **#** sign indicates the promt from the target so the execution on the target. In our case the Ixora Apalis board.
 
 1. Create a directory and clone the repository   
-```
-  $ cd <working_dir>
-  $ git clone https://github.com/pmliquify/vc_mipi_toradex
-```
+   ```
+     $ cd <working_dir>
+     $ git clone https://github.com/pmliquify/vc_mipi_toradex
+   ```
 
 2. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* or *device-tree-compiler*.
-```
-  $ cd vc_mipi_toradex/bin
-  $ ./setup.sh host
-```
+   ```
+     $ cd vc_mipi_toradex/bin
+     $ ./setup.sh host
+   ```
 
 3. Build (all) the kernel image, kernel modules and device tree files.
-```
-  $ ./build.sh all
-```
+   ```
+     $ ./build.sh all
+   ```
 
 4. Create a new Toradex Easy Installer Image. Insert a USB stick (FAT formated) with minimum 1GB capacity. The script will download the reference image from toradex patch it with the build kernel and device tree files from step 3 and copy the image to the usb stick.
-```
-  $ ./misc/create_tezi.sh c /media/<username>/<usb-stick-name>
-```
+   ```
+     $ ./misc/create_tezi.sh c /media/<username>/<usb-stick-name>
+   ```
 
 5. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
 We provide a script to easily flash an image. It will download the tools from toradex and start to watch for a matching usb device to flash to.
-```
-  $ ./recover.sh
-```
+   ```
+     $ ./recover.sh
+   ```
 
 6. Plugin the USB stick and install the prepared image.
 
 7. After boot up install the kernel modules we have build in step 3.
-```
-  $ ./flash.sh m
-```
+   ```
+     $ ./flash.sh m
+   ```
 
 ### Workaround 
 Because of a bug in the Toradex Easy Installer Image 5.2.0 it is necessary to do a little workaround. Login, remove an recreate the folder /var/log.
@@ -70,32 +70,51 @@ Because of a bug in the Toradex Easy Installer Image 5.2.0 it is necessary to do
 The system should start properly and the Qt Cinematic Demo should be seen on the screen.   
 
 1. First install the test tools to the target.
-```
-  $ ./build.sh test
-  $ ./setup.sh test
-```
+   ```
+     $ ./build.sh test
+     $ ./setup.sh test
+   ```
 
 2. On the target switch to a console terminal by pressing Ctrl+Alt+F1
 
 3. Login and check if the driver was loaded properly. You should see something like this in the second box.
-```
-  apalis-imx8 login: root
-  # dmesg | grep 5-00
-```
-```
-  [    3.478661] i2c 5-0010: VC MIPI Module - Hardware Descriptor
-  [    3.484348] i2c 5-0010: [ MAGIC  ] [ mipi-module ]
-  [    3.489156] i2c 5-0010: [ MANUF. ] [ Vision Components ] [ MID=0x0427 ]
-  [    3.495780] i2c 5-0010: [ SENSOR ] [ SONY IMX226C ]
-  [    3.500672] i2c 5-0010: [ MODULE ] [ ID=0x0226 ] [ REV=0x0008 ]
-  [    3.506612] i2c 5-0010: [ MODES  ] [ NR=0x000c ] [ BPM=0x0010 ]
-  [    3.929809] i2c 5-0010: VC MIPI Sensor succesfully initialized.
-  [    4.749053] mx8-img-md: Registered sensor subdevice: vc-mipi-cam 5-001a (1)
-  [    4.769124] mx8-img-md: created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
-```
+   ```
+     apalis-imx8 login: root
+     # dmesg | grep 5-00
+   ```
+   ```
+     [    3.478661] i2c 5-0010: VC MIPI Module - Hardware Descriptor
+     [    3.484348] i2c 5-0010: [ MAGIC  ] [ mipi-module ]
+     [    3.489156] i2c 5-0010: [ MANUF. ] [ Vision Components ] [ MID=0x0427 ]
+     [    3.495780] i2c 5-0010: [ SENSOR ] [ SONY IMX226C ]
+     [    3.500672] i2c 5-0010: [ MODULE ] [ ID=0x0226 ] [ REV=0x0008 ]
+     [    3.506612] i2c 5-0010: [ MODES  ] [ NR=0x000c ] [ BPM=0x0010 ]
+     [    3.929809] i2c 5-0010: VC MIPI Sensor succesfully initialized.
+     [    4.749053] mx8-img-md: Registered sensor subdevice: vc-mipi-cam 5-001a (1)
+     [    4.769124] mx8-img-md: created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
+   ```
 
 4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1. **Please note the option -afx4 to suppress ASCII output, out the image to the framebuffer, output image informations and apply the 4 bit shift correction**
-```
-  # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
-  # ./test/vcmipidemo -afx4 -s 2000 -g 10
-```
+   ```
+     # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
+     # ./test/vcmipidemo -afx4 -s 2000 -g 10
+     img.org (dx: 1920, dy: 1080, pitch: 3840) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
+     img.org (dx: 1920, dy: 1080, pitch: 3840) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
+     img.org (dx: 1920, dy: 1080, pitch: 3840) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
+     img.org (dx: 1920, dy: 1080, pitch: 3840) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
+     ...
+   ```
+
+5. The image information output shows the first 20 byte of the image raw data. In your application you have to correct the 4 bit shift while debayering raw image data.
+   ```
+                                                G    B    G    B    ...
+    img.org (dx: 1920, dy: 1080, pitch: 3840) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022
+                                                  ^    ^    ^    ^  ...
+                                                  This are the MSBs (most significant bits)
+                                                  A color component is represented as little endian
+                                                  
+                                                0902 4502 2f02 5002 2702 4a02 2002 5402 2202 5b02
+                        >> 4 bit right shifted     ^    ^    ^    ^    ^    ^    ^    ^    ^    ^
+                                    big endian  0209 0245 022f 0250 0227 024a 0220 0254 0222 025b
+                                       decimal   521  581  559  592  551  586  544  596  546  603
+   ```
