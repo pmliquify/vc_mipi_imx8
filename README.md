@@ -52,19 +52,10 @@ We provide a script to easily flash an image. It will download the tools from to
 
 6. Plugin the USB stick and install the prepared image.
 
-7. After boot up install the kernel modules we have build in step 3.
+7. After boot up, install the kernel modules we have build in step 3.
    ```
      $ ./flash.sh m
    ```
-
-### Workaround 
-Because of a bug in the Toradex Easy Installer Image 5.2.0 it is necessary to do a little workaround. Login, remove an recreate the folder /var/log.
-```
-  $ ssh root@apalis-imx8
-  # rm -R /var/log
-  # mkdir /var/log
-  # reboot
-```
 
 # Testing the camera
 The system should start properly and the Qt Cinematic Demo should be seen on the screen.   
