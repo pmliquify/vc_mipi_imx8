@@ -4,13 +4,19 @@ clear
 
 . config/configure.sh
 
-./patch.sh f
+if [[ ! $1 == "test" ]]; then 
+    if [[ $1 == "all" ]]; then
+        ./patch.sh f
+    else
+        ./patch.sh
+    fi
 
-#CONFIG=defconfig
-CONFIG=toradex_defconfig
+    #CONFIG=defconfig
+    CONFIG=toradex_defconfig
 
-cd $KERNEL_SOURCE 
-make $CONFIG
+    cd $KERNEL_SOURCE 
+    make $CONFIG
+fi
 
 if [[ $1 == "all" || $1 == "k" ]]; then 
     echo "Build Kernel ..."       
@@ -52,8 +58,16 @@ if [[ $1 == "all" || $1 == "d" ]]; then
 fi
 
 if [[ $1 == "test" ]]; then 
-    cd $WORKING_DIR/src/vcmipidemo/src
+    cd $WORKING_DIR/src/vcmipidemo/linux
     make clean
-    make vcmipidemo
-    cp $WORKING_DIR/src/vcmipidemo/src/vcmipidemo $WORKING_DIR/test
+    make
+    mv -f vcmipidemo $WORKING_DIR/test
+    mv -f vcimgnetsrv $WORKING_DIR/test
+fi
+
+if [[ $1 == "view" ]]; then 
+        cd $WORKING_DIR/src/vcmipiview
+        make clean
+        make
+        ./vcmipiview
 fi

@@ -2,3 +2,5 @@
 .vscode-ctags.next
 build/
 temp/
+test/vcimgnetsrv
+test/vcmipidemo

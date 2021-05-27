@@ -6,6 +6,10 @@
  *
  */
 
+// *** VC MIPI ****************************************************************
+// #define DEBUG
+// ****************************************************************************
+
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -357,6 +361,8 @@ static int calc_hs_settle(struct mxc_mipi_csi2_dev *csi2dev, u32 dphy_clk)
 	return rxhs_settle;
 }
 
+// vvv VC MIPI ****************************************************************
+#ifdef DEBUG
 static void mxc_mipi_csi2_reg_dump(struct mxc_mipi_csi2_dev *csi2dev)
 {
 	struct device *dev = &csi2dev->pdev->dev;
@@ -364,50 +370,70 @@ static void mxc_mipi_csi2_reg_dump(struct mxc_mipi_csi2_dev *csi2dev)
 		u32 offset;
 		const char name[32];
 	} registers[] = {
-		{ 0x100, "MIPI CSI2 HC num of lanes" },
-		{ 0x104, "MIPI CSI2 HC dis lanes" },
-		{ 0x108, "MIPI CSI2 HC BIT ERR" },
-		{ 0x10C, "MIPI CSI2 HC IRQ STATUS" },
-		{ 0x110, "MIPI CSI2 HC IRQ MASK" },
-		{ 0x114, "MIPI CSI2 HC ULPS STATUS" },
-		{ 0x118, "MIPI CSI2 HC DPHY ErrSotHS" },
-		{ 0x11c, "MIPI CSI2 HC DPHY ErrSotSync" },
-		{ 0x120, "MIPI CSI2 HC DPHY ErrEsc" },
-		{ 0x124, "MIPI CSI2 HC DPHY ErrSyncEsc" },
-		{ 0x128, "MIPI CSI2 HC DPHY ErrControl" },
-		{ 0x12C, "MIPI CSI2 HC DISABLE_PAYLOAD" },
-		{ 0x130, "MIPI CSI2 HC DISABLE_PAYLOAD" },
-		{ 0x180, "MIPI CSI2 HC IGNORE_VC" },
-		{ 0x184, "MIPI CSI2 HC VID_VC" },
-		{ 0x188, "MIPI CSI2 HC FIFO_SEND_LEVEL" },
-		{ 0x18C, "MIPI CSI2 HC VID_VSYNC" },
-		{ 0x190, "MIPI CSI2 HC VID_SYNC_FP" },
-		{ 0x194, "MIPI CSI2 HC VID_HSYNC" },
-		{ 0x198, "MIPI CSI2 HC VID_HSYNC_BP" },
-		{ 0x000, "MIPI CSI2 CSR PLM_CTRL" },
-		{ 0x004, "MIPI CSI2 CSR PHY_CTRL" },
-		{ 0x008, "MIPI CSI2 CSR PHY_Status" },
-		{ 0x010, "MIPI CSI2 CSR PHY_Test_Status" },
-		{ 0x014, "MIPI CSI2 CSR PHY_Test_Status" },
-		{ 0x018, "MIPI CSI2 CSR PHY_Test_Status" },
-		{ 0x01C, "MIPI CSI2 CSR PHY_Test_Status" },
-		{ 0x020, "MIPI CSI2 CSR PHY_Test_Status" },
-		{ 0x030, "MIPI CSI2 CSR VC Interlaced" },
-		{ 0x038, "MIPI CSI2 CSR Data Type Dis" },
-		{ 0x040, "MIPI CSI2 CSR 420 1st type" },
-		{ 0x044, "MIPI CSI2 CSR Ctr_Ck_Rst_Ctr" },
-		{ 0x048, "MIPI CSI2 CSR Stream Fencing" },
-		{ 0x04C, "MIPI CSI2 CSR Stream Fencing" },
+		{ 0x100, "MIPI CSI2 HC num of lanes    " },
+		{ 0x104, "MIPI CSI2 HC dis lanes       " },
+		{ 0x108, "MIPI CSI2 HC BIT ERR         " },
+		{ 0x10C, "MIPI CSI2 HC IRQ STATUS      " },
+		{ 0x110, "MIPI CSI2 HC IRQ MASK        " },
+		{ 0x114, "MIPI CSI2 HC ULPS STATUS     " },
+		{ 0x118, "MIPI CSI2 HC DPHY ErrSotHS   " },
+		{ 0x11c, "MIPI CSI2 HC DPHY ErrSotSync " },
+		{ 0x120, "MIPI CSI2 HC DPHY ErrEsc     " },
+		{ 0x124, "MIPI CSI2 HC DPHY ErrSyncEsc " },
+		{ 0x128, "MIPI CSI2 HC DPHY ErrControl " },
+		{ 0x12C, "MIPI CSI2 HC DISABLE_PAYLOAD " },
+		{ 0x130, "MIPI CSI2 HC DISABLE_PAYLOAD " },
+		{ 0x180, "MIPI CSI2 HC IGNORE_VC       " },
+		{ 0x184, "MIPI CSI2 HC VID_VC          " },
+		{ 0x188, "MIPI CSI2 HC FIFO_SEND_LEVEL " },
+		{ 0x18C, "MIPI CSI2 HC VID_VSYNC       " },
+		{ 0x190, "MIPI CSI2 HC VID_SYNC_FP     " },
+		{ 0x194, "MIPI CSI2 HC VID_HSYNC       " },
+		{ 0x198, "MIPI CSI2 HC VID_HSYNC_BP    " },
 	};
 	u32 i;
 
 	dev_dbg(dev, "MIPI CSI2 CSR and HC register dump, mipi csi%d\n", csi2dev->id);
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
 		u32 reg = readl(csi2dev->base_regs + registers[i].offset);
-		dev_dbg(dev, "%20s[0x%.3x]: 0x%.3x\n",
+		dev_dbg(dev, "%20s[0x%03x]: 0x%08x\n",
 			registers[i].name, registers[i].offset, reg);
 	}
 }
+
+static void mxc_mipi_csi2_reg_dump2(struct mxc_mipi_csi2_dev *csi2dev)
+{
+	struct device *dev = &csi2dev->pdev->dev;
+	struct {
+		u32 offset;
+		const char name[32];
+	} registers[] = {
+		{ 0x000, "MIPI CSI2 CSR PLM_CTRL       " },
+		{ 0x004, "MIPI CSI2 CSR PHY_CTRL       " },
+		{ 0x008, "MIPI CSI2 CSR PHY_Status     " },
+		{ 0x010, "MIPI CSI2 CSR PHY_Test_Status" },
+		{ 0x014, "MIPI CSI2 CSR PHY_Test_Status" },
+		{ 0x018, "MIPI CSI2 CSR PHY_Test_Status" },
+		{ 0x01C, "MIPI CSI2 CSR PHY_Test_Status" },
+		{ 0x020, "MIPI CSI2 CSR PHY_Test_Status" },
+		{ 0x030, "MIPI CSI2 CSR VC Interlaced  " },
+		{ 0x038, "MIPI CSI2 CSR Data Type Dis  " },
+		{ 0x040, "MIPI CSI2 CSR 420 1st type   " },
+		{ 0x044, "MIPI CSI2 CSR Ctr_Ck_Rst_Ctr " },
+		{ 0x048, "MIPI CSI2 CSR Stream Fencing " },
+		{ 0x04C, "MIPI CSI2 CSR Stream Fencing " },
+	};
+	u32 i;
+
+	dev_dbg(dev, "MIPI CSI2 CSR and HC register dump, mipi csi%d\n", csi2dev->id);
+	for (i = 0; i < ARRAY_SIZE(registers); i++) {
+		u32 reg = readl(csi2dev->csr_regs + registers[i].offset);
+		dev_dbg(dev, "%20s[0x%03x]: 0x%08x\n",
+			registers[i].name, registers[i].offset, reg);
+	}
+}
+#endif
+// ^^^ ************************************************************************
 
 static int mipi_sc_fw_init(struct mxc_mipi_csi2_dev *csi2dev, char enable)
 {
@@ -485,7 +511,7 @@ static void mxc_mipi_csi2_enable(struct mxc_mipi_csi2_dev *csi2dev)
 	val = readl(csi2dev->csr_regs + CSI2SS_PLM_CTRL);
 	val |= CSI2SS_PLM_CTRL_ENABLE_PL;
 	writel(val, csi2dev->csr_regs + CSI2SS_PLM_CTRL);
-
+	
 	val |= CSI2SS_PLM_CTRL_VALID_OVERRIDE;
 	writel(val, csi2dev->csr_regs + CSI2SS_PLM_CTRL);
 
@@ -515,6 +541,7 @@ static void mxc_mipi_csi2_disable(struct mxc_mipi_csi2_dev *csi2dev)
 
 static void mxc_mipi_csi2_csr_config(struct mxc_mipi_csi2_dev *csi2dev)
 {
+	// struct v4l2_mbus_framefmt *mf = &csi2dev->format;
 	u32 val;
 
 	/* format */
@@ -561,7 +588,9 @@ static void mxc_mipi_csi2_hc_config(struct mxc_mipi_csi2_dev *csi2dev)
 	writel(0x1FF, csi2dev->base_regs + CSI2RX_IRQ_MASK);
 
 	/* vid_vc */
-	writel(3, csi2dev->base_regs + 0x184);
+	writel(1, csi2dev->base_regs + 0x180);
+	writel(0, csi2dev->base_regs + 0x184);
+	// writel(3, csi2dev->base_regs + 0x184);
 }
 
 static struct media_pad *mxc_csi2_get_remote_sensor_pad(struct mxc_mipi_csi2_dev *csi2dev)
@@ -642,9 +671,6 @@ static int mxc_csi2_get_sensor_fmt(struct mxc_mipi_csi2_dev *csi2dev)
 
 	/* Update input frame size and formate  */
 	memcpy(mf, &src_fmt.format, sizeof(struct v4l2_mbus_framefmt));
-
-	dev_dbg(&csi2dev->pdev->dev, "width=%d, height=%d, fmt.code=0x%x\n",
-		mf->width, mf->height, mf->code);
 
 	/* Get rxhs settle */
 	if (src_fmt.format.reserved[0] != 0) {
@@ -943,7 +969,12 @@ static int mipi_csi2_s_stream(struct v4l2_subdev *sd, int enable)
 			mxc_mipi_csi2_reset(csi2dev);
 			mxc_mipi_csi2_csr_config(csi2dev);
 			mxc_mipi_csi2_enable(csi2dev);
+			// *** VC MIPI ****************************************
+#ifdef DEBUG
 			mxc_mipi_csi2_reg_dump(csi2dev);
+			mxc_mipi_csi2_reg_dump2(csi2dev);
+#endif
+			// ****************************************************
 		}
 	} else {
 		if (!--csi2dev->running)
@@ -1006,10 +1037,6 @@ static int mipi_csi2_set_fmt(struct v4l2_subdev *sd,
 	struct v4l2_subdev *sen_sd;
 	struct media_pad *source_pad;
 	int ret;
-
-	// *** VC MIPI ********************************************************
-	// v4l2_err(&csi2dev->sd, "%s\n", __FUNCTION__);
-	// ********************************************************************
 
 	/* Get remote source pad */
 	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);

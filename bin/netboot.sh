@@ -10,6 +10,8 @@ fi
 if [[ $1 == "all" || $1 == "m" ]]; then
         echo "Install kernel modules ..."
         sudo tar -xzvf $BUILD_DIR/modules.tar.gz -C $NFS_DIR
+        sudo rm -Rf $NFS_DIR/var/log
+        sudo mkdir $NFS_DIR/var/log
 fi
 
 if [[ $1 == "all" || $1 == "d" ]]; then

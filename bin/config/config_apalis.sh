@@ -1,9 +1,10 @@
 #/bin/bash
 #
 
-BOARD=apalis
+BOARD=ixora
+SOM=apalis
 
-TARGET_IP=192.168.10.2
+TARGET_IP=apalis-imx8
 TARGET_NAME=apalis-imx8
 TARGET_USER=root
 

@@ -95,22 +95,22 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 	if (status & (CHNL_STS_AXI_WR_ERR_Y_MASK |
 		      CHNL_STS_AXI_WR_ERR_U_MASK |
 		      CHNL_STS_AXI_WR_ERR_V_MASK))
-		dev_dbg(dev, "%s, IRQ AXI Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ AXI Error stat=0x%08X\n", __func__, status);
 
 	if (status & (ier_reg->panic_y_buf_en.mask |
 		      ier_reg->panic_u_buf_en.mask |
 		      ier_reg->panic_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ Panic OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ Panic OFLW Error stat=0x%08X\n", __func__, status);
 
 	if (status & (ier_reg->oflw_y_buf_en.mask |
 		      ier_reg->oflw_u_buf_en.mask |
 		      ier_reg->oflw_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ OFLW Error stat=0x%08X\n", __func__, status);
 
 	if (status & (ier_reg->excs_oflw_y_buf_en.mask |
 		      ier_reg->excs_oflw_u_buf_en.mask |
 		      ier_reg->excs_oflw_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ EXCS OFLW Error stat=0x%X\n", __func__, status);
+		dev_dbg(dev, "%s, IRQ EXCS OFLW Error stat=0x%08X\n", __func__, status);
 
 	spin_unlock(&mxc_isi->slock);
 	return IRQ_HANDLED;

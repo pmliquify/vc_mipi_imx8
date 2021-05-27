@@ -576,7 +576,7 @@ config VIDEO_VC_MIPI
 	  MIPI CSI-2 cameras.
 
 	  To compile this driver as a module, choose M here: the
-	  module will be called vc-mipi-cam.
+	  module will be called vc-mipi-cam.	
 
 config VIDEO_IMX214
 	tristate "Sony IMX214 sensor support"

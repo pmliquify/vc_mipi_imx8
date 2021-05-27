@@ -7,9 +7,9 @@ BIN_DIR=$WORKING_DIR/bin
 #. $BIN_DIR/config/config_verdin.sh
 . $BIN_DIR/config/config_apalis.sh
 
-BUILD_DIR=$WORKING_DIR/build/$BOARD
-SRC_DIR=$WORKING_DIR/src/$BOARD
-MISC_DIR=$WORKING_DIR/misc/$BOARD
+BUILD_DIR=$WORKING_DIR/build/$SOM
+SRC_DIR=$WORKING_DIR/src/$SOM
+MISC_DIR=$WORKING_DIR/misc/$SOM
 
 DOWNLOADS_DIR=$BUILD_DIR/downloads
 KERNEL_SOURCE=$BUILD_DIR/linux-toradex

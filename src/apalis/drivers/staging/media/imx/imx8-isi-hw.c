@@ -6,6 +6,7 @@
 #include <dt-bindings/pinctrl/pads-imx8qxp.h>
 
 #include "imx8-isi-hw.h"
+#include "imx8-isi-core.h"
 #include "imx8-common.h"
 
 #define	ISI_DOWNSCALE_THRESHOLD		0x4000
@@ -57,14 +58,14 @@ void dump_isi_regs(struct mxc_isi_dev *mxc_isi)
 		{ 0x90, "CHNL_OUT_BUF2_ADDR_U" },
 		{ 0x94, "CHNL_OUT_BUF2_ADDR_V" },
 		{ 0x98, "CHNL_SCL_IMG_CFG" },
-		{ 0x9C, "CHNL_FLOW_CTRL" },
+		// { 0x9C, "CHNL_FLOW_CTRL" },
 	};
 	u32 i;
 
 	dev_dbg(dev, "ISI CHNLC register dump, isi%d\n", mxc_isi->id);
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
 		u32 reg = readl(mxc_isi->regs + registers[i].offset);
-		dev_dbg(dev, "%20s[0x%.2x]: %.2x\n",
+		dev_dbg(dev, "%20s[0x%02x]: 0x%08x\n",
 			registers[i].name, registers[i].offset, reg);
 	}
 }
@@ -608,9 +609,11 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 	writel(val, mxc_isi->regs + CHNL_OUT_BUF_PITCH);
 
 	/* TODO */
-	mxc_isi_channel_set_flip(mxc_isi);
-
 	mxc_isi_channel_set_alpha(mxc_isi);
+
+	mxc_isi_channel_set_crop(mxc_isi);
+
+	mxc_isi_channel_set_flip(mxc_isi);
 
 	mxc_isi_channel_set_panic_threshold(mxc_isi);
 
@@ -618,8 +621,10 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 	val &= ~CHNL_CTRL_CHNL_BYPASS_MASK;
 
 	/*  Bypass channel */
-	if (!mxc_isi->cscen && !mxc_isi->scale)
+	if (!mxc_isi->cscen && !mxc_isi->scale) {
+		pr_info("bypass channel\n");
 		val |= (CHNL_CTRL_CHNL_BYPASS_ENABLE << CHNL_CTRL_CHNL_BYPASS_OFFSET);
+	}
 
 	writel(val, mxc_isi->regs + CHNL_CTRL);
 }
@@ -657,7 +662,9 @@ void mxc_isi_channel_enable(struct mxc_isi_dev *mxc_isi, bool m2m_enabled)
 		return;
 	}
 
+#ifdef DEBUG
 	dump_isi_regs(mxc_isi);
+#endif
 	msleep(300);
 }
 

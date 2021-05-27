@@ -24,12 +24,12 @@ When we use the **$** sign it is meant that the command is executed on the host 
 2. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* or *device-tree-compiler*.
 ```
   $ cd vc_mipi_toradex/bin
-  $ ./setup.sh
+  $ ./setup.sh host
 ```
 
 3. Build (all) the kernel image, kernel modules and device tree files.
 ```
-  $ ./build.sh a
+  $ ./build.sh all
 ```
 
 4. Create a new Toradex Easy Installer Image. Insert a USB stick (FAT formated) with minimum 1GB capacity. The script will download the reference image from toradex patch it with the build kernel and device tree files from step 3 and copy the image to the usb stick.
