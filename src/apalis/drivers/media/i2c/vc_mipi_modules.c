@@ -17,49 +17,49 @@ int vc_mod_is_color_sensor(struct vc_desc *desc)
 //  Settings for 226/226C
 
 static struct vc_mode imx226_mono_modes[] = {
-	{ MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_2_LANES,                   0x00 },
-	{ MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_2_LANES,                   0x01 },
-	{ MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_2_LANES,                   0x02 },
-	{ MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x03 },
-	{ MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x04 },
-	{ MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x05 },
-	{ MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_4_LANES,                   0x06 },
-	{ MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_4_LANES,                   0x07 },
-	{ MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_4_LANES,                   0x08 },
-	{ MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x09 },
-	{ MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0a },
-	{ MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0b },
+	// { MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_2_LANES,                   0x00 },
+	// { MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_2_LANES,                   0x01 },
+	// { MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_2_LANES,                   0x02 },
+	// { MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x03 },
+	// { MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x04 },
+	// { MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x05 },
+	// { MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_4_LANES,                   0x06 },
+	// { MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_4_LANES,                   0x07 },
+	// { MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_4_LANES,                   0x08 },
+	// { MEDIA_BUS_FMT_Y8_1X8,       FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x09 },
+	// { MEDIA_BUS_FMT_Y10_1X10,     FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0a },
+	// { MEDIA_BUS_FMT_Y12_1X12,     FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0b },
 	{ 0, 0, 0 },
 };
 
 static struct vc_mode imx226_color_modes[] = {
-	{ MEDIA_BUS_FMT_SRGGB8_1X8,   FLAG_MODE_2_LANES,                   0x00 },
-	{ MEDIA_BUS_FMT_SRGGB10_1X10, FLAG_MODE_2_LANES,                   0x01 },
-	{ MEDIA_BUS_FMT_SRGGB12_1X12, FLAG_MODE_2_LANES,                   0x02 },
-	{ MEDIA_BUS_FMT_SRGGB8_1X8,   FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x03 },
-	{ MEDIA_BUS_FMT_SRGGB10_1X10, FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x04 },
-	{ MEDIA_BUS_FMT_SRGGB12_1X12, FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x05 },
-	{ MEDIA_BUS_FMT_SRGGB8_1X8,   FLAG_MODE_4_LANES,                   0x06 },
-	{ MEDIA_BUS_FMT_SRGGB10_1X10, FLAG_MODE_4_LANES,                   0x07 },
-	{ MEDIA_BUS_FMT_SRGGB12_1X12, FLAG_MODE_4_LANES,                   0x08 },
-	{ MEDIA_BUS_FMT_SRGGB8_1X8,   FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x09 },
-	{ MEDIA_BUS_FMT_SRGGB10_1X10, FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0a },
-	{ MEDIA_BUS_FMT_SRGGB12_1X12, FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0b },
-	{ 0, 0, 0 }
+// 	{ MEDIA_BUS_FMT_SGBRG8_1X8,   FLAG_MODE_2_LANES,                   0x00 },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, FLAG_MODE_2_LANES,                   0x01 },
+// 	{ MEDIA_BUS_FMT_SGBRG12_1X12, FLAG_MODE_2_LANES,                   0x02 },
+// 	{ MEDIA_BUS_FMT_SGBRG8_1X8,   FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x03 },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x04 },
+// 	{ MEDIA_BUS_FMT_SGBRG12_1X12, FLAG_MODE_2_LANES | FLAG_TRIGGER_IN, 0x05 },
+// 	{ MEDIA_BUS_FMT_SGBRG8_1X8,   FLAG_MODE_4_LANES,                   0x06 },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, FLAG_MODE_4_LANES,                   0x07 },
+// 	{ MEDIA_BUS_FMT_SGBRG12_1X12, FLAG_MODE_4_LANES,                   0x08 },
+// 	{ MEDIA_BUS_FMT_SGBRG8_1X8,   FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x09 },
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0a },
+// 	{ MEDIA_BUS_FMT_SGBRG12_1X12, FLAG_MODE_4_LANES | FLAG_TRIGGER_IN, 0x0b },
+// 	{ 0, 0, 0 }
 };
 
 static struct vc_fmt imx226_mono_fmts[] = {
-	{ MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
-	{ MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
-	{ MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
+	// { MEDIA_BUS_FMT_Y8_1X8,       V4L2_COLORSPACE_SRGB },   /* 8-bit grayscale pixel format  : V4L2_PIX_FMT_GREY 'GREY'     */
+	// { MEDIA_BUS_FMT_Y10_1X10,     V4L2_COLORSPACE_SRGB },   /* 10-bit grayscale pixel format : V4L2_PIX_FMT_Y10  'Y10 '     */
+	// { MEDIA_BUS_FMT_Y12_1X12,     V4L2_COLORSPACE_SRGB },   /* 12-bit grayscale pixel format : V4L2_PIX_FMT_Y12  'Y12 '     */
 	{ 0, 0 }
 };
 
 static struct vc_fmt imx226_color_fmts[] = {
-	{ MEDIA_BUS_FMT_SRGGB8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SRGGB8  'RGGB'  */
-	{ MEDIA_BUS_FMT_SRGGB10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SRGGB10 'RG10'  */
-	{ MEDIA_BUS_FMT_SRGGB12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SRGGB12 'RG12'  */
-	{ 0, 0 }
+// 	{ MEDIA_BUS_FMT_SGBRG8_1X8,   V4L2_COLORSPACE_SRGB },   /* 8-bit color pixel format      : V4L2_PIX_FMT_SGBRG8  'GBRG'  */
+	{ MEDIA_BUS_FMT_SGBRG10_1X10, V4L2_COLORSPACE_SRGB },   /* 10-bit color pixel format     : V4L2_PIX_FMT_SGBRG10 'GB10'  */
+// 	{ MEDIA_BUS_FMT_SGBRG12_1X12, V4L2_COLORSPACE_SRGB },   /* 12-bit color pixel format     : V4L2_PIX_FMT_SGBRG12 'GB12'  */
+// 	{ 0, 0 }
 };
 
 void vc_init_imx226_ctrl(struct vc_ctrl *ctrl, struct vc_desc* desc)

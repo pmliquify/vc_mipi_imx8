@@ -1,10 +1,17 @@
 # Vision Components MIPI CSI-2 driver for Toradex Apalis i.MX8
 ![VC MIPI camera](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/VC_MIPI_Camera_Module_Hardware_Operating_Manual-Dateien/mipi_sensor_front_back.png)
 
-Supported board: Toradex Apalis i.MX8   
-Supported camera: VC MIPI IMX226 / VC MIPI IMX226C 
-
-Linux kernel version: 5.4.91
+## Version 0.2.0 ([History](VERSION.md))
+* Supported boards
+  * Toradex Ixora Carrier Board V1.2A
+* Supported cameras 
+  * VC MIPI IMX226 / VC MIPI IMX226C  
+* Linux kernel 
+  * Version 5.4.115
+* Features
+  * Image Streaming in SGBRG10 format (4 bit left shifted).
+  * Exposure and Gain can be set via V4L2 library.
+  * vcmipidemo supports software implementation to correct the 4 bit left shift.
 
 ## Prerequisites for cross-compiling
 ### Host PC
@@ -64,7 +71,8 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
 
 1. First install the test tools to the target.
 ```
-  $ ./test.sh
+  $ ./build.sh test
+  $ ./setup.sh test
 ```
 
 2. On the target switch to a console terminal by pressing Ctrl+Alt+F1
@@ -86,8 +94,8 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
   [    4.769124] mx8-img-md: created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
 ```
 
-4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1. 
+4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1. **Please note the option -afx4 to suppress ASCII output, out the image to the framebuffer, output image informations and apply the 4 bit shift correction**
 ```
-  v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
-  ./test/vcmipidemo -fa
+  # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
+  # ./test/vcmipidemo -afx4 -s 2000 -g 10
 ```
