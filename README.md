@@ -94,7 +94,8 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
      [    4.769124] mx8-img-md: created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
    ```
 
-4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1. **Please note the option -afx4 to suppress ASCII output, out the image to the framebuffer, output image informations and apply the 4 bit shift correction**
+4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1.   
+   **Please note the option -afx4 to suppress ASCII output, output the image to the framebuffer, output image informations and apply the 4 bit shift correction**
    ```
      # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
      # ./test/vcmipidemo -afx4 -s 2000 -g 10
