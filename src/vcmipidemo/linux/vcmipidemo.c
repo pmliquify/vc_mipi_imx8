@@ -421,9 +421,10 @@ int process_capture(unsigned int pixelformat, char *st, int dx, int dy, int pitc
 		int count = 20;
 		if(1==imageInfo)
 		{
-			printf("img.org (fmt: %c%c%c%c, dx: %u, dy: %u, pitch: %u) - ", 
-				(pixelformat >> 0 & 0xFF), (pixelformat >> 8 & 0xFF), (pixelformat >> 16 & 0xFF), (pixelformat >> 24 & 0xFF), 
-				dx, dy, pitch);
+			// printf("img.org (fmt: %c%c%c%c, dx: %u, dy: %u, pitch: %u) - ", 
+			// 	(pixelformat >> 0 & 0xFF), (pixelformat >> 8 & 0xFF), (pixelformat >> 16 & 0xFF), (pixelformat >> 24 & 0xFF), 
+			// 	dx, dy, pitch);
+			printf("img (dx: %u, dy: %u, pitch: %u) - ", dx, dy, pitch);
 		}
 		// if(1==bitShift) 
 		// {
