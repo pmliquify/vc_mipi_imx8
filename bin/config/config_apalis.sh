@@ -4,7 +4,7 @@
 BOARD=ixora
 SOM=apalis
 
-TARGET_IP=apalis-imx8
+TARGET_IP=192.168.2.24
 TARGET_NAME=apalis-imx8
 TARGET_USER=root
 

@@ -99,11 +99,15 @@ void vc_init_imx226_ctrl(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	ctrl->csr.sen.vmax.l 		= 0x7004;
 	ctrl->csr.sen.vmax.m 		= 0x7005;
 	ctrl->csr.sen.vmax.h 		= 0x7006;	
-	ctrl->csr.sen.expo.l 		= 0x000B;
+	ctrl->csr.sen.expo.l 		= 0x000B;		// Value unit is 1 XHS 
 	ctrl->csr.sen.expo.m 		= 0x000C;
 	ctrl->csr.sen.expo.h 		= 0;
-	ctrl->csr.sen.gain.l 		= 0x0009;
-	ctrl->csr.sen.gain.m 		= 0x000A;
+	ctrl->csr.sen.gain.l 		= 0x0009;		// In addition, change APGC01 (address 0352h, bit [7:0] and address 0353h, bit [0]) 
+	ctrl->csr.sen.gain.m 		= 0x000A;		// and APGC02 (address 0356h, bit[7:0] and address 0357h, bit [0])
+	ctrl->csr.sen.h_start.l		= 0x6013;
+	ctrl->csr.sen.h_start.m		= 0x6014;
+	ctrl->csr.sen.v_start.l		= 0x600E;
+	ctrl->csr.sen.v_start.m		= 0x600F;
 	ctrl->csr.sen.o_width.l		= 0x6015;
 	ctrl->csr.sen.o_width.m		= 0x6016;
 	ctrl->csr.sen.o_height.l	= 0x6010;
@@ -180,16 +184,20 @@ void vc_init_imx327_ctrl(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	ctrl->csr.sen.mode_operating	= 0x00;
 	ctrl->csr.sen.vmax.l 		= 0x3018;
 	ctrl->csr.sen.vmax.m 		= 0x3019;
-	ctrl->csr.sen.vmax.h 		= 0x301A;	
+	ctrl->csr.sen.vmax.h 		= 0x301A;
 	ctrl->csr.sen.expo.l 		= 0x3020;
 	ctrl->csr.sen.expo.m 		= 0x3021;
 	ctrl->csr.sen.expo.h 		= 0x3022;
 	ctrl->csr.sen.gain.l 		= 0x3014;
 	ctrl->csr.sen.gain.m 		= 0;
-	ctrl->csr.sen.o_width.l		= 0x3472;
-	ctrl->csr.sen.o_width.m		= 0x3473;
-	ctrl->csr.sen.o_height.l	= 0x3418;
-	ctrl->csr.sen.o_height.m	= 0x3419;
+	ctrl->csr.sen.h_start.l		= 0x3040;
+	ctrl->csr.sen.h_start.m		= 0x3041;
+	ctrl->csr.sen.v_start.l		= 0x303C;
+	ctrl->csr.sen.v_start.m		= 0x303D;
+	ctrl->csr.sen.o_width.l		= 0x3042;
+	ctrl->csr.sen.o_width.m		= 0x3043;
+	ctrl->csr.sen.o_height.l	= 0x303E;
+	ctrl->csr.sen.o_height.m	= 0x303F;
 	
 	ctrl->sen_clk			= 54000000; 			// sen_clk default=54Mhz, imx183=72Mhz
 	ctrl->expo_time_min2 		= 38716;

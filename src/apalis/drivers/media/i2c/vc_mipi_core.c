@@ -559,7 +559,7 @@ int vc_sen_write_mode(struct vc_ctrl *ctrl, int mode)
 	return ret;
 }
 
-int vc_sen_set_roi(struct vc_cam *cam, int width, int height)
+int vc_sen_set_roi(struct vc_cam *cam, int left, int top, int width, int height)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct i2c_client *client = ctrl->client_sen;
@@ -569,6 +569,8 @@ int vc_sen_set_roi(struct vc_cam *cam, int width, int height)
 	dev_dbg(dev, "%s(): Set sensor roi: (width: %u, height: %u)\n", __FUNCTION__, width, height);
 
 	ret  = vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_standby);
+	// ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.h_start, left, __FUNCTION__);
+	// ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.v_start, top, __FUNCTION__);
 	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_width, width, __FUNCTION__);
 	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_height, height, __FUNCTION__);
 	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_operating);

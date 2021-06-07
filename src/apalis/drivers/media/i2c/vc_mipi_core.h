@@ -73,6 +73,8 @@ struct vc_sen_csr {
 	struct vc_csr3 vmax;
 	struct vc_csr3 expo;
 	struct vc_csr2 gain;
+	struct vc_csr2 h_start;
+	struct vc_csr2 v_start;
 	struct vc_csr2 o_width;
 	struct vc_csr2 o_height;
 };
@@ -140,7 +142,7 @@ int vc_mod_set_power(struct vc_cam *cam, int on);
 int vc_mod_set_mode(struct vc_cam *cam);
 
 // --- Functions for the VC MIPI Sensors --------------------------------------
-int vc_sen_set_roi(struct vc_cam *cam, int width, int height);
+int vc_sen_set_roi(struct vc_cam *cam, int left, int top, int width, int height);
 int vc_sen_set_gain(struct vc_cam *cam, int value);
 int vc_sen_start_stream(struct vc_cam *cam);
 int vc_sen_stop_stream(struct vc_cam *cam);

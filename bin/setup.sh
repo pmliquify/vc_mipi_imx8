@@ -42,6 +42,8 @@ if [[ $CMD == "host" ]]; then
         #git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/device-tree-overlays.git
         sudo rm -Rf linux-toradex
         git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/linux-toradex.git
+        cd linux-toradex
+        git checkout fca7e6292821c09a823ea6f471302b854d427f7f
 
         # Easy Installer Kernel
         # Linux apalis-imx8 5.4.91-5.2.0+git.6afb048a71e3 #1 SMP PREEMPT Wed Apr 7 08:36:44 UTC 2021 aarch64 aarch64 aarch64 GNU/Linux
