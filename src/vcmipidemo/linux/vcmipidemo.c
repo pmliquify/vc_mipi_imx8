@@ -862,16 +862,29 @@ int  sensor_open(char *dev_video_device, VCMipiSenCfg *sen, unsigned int qbufCou
 	}
 
 	// *** VC MIPI ********************************************************
-	// Set Pixelformat, Width and Height
+	// Set Cropping, Left, Top, Width, Height
 	// {
-	// 	struct v4l2_format format;
-	// 	// format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SRGGB10;
-	// 	format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SGBRG10;
-	// 	format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	// 	format.fmt.pix.width = 3840;
-	// 	format.fmt.pix.height = 3040;
-	// 	rc = ioctl(sen->fd, VIDIOC_S_FMT, &format);
+	// 	struct v4l2_selection selection;
+	// 	selection.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	// 	selection.target = V4L2_SEL_TGT_CROP;
+	// 	selection.r.left = 420;
+	// 	selection.r.top = 20;
+	// 	selection.r.width = 3000;
+	// 	selection.r.height = 3000;
+	// 	rc = ioctl(sen->fd, VIDIOC_S_SELECTION, &selection);
 	// }
+	// Set Pixelformat, Width and Height
+	{
+		struct v4l2_format format;
+		// format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SRGGB10;
+		format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SGBRG10;
+		format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		// format.fmt.pix.width = 2000;
+		// format.fmt.pix.height = 2000;
+		format.fmt.pix.width = 3840;
+		format.fmt.pix.height = 3040;
+		rc = ioctl(sen->fd, VIDIOC_S_FMT, &format);
+	}
 	// ********************************************************************
 
 	// Retreive Dimensions of the Camera Device.
@@ -910,35 +923,35 @@ int  sensor_open(char *dev_video_device, VCMipiSenCfg *sen, unsigned int qbufCou
 			// ****************************************************
 
 			// Trying to Request an Unpacked Format Variant if Format is Packed
-			{
-				switch(sen->format.type)
-				{
-					case V4L2_BUF_TYPE_VIDEO_CAPTURE:
-					{
-						switch(sen->format.fmt.pix.pixelformat)
-						{
-							case V4L2_PIX_FMT_Y10P:      sen->format.fmt.pix.pixelformat = V4L2_PIX_FMT_Y10;      break;
-							case V4L2_PIX_FMT_SRGGB10P:  sen->format.fmt.pix.pixelformat = V4L2_PIX_FMT_SRGGB10;  break;
-							default: break;
-						}
-					}
-					break;
-					case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
-					{
-						switch(sen->format.fmt.pix_mp.pixelformat)
-						{
-							case V4L2_PIX_FMT_Y10P:      sen->format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_Y10;      break;
-							case V4L2_PIX_FMT_SRGGB10P:  sen->format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SRGGB10;  break;
-							default: break;
-						}
-					}
-					break;
-					default: break;
-				}
+			// {
+			// 	switch(sen->format.type)
+			// 	{
+			// 		case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+			// 		{
+			// 			switch(sen->format.fmt.pix.pixelformat)
+			// 			{
+			// 				case V4L2_PIX_FMT_Y10P:      sen->format.fmt.pix.pixelformat = V4L2_PIX_FMT_Y10;      break;
+			// 				case V4L2_PIX_FMT_SRGGB10P:  sen->format.fmt.pix.pixelformat = V4L2_PIX_FMT_SRGGB10;  break;
+			// 				default: break;
+			// 			}
+			// 		}
+			// 		break;
+			// 		case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+			// 		{
+			// 			switch(sen->format.fmt.pix_mp.pixelformat)
+			// 			{
+			// 				case V4L2_PIX_FMT_Y10P:      sen->format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_Y10;      break;
+			// 				case V4L2_PIX_FMT_SRGGB10P:  sen->format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SRGGB10;  break;
+			// 				default: break;
+			// 			}
+			// 		}
+			// 		break;
+			// 		default: break;
+			// 	}
 
-				rc = ioctl(sen->fd, VIDIOC_S_FMT, &(sen->format));
-				if(rc<0){ syslog(LOG_DEBUG, "%s:    Request for not-packed Pixel Format rejected.\n", __FILE__); }
-			}
+			// 	rc = ioctl(sen->fd, VIDIOC_S_FMT, &(sen->format));
+			// 	if(rc<0){ syslog(LOG_DEBUG, "%s:    Request for not-packed Pixel Format rejected.\n", __FILE__); }
+			// }
 
 
 			switch(sen->format.type)
