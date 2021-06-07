@@ -36,23 +36,19 @@
 
 
 // vvv *** VC MIPI ************************************************************
-#ifdef DEBUG
-void dbg_mxc_isi_fmt(struct device* dev, char *desc, struct mxc_isi_fmt *format)
-{
-	dev_info(dev, "%s N:%s CODE:0x%04x FOURCC: 0x%08x COLOR: 0x%02x MPLANES: %u COLPLANES: %u\n",
-		desc, format->name, format->mbus_code, format->fourcc, 
-		format->color, format->memplanes, format->colplanes);
-}
-
+// #ifdef DEBUG
 void dbg_mxc_isi_frame(struct device* dev, char *desc, struct mxc_isi_frame *frame)
 {
-	dbg_mxc_isi_fmt(dev, desc, frame->fmt);
+	// struct mxc_isi_fmt *format = frame->fmt;
+	// dev_info(dev, "%s N:%s CODE:0x%04x FOURCC: 0x%08x COLOR: 0x%02x MPLANES: %u COLPLANES: %u\n",
+	// 	desc, format->name, format->mbus_code, format->fourcc, 
+	// 	format->color, format->memplanes, format->colplanes);
 	dev_info(dev, "%s ORG(%u, %u) CROP(%u, %u, %u, %u) OUT(%u, %u)\n", 
 		desc, frame->o_width, frame->o_height, 
-		frame->c_width, frame->c_height, frame->h_off, frame->v_off, 
+		frame->h_off, frame->v_off, frame->c_width, frame->c_height,
 		frame->width, frame->height);
 }
-#endif
+// #endif
 // ^^^ ************************************************************************
 
 struct mxc_isi_fmt mxc_isi_out_formats[] = {
@@ -977,7 +973,9 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	 * Step5: Update mxc isi channel configuration.
 	 */
 
-	dev_dbg(&isi_cap->pdev->dev, "%s, fmt=0x%X\n", __func__, pix->pixelformat);
+	dev_info(&isi_cap->pdev->dev, "%s(): (fmt:0x%X, width:%u, height:%u)\n", __func__, 
+		pix->pixelformat, pix->width, pix->height);
+
 	if (vb2_is_busy(&isi_cap->vb2_q))
 		return -EBUSY;
 
@@ -989,8 +987,8 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	}
 
 	if (i >= ARRAY_SIZE(mxc_isi_out_formats)) {
-		dev_dbg(&isi_cap->pdev->dev,
-			"format(%.4s) is not support!\n", (char *)&pix->pixelformat);
+		dev_err(&isi_cap->pdev->dev,
+			"format(%.4s) is not supported!\n", (char *)&pix->pixelformat);
 		return -EINVAL;
 	}
 
@@ -1034,6 +1032,14 @@ static int mxc_isi_cap_s_fmt_mplane(struct file *file, void *priv,
 	memcpy(&isi_cap->pix, pix, sizeof(*pix));
 	set_frame_bounds(dst_f, pix->width, pix->height);
 
+	// vvv *** VC MIPI ****************************************************
+// #ifdef DEBUG
+	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "SRC >>> ", &isi_cap->src_f);
+	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "DST <<< ", &isi_cap->dst_f);
+// #endif
+	// ^^^ ****************************************************************
+
+
 	return 0;
 }
 
@@ -1047,10 +1053,10 @@ static int mxc_isi_config_parm(struct mxc_isi_cap_dev *isi_cap)
 		return -EINVAL;
 
 	// vvv *** VC MIPI ****************************************************
-#ifdef DEBUG
+// #ifdef DEBUG
 	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "SRC >>> ", &isi_cap->src_f);
 	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "DST <<< ", &isi_cap->dst_f);
-#endif
+// #endif
 	// ^^^ ****************************************************************
 
 	mxc_isi_channel_init(mxc_isi);
@@ -1093,7 +1099,7 @@ static int mxc_isi_cap_streamon(struct file *file, void *priv,
 	struct mxc_isi_dev *mxc_isi = mxc_isi_get_hostdata(isi_cap->pdev);
 	int ret;
 
-	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
+	dev_info(&isi_cap->pdev->dev, "%s\n", __func__);
 
 	ret = mxc_isi_config_parm(isi_cap);
 	if (ret < 0)
@@ -1134,10 +1140,15 @@ static int mxc_isi_cap_g_selection(struct file *file, void *fh,
 	struct mxc_isi_cap_dev *isi_cap = video_drvdata(file);
 	struct mxc_isi_frame *f = &isi_cap->src_f;
 
-	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
+	dev_info(&isi_cap->pdev->dev, "%s (type:%u, target:0x%04x) (%u, %u, %u, %u)\n", __func__, 
+		s->type, s->target, s->r.left, s->r.top, s->r.width, s->r.height);
 
-	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+	// *** VC MIPI ********************************************************
+	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE && s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		dev_err(&isi_cap->pdev->dev, "%s type:%u not supported\n", __func__, s->type);
 		return -EINVAL;
+	}
+	// ********************************************************************
 
 	switch (s->target) {
 	case V4L2_SEL_TGT_COMPOSE_DEFAULT:
@@ -1150,6 +1161,8 @@ static int mxc_isi_cap_g_selection(struct file *file, void *fh,
 		s->r.top = 0;
 		s->r.width = f->o_width;
 		s->r.height = f->o_height;
+		dev_info(&isi_cap->pdev->dev, "%s (type:%u, target:0x%04x) (%u, %u, %u, %u)\n", __func__, 
+			s->type, s->target, s->r.left, s->r.top, s->r.width, s->r.height);
 		return 0;
 
 	case V4L2_SEL_TGT_COMPOSE:
@@ -1160,8 +1173,12 @@ static int mxc_isi_cap_g_selection(struct file *file, void *fh,
 		s->r.top = f->v_off;
 		s->r.width = f->width;
 		s->r.height = f->height;
+		dev_info(&isi_cap->pdev->dev, "%s (type:%u, target:0x%04x) (%u, %u, %u, %u)\n", __func__, 
+			s->type, s->target, s->r.left, s->r.top, s->r.width, s->r.height);
 		return 0;
 	}
+
+	dev_err(&isi_cap->pdev->dev, "%s Error EINVAL\n", __func__);
 
 	return -EINVAL;
 }
@@ -1188,9 +1205,15 @@ static int mxc_isi_cap_s_selection(struct file *file, void *fh,
 	struct v4l2_rect rect = s->r;
 	unsigned long flags;
 
-	dev_dbg(&isi_cap->pdev->dev, "%s\n", __func__);
-	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+	dev_info(&isi_cap->pdev->dev, "%s (type:%u, target:0x%04x) (%u, %u, %u, %u)\n", __func__, 
+		s->type, s->target, s->r.left, s->r.top, s->r.width, s->r.height);
+
+	// *** VC MIPI ********************************************************
+	if (s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE && s->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
+		dev_err(&isi_cap->pdev->dev, "%s V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE not supported\n", __func__);
 		return -EINVAL;
+	}
+	// ********************************************************************
 
 	if (s->target == V4L2_SEL_TGT_COMPOSE)
 		f = &isi_cap->dst_f;
@@ -1212,6 +1235,13 @@ static int mxc_isi_cap_s_selection(struct file *file, void *fh,
 	set_frame_crop(f, s->r.left, s->r.top, s->r.width,
 		       s->r.height);
 	spin_unlock_irqrestore(&isi_cap->slock, flags);
+
+	// vvv *** VC MIPI ****************************************************
+// #ifdef DEBUG
+	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "SRC >>> ", &isi_cap->src_f);
+	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "DST <<< ", &isi_cap->dst_f);
+// #endif
+	// ^^^ ****************************************************************
 
 	return 0;
 }
