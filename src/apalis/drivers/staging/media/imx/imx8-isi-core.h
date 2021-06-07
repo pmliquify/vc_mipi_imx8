@@ -158,17 +158,17 @@ struct frame_addr {
 
 /**
  * struct mxc_isi_frame - source/target frame properties
- * o_width:	 original image width from sensor
- * o_height: original image height from sensor
- * c_width:	 crop image width set by g_selection
- * c_height: crop image height set by g_selection
- * h_off:	crop horizontal pixel offset
- * v_off:	crop vertical pixel offset
- * width:	out image pixel width
- * height:	out image pixel weight
+ * o_width:      original image width from sensor
+ * o_height:     original image height from sensor
+ * c_width:      crop image width set by g_selection
+ * c_height:     crop image height set by g_selection
+ * h_off:        crop horizontal pixel offset
+ * v_off:        crop vertical pixel offset
+ * width:        out image pixel width
+ * height:       out image pixel weight
  * bytesperline: bytesperline value for each plane
- * paddr:	image frame buffer physical addresses
- * fmt:	color format pointer
+ * paddr:        image frame buffer physical addresses
+ * fmt:          color format pointer
  */
 struct mxc_isi_frame {
 	u32	o_width;
