@@ -11,6 +11,8 @@
 
 #define	ISI_DOWNSCALE_THRESHOLD		0x4000
 
+// #define DEBUG
+
 #ifdef DEBUG
 void dump_isi_regs(struct mxc_isi_dev *mxc_isi)
 {
@@ -62,10 +64,10 @@ void dump_isi_regs(struct mxc_isi_dev *mxc_isi)
 	};
 	u32 i;
 
-	dev_dbg(dev, "ISI CHNLC register dump, isi%d\n", mxc_isi->id);
+	dev_info(dev, "ISI CHNLC register dump, isi%d\n", mxc_isi->id);
 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
 		u32 reg = readl(mxc_isi->regs + registers[i].offset);
-		dev_dbg(dev, "%20s[0x%02x]: 0x%08x\n",
+		dev_info(dev, "%20s[0x%02x]: 0x%08x\n",
 			registers[i].name, registers[i].offset, reg);
 	}
 }
@@ -422,33 +424,35 @@ void mxc_isi_channel_set_crop(struct mxc_isi_dev *mxc_isi)
 {
 	struct mxc_isi_frame *src_f = &mxc_isi->isi_cap->src_f;
 	struct v4l2_rect crop;
-	u32 val, val0, val1, temp;
+	u32 val, val0, val1;
 
 	val = readl(mxc_isi->regs + CHNL_IMG_CTRL);
 	val &= ~CHNL_IMG_CTRL_CROP_EN_MASK;
 
-	if ((src_f->o_height == src_f->height) &&
-	    (src_f->o_width == src_f->width)) {
+	if ((src_f->o_height == src_f->c_height) &&
+	    (src_f->o_width == src_f->c_width)) {
+		dev_info(&mxc_isi->pdev->dev, "%s: no cropping\n", __func__);
+
 		mxc_isi->crop = 0;
 		writel(val, mxc_isi->regs + CHNL_IMG_CTRL);
 		return;
 	}
 
 	if (mxc_isi->scale) {
-		temp = (src_f->h_off << 12) / mxc_isi->xfactor;
-		crop.left = temp >> mxc_isi->pre_dec_x;
-		temp = (src_f->v_off << 12) / mxc_isi->yfactor;
-		crop.top = temp >> mxc_isi->pre_dec_y;
-		temp = (src_f->width << 12) / mxc_isi->xfactor;
-		crop.width = temp >> mxc_isi->pre_dec_x;
-		temp = (src_f->height << 12) / mxc_isi->yfactor;
-		crop.height = temp >> mxc_isi->pre_dec_y;
+		crop.left = (src_f->h_off * 0x1000) / (mxc_isi->xscale * mxc_isi->decx);
+		crop.top = (src_f->v_off * 0x1000) / (mxc_isi->yscale * mxc_isi->decy);
+		crop.width = (src_f->c_width * 0x1000) / (mxc_isi->xscale * mxc_isi->decx);
+		crop.height = (src_f->c_height * 0x1000) / (mxc_isi->yscale * mxc_isi->decy);
+
 	} else {
 		crop.left = src_f->h_off;
 		crop.top = src_f->v_off;
-		crop.width = src_f->width;
-		crop.height = src_f->height;
+		crop.width = src_f->c_width;
+		crop.height = src_f->c_height;
 	}
+
+	dev_info(&mxc_isi->pdev->dev, "%s: crop (%u, %u, %u, %u)\n", __func__,
+		crop.left, crop.top, crop.width, crop.height);
 
 	mxc_isi->crop = 1;
 	val |= (CHNL_IMG_CTRL_CROP_EN_ENABLE << CHNL_IMG_CTRL_CROP_EN_OFFSET);
@@ -477,19 +481,19 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 {
 	u32 decx, decy;
 	u32 xscale, yscale;
-	u32 xdec = 0, ydec = 0;
+	u32 xdec = 0x00, ydec = 0x00;
 	u32 val0, val1;
 
 	if (dst_f->height == src_f->height &&
 	    dst_f->width == src_f->width) {
 		mxc_isi->scale = 0;
 		mxc_isi_channel_clear_scaling(mxc_isi);
-		dev_dbg(&mxc_isi->pdev->dev, "%s: no scale\n", __func__);
+		dev_info(&mxc_isi->pdev->dev, "%s: no scaling\n", __func__);
 		return;
 	}
 
-	dev_info(&mxc_isi->pdev->dev, "input_size(%d,%d), output_size(%d,%d)\n",
-		 src_f->width, src_f->height, dst_f->width, dst_f->height);
+	dev_info(&mxc_isi->pdev->dev, "%s: scale SRC.OUT(%d, %d) => DST.OUT(%d, %d)\n",
+		__func__, src_f->width, src_f->height, dst_f->width, dst_f->height);
 
 	mxc_isi->scale = 1;
 
@@ -500,13 +504,13 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 		/* Down */
 		if (decx >= 2 && decx < 4) {
 			decx = 2;
-			xdec = 1;
+			xdec = 0x01;
 		} else if (decx >= 4 && decx < 8) {
 			decx = 4;
-			xdec = 2;
+			xdec = 0x10;
 		} else if (decx >= 8) {
 			decx = 8;
-			xdec = 3;
+			xdec = 0x11;
 		}
 		xscale = src_f->width * 0x1000 / (dst_f->width * decx);
 	} else {
@@ -517,33 +521,39 @@ void mxc_isi_channel_set_scaling(struct mxc_isi_dev *mxc_isi,
 	if (decy > 1) {
 		if (decy >= 2 && decy < 4) {
 			decy = 2;
-			ydec = 1;
+			ydec = 0x01;
 		} else if (decy >= 4 && decy < 8) {
 			decy = 4;
-			ydec = 2;
+			ydec = 0x10;
 		} else if (decy >= 8) {
 			decy = 8;
-			ydec = 3;
+			ydec = 0x11;
 		}
 		yscale = src_f->height * 0x1000 / (dst_f->height * decy);
 	} else {
 		yscale = src_f->height * 0x1000 / dst_f->height;
 	}
 
-	val0 = readl(mxc_isi->regs + CHNL_IMG_CTRL);
-	val0 |= CHNL_IMG_CTRL_YCBCR_MODE_MASK;//YCbCr  Sandor???
-	val0 &= ~(CHNL_IMG_CTRL_DEC_X_MASK | CHNL_IMG_CTRL_DEC_Y_MASK);
-	val0 |= (xdec << CHNL_IMG_CTRL_DEC_X_OFFSET) |
-			(ydec << CHNL_IMG_CTRL_DEC_Y_OFFSET);
-	writel(val0, mxc_isi->regs + CHNL_IMG_CTRL);
-
 	if (xscale > ISI_DOWNSCALE_THRESHOLD)
 		xscale = ISI_DOWNSCALE_THRESHOLD;
 	if (yscale > ISI_DOWNSCALE_THRESHOLD)
 		yscale = ISI_DOWNSCALE_THRESHOLD;
 
-	val1 = xscale | (yscale << CHNL_SCALE_FACTOR_Y_SCALE_OFFSET);
+	dev_info(&mxc_isi->pdev->dev, "%s: decx: %u, xdec:0x%02x, xscale:%u\n", __func__, decx, xdec, xscale);
+	dev_info(&mxc_isi->pdev->dev, "%s: decy: %u, ydec:0x%02x, yscale:%u\n", __func__, decy, ydec, yscale);
 
+	mxc_isi->decx = decx;
+	mxc_isi->decy = decy;
+	mxc_isi->xscale = xscale;
+	mxc_isi->yscale = yscale;
+
+	val0 = readl(mxc_isi->regs + CHNL_IMG_CTRL);
+	// val0 |= CHNL_IMG_CTRL_YCBCR_MODE_MASK;//YCbCr  Sandor???
+	val0 &= ~(CHNL_IMG_CTRL_DEC_X_MASK | CHNL_IMG_CTRL_DEC_Y_MASK);
+	val0 |= (xdec << CHNL_IMG_CTRL_DEC_X_OFFSET) | (ydec << CHNL_IMG_CTRL_DEC_Y_OFFSET);
+	writel(val0, mxc_isi->regs + CHNL_IMG_CTRL);
+
+	val1 = xscale | (yscale << CHNL_SCALE_FACTOR_Y_SCALE_OFFSET);
 	writel(val1, mxc_isi->regs + CHNL_SCALE_FACTOR);
 
 	/* Update scale config if scaling enabled */
@@ -590,7 +600,7 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 	chain_buf(mxc_isi, src_f);
 
 	/* config output frame size and format */
-	val = src_f->o_width | (src_f->o_height << CHNL_IMG_CFG_HEIGHT_OFFSET);
+	val = src_f->width | (src_f->height << CHNL_IMG_CFG_HEIGHT_OFFSET);
 	writel(val, mxc_isi->regs + CHNL_IMG_CFG);
 
 	/* scale size need to equal input size when scaling disabled*/
@@ -598,7 +608,7 @@ void mxc_isi_channel_config(struct mxc_isi_dev *mxc_isi,
 
 	/* check csc and scaling  */
 	mxc_isi_channel_set_csc(mxc_isi, src_f, dst_f);
-
+	
 	mxc_isi_channel_set_scaling(mxc_isi, src_f, dst_f);
 
 	/* select the source input / src type / virtual channel for mipi*/

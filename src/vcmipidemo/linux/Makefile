@@ -12,11 +12,14 @@ CPP=aarch64-none-linux-gnu-g++
 .PHONY: all
 
 
-all: vcimgnetsrv vcmipidemo
+all: vcimgnetsrv vcmipidemo vctest
 
 clean:
-	-rm -f vcimgnetsrv vcmipidemo
+	-rm -f vcimgnetsrv vcmipidemo vctest
 
+vctest:  vctest.c
+	$(CC) -ggdb -Wall -O3  -o vctest vctest.c
+	
 vcimgnetsrv:  vcimgnetsrv.c vclib-excerpt.c
 	$(CC) -ggdb -Wall -O3  -o vcimgnetsrv vcimgnetsrv.c vclib-excerpt.c -lrt
 	

@@ -109,8 +109,8 @@ int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
-	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
+	struct vc_frame *frame;
 	struct device *dev = sd->dev;
 	int ret = 0;
 
@@ -125,7 +125,9 @@ int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 		ret  = vc_mod_set_mode(cam);
 		ret |= vc_sen_set_exposure_dirty(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
 		ret |= vc_sen_set_gain(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
-		ret |= vc_sen_set_roi(cam, 0, 0, ctrl->o_frame.width, ctrl->o_frame.height);
+
+		frame = vc_core_get_frame(cam);
+		ret |= vc_sen_set_roi(cam, frame->left, frame->top, frame->width, frame->height);
 
 		ret |= vc_sen_start_stream(cam);
 		if (ret == 0)
@@ -144,19 +146,15 @@ int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 
 int vc_sd_get_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format)
 {
-	struct vc_cam *cam = to_vc_cam(sd);
-	struct vc_ctrl *ctrl = &cam->ctrl;
+	struct vc_cam *cam = to_vc_cam(sd);	
 	struct v4l2_mbus_framefmt *mf = &format->format;
-	// struct vc_frame* frame;
+	struct vc_frame* frame;
 	struct device *dev = sd->dev;
 
 	mf->code = vc_core_get_format(cam);
-	// frame = vc_core_get_frame(cam);
-	// mf->width = frame->width;
-	// mf->height = frame->height;
-	// mf->reserved[1] = 30;
-	mf->width = ctrl->o_frame.width;
-	mf->height = ctrl->o_frame.height;
+	frame = vc_core_get_frame(cam);
+	mf->width = frame->width;
+	mf->height = frame->height;
 
 	dev_info(dev, "%s(): Get format (code: 0x%04x, width: %u, height: %u)\n", __FUNCTION__, 
 		mf->code, mf->width, mf->height);
@@ -174,20 +172,24 @@ int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, st
 		mf->code, mf->width, mf->height);
 
 	vc_core_set_format(cam, mf->code);
-	// vc_core_set_frame(cam, mf->width, mf->height);
+	vc_core_set_frame_size(cam, mf->width, mf->height);
 	
 	return 0;
 }
 
 int vc_sd_get_selection(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_selection *sel)
 {
+	struct vc_cam *cam = to_vc_cam(sd);
+	struct vc_frame *frame;
 	struct v4l2_rect *rect = &sel->r;
 	struct device *dev = sd->dev;
+	
+	frame = vc_core_get_frame(cam);
 
-	rect->left = 0;
-	rect->top = 0;
-	rect->width = 3840;
-	rect->height = 3040;
+	rect->left = frame->left;
+	rect->top = frame->top;
+	rect->width = frame->width;
+	rect->height = frame->height;
 
 	dev_info(dev, "%s(): Get selection (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, 
 		rect->left, rect->top, rect->width, rect->height);
@@ -197,13 +199,14 @@ int vc_sd_get_selection(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *c
     
 int vc_sd_set_selection(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_selection *sel)
 {
+	struct vc_cam *cam = to_vc_cam(sd);
 	struct v4l2_rect *rect = &sel->r;
 	struct device *dev = sd->dev;
 
 	dev_info(dev, "%s(): Set selection (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, 
 		rect->left, rect->top, rect->width, rect->height);
 
-	return 0;
+	return vc_core_set_frame(cam, rect->left, rect->top, rect->width, rect->height);
 }
 
 

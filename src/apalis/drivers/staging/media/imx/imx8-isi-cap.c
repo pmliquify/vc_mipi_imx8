@@ -900,6 +900,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	struct v4l2_subdev_format src_fmt;
 	struct media_pad *source_pad;
 	struct v4l2_subdev *src_sd;
+	struct v4l2_subdev_selection src_sel;	
 	int ret;
 
 	source_pad = mxc_isi_get_remote_source_pad(&isi_cap->sd);
@@ -913,9 +914,32 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	if (!src_sd)
 		return -EINVAL;
 
+	// vvv *** VC MIPI ****************************************************
+	src_sel.pad = source_pad->index;
+	src_sel.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+	src_sel.target = V4L2_SEL_TGT_CROP;
+	src_sel.r.left = src_f->h_off;
+	src_sel.r.top = src_f->v_off;
+	src_sel.r.width = src_f->c_width;
+	src_sel.r.height = src_f->c_height;
+	ret = v4l2_subdev_call(src_sd, pad, set_selection, NULL, &src_sel);
+	if (ret < 0 && ret != -ENOIOCTLCMD) {
+		v4l2_err(&isi_cap->sd, "%s: Set remote selection fail! (%s error: 0x%08x)\n", __func__, src_sd->name, -ret);
+		return ret;
+	}
+
+	memset(&src_sel, 0, sizeof(src_sel));
+	src_sel.pad = source_pad->index;
+	src_sel.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+	ret = v4l2_subdev_call(src_sd, pad, get_selection, NULL, &src_sel);
+	if (ret < 0 && ret != -ENOIOCTLCMD) {
+		v4l2_err(&isi_cap->sd, "%s: Get remote selection fail! (%s error: 0x%08x)\n", __func__, src_sd->name, -ret);
+		return ret;
+	}
+	// ^^^ ****************************************************************
+
 	src_fmt.pad = source_pad->index;
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
-
 	// vvv *** VC MIPI ****************************************************
 	//src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_2X8;
 	src_fmt.format.code = dst_f->fmt->mbus_code;
@@ -924,7 +948,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	src_fmt.format.height = dst_f->height;
 	ret = v4l2_subdev_call(src_sd, pad, set_fmt, NULL, &src_fmt);
 	if (ret < 0 && ret != -ENOIOCTLCMD) {
-		v4l2_err(&isi_cap->sd, "set remote fmt fail!\n");
+		v4l2_err(&isi_cap->sd, "%s: Set remote fmt fail!\n", __func__);
 		return ret;
 	}
 
@@ -933,14 +957,24 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
 	ret = v4l2_subdev_call(src_sd, pad, get_fmt, NULL, &src_fmt);
 	if (ret < 0 && ret != -ENOIOCTLCMD) {
-		v4l2_err(&isi_cap->sd, "get remote fmt fail!\n");
+		v4l2_err(&isi_cap->sd, "%s: Get remote fmt fail!\n", __func__);
 		return ret;
 	}
 
 	/* Pixel link master will transfer format to RGB32 or YUV32 */
 	src_f->fmt = mxc_isi_get_src_fmt(&src_fmt);
 
-	set_frame_bounds(src_f, src_fmt.format.width, src_fmt.format.height);
+	// set_frame_bounds(src_f, src_fmt.format.width, src_fmt.format.height);
+	src_f->o_width  = src_fmt.format.width;
+	src_f->o_height = src_fmt.format.height;
+	src_f->width  = src_fmt.format.width;
+	src_f->height = src_fmt.format.height;
+	src_f->h_off = src_sel.r.left;
+	src_f->v_off = src_sel.r.top;
+	src_f->c_width  = src_fmt.format.width;
+	src_f->c_height = src_fmt.format.height;
+	// src_f->c_width = src_sel.r.width;
+	// src_f->c_height = src_sel.r.height;
 
 	if (dst_f->width > src_f->width || dst_f->height > src_f->height) {
 		dev_err(&isi_cap->pdev->dev,
@@ -1717,6 +1751,8 @@ static int mxc_isi_subdev_set_selection(struct v4l2_subdev *sd,
 	struct v4l2_rect *r = &sel->r;
 	struct v4l2_rect *try_sel;
 	unsigned long flags;
+
+	dev_info(&isi_cap->pdev->dev, "%s", __func__);
 
 	mutex_lock(&isi_cap->lock);
 

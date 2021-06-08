@@ -357,10 +357,10 @@ struct mxc_isi_dev {
 	atomic_t usage_count;
 
 	/* scale factor */
-	u32 xfactor;
-	u32 yfactor;
-	u32 pre_dec_x;
-	u32 pre_dec_y;
+	u32 xscale;
+	u32 yscale;
+	u32 decx;
+	u32 decy;
 
 	u32 status;
 
@@ -382,7 +382,7 @@ static inline void set_frame_bounds(struct mxc_isi_frame *f,
 {
 	f->o_width  = width;
 	f->o_height = height;
-	f->c_width  = width;
+	f->c_width = width;
 	f->c_height = height;
 	f->width  = width;
 	f->height = height;

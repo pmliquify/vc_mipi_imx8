@@ -217,33 +217,55 @@ __u32 vc_core_get_format(struct vc_cam *cam)
 	return state->fmt->code;
 }
 
-int vc_core_set_frame(struct vc_cam *cam, __u32 width, __u32 height)
+int vc_core_set_frame(struct vc_cam *cam, __u32 left, __u32 top, __u32 width, __u32 height)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 	struct vc_frame *frame = &state->frame;
 	struct device *dev = &ctrl->client_sen->dev;
 	
+	dev_info(dev, "%s(): Set frame (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, left, top, width, height);
 
-	dev_dbg(dev, "%s(): Set frame (width: %u, height: %u)\n", __FUNCTION__, width, height);
-
-	if (width > ctrl->o_frame.width) {
-		frame->width = ctrl->o_frame.width;
+	if (left >= ctrl->o_frame.width) {
+		frame->left = ctrl->o_frame.width - 1;
+	} else if (left < 0) {
+		frame->left = 0;
+	} else {
+		frame->left = left;
+	}
+	if (top >= ctrl->o_frame.height) {
+		frame->top = ctrl->o_frame.height - 1;
+	} else if (left < 0) {
+		frame->top = 0;
+	} else {
+		frame->top = top;
+	}
+	if (left + width > ctrl->o_frame.width) {
+		frame->width = ctrl->o_frame.width - left;
 	} else if (width < 0) {
 		frame->width = 0;
 	} else {
 		frame->width = width;
 	}
-
-	if (height > ctrl->o_frame.height) {
-		frame->height = ctrl->o_frame.height;
+	if (top + height > ctrl->o_frame.height) {
+		frame->height = ctrl->o_frame.height - top;
 	} else if (height < 0) {
 		frame->height = 0;
 	} else {
 		frame->height = height;
 	}
 
+	dev_info(dev, "%s(): Set frame adjusted (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, frame->left, top, width, height);
+
 	return 0;
+}
+
+int vc_core_set_frame_size(struct vc_cam *cam, __u32 width, __u32 height)
+{
+	struct vc_state *state = &cam->state;
+	struct vc_frame *frame = &state->frame;
+
+	return vc_core_set_frame(cam, frame->left, frame->top, width, height);
 }
 
 struct vc_frame *vc_core_get_frame(struct vc_cam *cam)
@@ -253,7 +275,7 @@ struct vc_frame *vc_core_get_frame(struct vc_cam *cam)
 	struct vc_frame* frame = &state->frame;
 	struct device *dev = &ctrl->client_sen->dev;
 
-	dev_dbg(dev, "%s(): Get frame (width: %u, height: %u)\n", __FUNCTION__, frame->width, frame->height);
+	dev_dbg(dev, "%s(): Get frame (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, frame->left, frame->top, frame->width, frame->height);
 
 	return frame;
 }
@@ -559,23 +581,23 @@ int vc_sen_write_mode(struct vc_ctrl *ctrl, int mode)
 	return ret;
 }
 
-int vc_sen_set_roi(struct vc_cam *cam, int left, int top, int width, int height)
+int vc_sen_set_roi(struct vc_cam *cam, __u32 left, __u32 top, __u32 width, __u32 height)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct i2c_client *client = ctrl->client_sen;
 	struct device *dev = &client->dev;
 	int ret;
 
-	dev_dbg(dev, "%s(): Set sensor roi: (width: %u, height: %u)\n", __FUNCTION__, width, height);
+	dev_dbg(dev, "%s(): Set sensor roi: (left: %u, top: %u, width: %u, height: %u)\n", __FUNCTION__, left, top, width, height);
 
 	ret  = vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_standby);
-	// ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.h_start, left, __FUNCTION__);
-	// ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.v_start, top, __FUNCTION__);
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.h_start, left, __FUNCTION__);
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.v_start, top, __FUNCTION__);
 	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_width, width, __FUNCTION__);
 	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_height, height, __FUNCTION__);
 	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_operating);
 	if (ret) 
-		dev_err(dev, "%s(): Couldn't set sensor roi: (width: %u, height: %u) (error=%d)\n", __FUNCTION__, width, height, ret);
+		dev_err(dev, "%s(): Couldn't set sensor roi: (left: %u, top: %u, width: %u, height: %u) (error=%d)\n", __FUNCTION__, left, top, width, height, ret);
 
 	return ret;
 }
@@ -611,7 +633,7 @@ int vc_sen_write_exposure(struct vc_ctrl *ctrl, __u32 exposure)
 	return i2c_write_reg3(dev, client, &ctrl->csr.sen.expo, exposure, __FUNCTION__);
 }
 
-int vc_sen_set_gain(struct vc_cam *cam, int value)
+int vc_sen_set_gain(struct vc_cam *cam, __u32 value)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct i2c_client *client = ctrl->client_sen;
@@ -675,7 +697,7 @@ int vc_sen_stop_stream(struct vc_cam *cam)
 
 // ------------------------------------------------------------------------------------------------
 
-int vc_sen_set_exposure_dirty(struct vc_cam *cam, int value)
+int vc_sen_set_exposure_dirty(struct vc_cam *cam, __u32 value)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;

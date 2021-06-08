@@ -75,8 +75,8 @@ struct device *mxc_isi_dev_get_parent(struct platform_device *pdev)
 static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 {
 	struct mxc_isi_dev *mxc_isi = priv;
-	struct device *dev = &mxc_isi->pdev->dev;
-	struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
+	// struct device *dev = &mxc_isi->pdev->dev;
+	// struct mxc_isi_ier_reg *ier_reg = mxc_isi->pdata->ier_reg;
 	u32 status;
 
 	spin_lock(&mxc_isi->slock);
@@ -92,25 +92,25 @@ static irqreturn_t mxc_isi_irq_handler(int irq, void *priv)
 			mxc_isi_cap_frame_write_done(mxc_isi);
 	}
 
-	if (status & (CHNL_STS_AXI_WR_ERR_Y_MASK |
-		      CHNL_STS_AXI_WR_ERR_U_MASK |
-		      CHNL_STS_AXI_WR_ERR_V_MASK))
-		dev_dbg(dev, "%s, IRQ AXI Error stat=0x%08X\n", __func__, status);
+	// if (status & (CHNL_STS_AXI_WR_ERR_Y_MASK |
+	// 	      CHNL_STS_AXI_WR_ERR_U_MASK |
+	// 	      CHNL_STS_AXI_WR_ERR_V_MASK))
+	// 	dev_dbg(dev, "%s, IRQ AXI Error stat=0x%08X\n", __func__, status);
 
-	if (status & (ier_reg->panic_y_buf_en.mask |
-		      ier_reg->panic_u_buf_en.mask |
-		      ier_reg->panic_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ Panic OFLW Error stat=0x%08X\n", __func__, status);
+	// if (status & (ier_reg->panic_y_buf_en.mask |
+	// 	      ier_reg->panic_u_buf_en.mask |
+	// 	      ier_reg->panic_v_buf_en.mask))
+	// 	dev_dbg(dev, "%s, IRQ Panic OFLW Error stat=0x%08X\n", __func__, status);
 
-	if (status & (ier_reg->oflw_y_buf_en.mask |
-		      ier_reg->oflw_u_buf_en.mask |
-		      ier_reg->oflw_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ OFLW Error stat=0x%08X\n", __func__, status);
+	// if (status & (ier_reg->oflw_y_buf_en.mask |
+	// 	      ier_reg->oflw_u_buf_en.mask |
+	// 	      ier_reg->oflw_v_buf_en.mask))
+	// 	dev_dbg(dev, "%s, IRQ OFLW Error stat=0x%08X\n", __func__, status);
 
-	if (status & (ier_reg->excs_oflw_y_buf_en.mask |
-		      ier_reg->excs_oflw_u_buf_en.mask |
-		      ier_reg->excs_oflw_v_buf_en.mask))
-		dev_dbg(dev, "%s, IRQ EXCS OFLW Error stat=0x%08X\n", __func__, status);
+	// if (status & (ier_reg->excs_oflw_y_buf_en.mask |
+	// 	      ier_reg->excs_oflw_u_buf_en.mask |
+	// 	      ier_reg->excs_oflw_v_buf_en.mask))
+	// 	dev_dbg(dev, "%s, IRQ EXCS OFLW Error stat=0x%08X\n", __func__, status);
 
 	spin_unlock(&mxc_isi->slock);
 	return IRQ_HANDLED;

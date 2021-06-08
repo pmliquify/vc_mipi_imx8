@@ -45,6 +45,8 @@ struct vc_fmt {
 };
 
 struct vc_frame {
+	__u32 left;
+	__u32 top;
 	__u32 width;
 	__u32 height;
 };
@@ -131,7 +133,8 @@ struct vc_cam {
 struct vc_fmt *vc_core_find_format(struct vc_cam *cam, __u32 code);
 int vc_core_set_format(struct vc_cam *cam, __u32 code);
 __u32 vc_core_get_format(struct vc_cam *cam);
-int vc_core_set_frame(struct vc_cam *cam, __u32 width, __u32 height);
+int vc_core_set_frame(struct vc_cam *cam, __u32 left, __u32 top, __u32 width, __u32 height);
+int vc_core_set_frame_size(struct vc_cam *cam, __u32 width, __u32 height);
 struct vc_frame *vc_core_get_frame(struct vc_cam *cam);
 
 // --- Function to initialze the vc core --------------------------------------
@@ -142,12 +145,12 @@ int vc_mod_set_power(struct vc_cam *cam, int on);
 int vc_mod_set_mode(struct vc_cam *cam);
 
 // --- Functions for the VC MIPI Sensors --------------------------------------
-int vc_sen_set_roi(struct vc_cam *cam, int left, int top, int width, int height);
-int vc_sen_set_gain(struct vc_cam *cam, int value);
+int vc_sen_set_roi(struct vc_cam *cam, __u32 left, __u32 top, __u32 width, __u32 height);
+int vc_sen_set_gain(struct vc_cam *cam, __u32 value);
 int vc_sen_start_stream(struct vc_cam *cam);
 int vc_sen_stop_stream(struct vc_cam *cam);
 
 // TODO: Cleaned up
-int vc_sen_set_exposure_dirty(struct vc_cam *cam, int value);
+int vc_sen_set_exposure_dirty(struct vc_cam *cam, __u32 value);
 
 #endif // _VC_MIPI_CORE_H

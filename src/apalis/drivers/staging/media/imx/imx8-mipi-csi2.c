@@ -1057,6 +1057,64 @@ static int mipi_csi2_set_fmt(struct v4l2_subdev *sd,
 	return 0;
 }
 
+// vvv VC MIPI ****************************************************************
+static int mipi_csi2_get_selection(struct v4l2_subdev *sd,
+			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_selection *sel)
+{
+	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
+	struct v4l2_subdev *sen_sd;
+	struct media_pad *source_pad;
+	int ret;
+
+	/* Get remote source pad */
+	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);
+	if (!source_pad) {
+		v4l2_err(&csi2dev->sd, "%s, No remote pad found!\n", __func__);
+		return -EINVAL;
+	}
+
+	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
+	if (!sd)
+		return -EINVAL;
+
+	sel->pad = source_pad->index;
+	ret = v4l2_subdev_call(sen_sd, pad, get_selection, NULL, sel);
+	if (ret < 0 && ret != -ENOIOCTLCMD)
+		return ret;
+
+	return 0;
+}
+
+static int mipi_csi2_set_selection(struct v4l2_subdev *sd,
+			     struct v4l2_subdev_pad_config *cfg,
+			     struct v4l2_subdev_selection *sel)
+{
+	struct mxc_mipi_csi2_dev *csi2dev = sd_to_mxc_mipi_csi2_dev(sd);
+	struct v4l2_subdev *sen_sd;
+	struct media_pad *source_pad;
+	int ret;
+
+	/* Get remote source pad */
+	source_pad = mxc_csi2_get_remote_sensor_pad(csi2dev);
+	if (!source_pad) {
+		v4l2_err(&csi2dev->sd, "%s, No remote pad found!\n", __func__);
+		return -EINVAL;
+	}
+
+	sen_sd = mxc_get_remote_subdev(csi2dev, __func__);
+	if (!sd)
+		return -EINVAL;
+
+	sel->pad = source_pad->index;
+	ret = v4l2_subdev_call(sen_sd, pad, set_selection, NULL, sel);
+	if (ret < 0 && ret != -ENOIOCTLCMD)
+		return ret;
+
+	return 0;
+}
+// ^^^ ************************************************************************
+
 static const struct v4l2_subdev_internal_ops mipi_csi2_sd_internal_ops = {
 	.open = mipi_csi2_open,
 };
@@ -1066,6 +1124,10 @@ static struct v4l2_subdev_pad_ops mipi_csi2_pad_ops = {
 	.enum_frame_interval = mipi_csi2_enum_frame_interval,
 	.get_fmt = mipi_csi2_get_fmt,
 	.set_fmt = mipi_csi2_set_fmt,
+// vvv VC MIPI ****************************************************************
+	.get_selection = mipi_csi2_get_selection,
+	.set_selection = mipi_csi2_set_selection,
+// ^^^ ************************************************************************
 };
 
 static struct v4l2_subdev_core_ops mipi_csi2_core_ops = {

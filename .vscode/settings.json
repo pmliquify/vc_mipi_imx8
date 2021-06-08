@@ -9,4 +9,9 @@
         "files.watcherExclude": {
                 "**/build/**": true
         },
+        "files.associations": {
+                "*.tcc": "cpp",
+                "any": "c",
+                "vc_mipi_modules.h": "c"
+        },
 }

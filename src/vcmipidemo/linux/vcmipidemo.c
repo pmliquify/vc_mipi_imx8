@@ -863,26 +863,36 @@ int  sensor_open(char *dev_video_device, VCMipiSenCfg *sen, unsigned int qbufCou
 
 	// *** VC MIPI ********************************************************
 	// Set Cropping, Left, Top, Width, Height
-	// {
-	// 	struct v4l2_selection selection;
-	// 	selection.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	// 	selection.target = V4L2_SEL_TGT_CROP;
-	// 	selection.r.left = 420;
-	// 	selection.r.top = 20;
-	// 	selection.r.width = 3000;
-	// 	selection.r.height = 3000;
-	// 	rc = ioctl(sen->fd, VIDIOC_S_SELECTION, &selection);
-	// }
+	{
+		struct v4l2_selection selection;
+		selection.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		selection.target = V4L2_SEL_TGT_CROP;
+		selection.r.left = 0;
+		selection.r.top = 0;
+		// selection.r.left = 420;
+		// selection.r.top = 20;
+		// selection.r.width = 1920;
+		// selection.r.height = 1080;
+		// selection.r.width = 3000;
+		// selection.r.height = 3000;
+		selection.r.width = 3840;
+		selection.r.height = 3040;
+		rc = ioctl(sen->fd, VIDIOC_S_SELECTION, &selection);
+	}
 	// Set Pixelformat, Width and Height
 	{
 		struct v4l2_format format;
 		// format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SRGGB10;
 		format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SGBRG10;
 		format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-		// format.fmt.pix.width = 2000;
-		// format.fmt.pix.height = 2000;
-		format.fmt.pix.width = 3840;
-		format.fmt.pix.height = 3040;
+		// format.fmt.pix.width = 800;
+		// format.fmt.pix.height = 600;
+		// format.fmt.pix.width = 1920;
+		// format.fmt.pix.height = 1080;
+		format.fmt.pix.width = 3000;
+		format.fmt.pix.height = 3000;
+		// format.fmt.pix.width = 3840;
+		// format.fmt.pix.height = 3040;
 		rc = ioctl(sen->fd, VIDIOC_S_FMT, &format);
 	}
 	// ********************************************************************
@@ -1893,7 +1903,118 @@ fail:
 }
 
 
+/*--*FUNCTION*-----------------------------------------------------------------*/
+/**
+* @brief  Outputs Image Pixels to a Framebuffer Device.
+*
+*  This function outputs Image Pixels to to a framebuffer device.
+*
+* @param  stp        Print only each  @p stp  pixel.
+* @param  goUpIff1   Overwrite old ASCII image, works only on recent terminals,
+*                    and needs no other data lines to be printed.
+*/
+/*-----------------------------------------------------------------------------*/
+int  copy_image_to_framebuffer2(char *pcFramebufferDev, const void *pvDataGREY_OR_R, const void *pvDataGREY_OR_G, const void *pvDataGREY_OR_B, U32 dy, U32 pitch)
+{
+	I32                       rc, ee;
 
+	U8                       *pInRx   = NULL, *pInGx   = NULL, *pInBx   = NULL;
+	U8                       *pInRy   = NULL, *pInGy   = NULL, *pInBy   = NULL;
+	U8                       *pOut   = NULL;
+	int                       fbufFd = 0;
+	U8                       *fbufSt = NULL;
+	struct fb_var_screeninfo  fbufVars;
+	struct fb_fix_screeninfo  fbufConsts;
+	U32                       fbufByteCount;
+	U32                       x, y, scaler, res, xOffset, yOffset;
+
+
+	// Open the framebuffer for reading and writing
+	{
+		fbufFd =  open(pcFramebufferDev, O_RDWR);
+		if(fbufFd<0){ee=-1; goto fail;}
+	}
+
+	// Get framebuffer information
+	{
+		// Variable information
+		rc =  ioctl(fbufFd, FBIOGET_VSCREENINFO, &fbufVars  );
+		if(rc<0){ee=-2+10*rc; goto fail;}
+
+		// Constant information
+		rc =  ioctl(fbufFd, FBIOGET_FSCREENINFO, &fbufConsts);
+		if(rc<0){ee=-3+10*rc; goto fail;}
+	}
+
+	// Map the framebuffer to memory
+	{
+		fbufByteCount = fbufVars.xres * fbufVars.yres * fbufVars.bits_per_pixel / 8;
+
+		fbufSt = (U8*) mmap(NULL, fbufByteCount, PROT_READ | PROT_WRITE, MAP_SHARED, fbufFd, 0);
+		if(fbufSt<0){ee=-4; goto fail;}
+	}
+
+	// Approx. scale up/down to framebuffer size.
+	res = 100;
+	scaler =  max(res,  max(res*pitch/fbufVars.xres, res*dy/fbufVars.yres));
+	// printf("framebuffer: scaler: %u (pitch: %u, dy: %u) (xres: %u, yres: %u)\n", 
+	// 	scaler, pitch, dy, fbufVars.xres, fbufVars.yres);
+
+	// Write pixel per pixel (slow)
+	// if(fbufVars.bits_per_pixel == 32) {
+	// 	for(y = 0; y < min(fbufVars.yres, dy); y++)
+	// 	{
+	// 		pInRy = ((U8*)pvDataGREY_OR_R) + (scaler * y) * pitch;
+	// 		pInGy = ((U8*)pvDataGREY_OR_G) + (scaler * y) * pitch;
+	// 		pInBy = ((U8*)pvDataGREY_OR_B) + (scaler * y) * pitch;
+	// 		pOut =       fbufSt  + (y + fbufVars.yoffset) * fbufConsts.line_length
+	// 				+      fbufVars.xoffset  * fbufVars.bits_per_pixel/8;
+
+	// 		for(x = 0; x < min(fbufVars.xres, pitch); x++)
+	// 		{
+	// 			*((U32*) pOut) = ((*pInR) << 16) | ((*pInG) << 8) | ((*pInB) << 0);
+
+	// 			pInRy += scaler;
+	// 			pInGy += scaler;
+	// 			pInBy += scaler;
+	// 			pOut += fbufVars.bits_per_pixel/8;
+	// 		}
+	// 	}
+	// } 
+	if(fbufVars.bits_per_pixel == 16) {
+		for(y = 0; y < min(fbufVars.yres, dy); y++)
+		{
+			yOffset = (scaler * y / res) * pitch;
+			pInRy = ((U8*)pvDataGREY_OR_R) + yOffset;
+			pInGy = ((U8*)pvDataGREY_OR_G) + yOffset;
+			pInBy = ((U8*)pvDataGREY_OR_B) + yOffset;
+			pOut =       fbufSt  + (y + fbufVars.yoffset) * fbufConsts.line_length
+					+      fbufVars.xoffset * fbufVars.bits_per_pixel/8;
+
+			pInRx = pInRy;
+			pInGx = pInGy;
+			pInBx = pInBy;
+			for(x = 0; x < min(fbufVars.xres, pitch); x++)
+			{
+				*((U16*) pOut) = (((*pInRx) >> 3) << 11) | (((*pInGx) >> 2) << 5) | (((*pInBx) >> 3) << 0);
+
+				xOffset = (scaler * x) / res;
+				pInRx = ((U8*)pInRy) + xOffset;
+				pInGx = ((U8*)pInGy) + xOffset;
+				pInBx = ((U8*)pInBy) + xOffset;
+				pOut += fbufVars.bits_per_pixel/8;
+			}
+		}
+	} 
+
+
+	ee=0;
+fail:
+	if(NULL!=fbufSt){  munmap(fbufSt, fbufByteCount);  fbufSt = NULL; }
+	close(fbufFd);
+
+	return ee;
+}
 
 
 /*--*FUNCTION*-----------------------------------------------------------------*/
