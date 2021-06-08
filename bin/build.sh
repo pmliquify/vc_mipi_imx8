@@ -63,11 +63,5 @@ if [[ $1 == "test" ]]; then
     make
     mv -f vcmipidemo $WORKING_DIR/test
     mv -f vcimgnetsrv $WORKING_DIR/test
-fi
-
-if [[ $1 == "view" ]]; then 
-        cd $WORKING_DIR/src/vcmipiview
-        make clean
-        make
-        ./vcmipiview
+    mv -f vctest $WORKING_DIR/test
 fi

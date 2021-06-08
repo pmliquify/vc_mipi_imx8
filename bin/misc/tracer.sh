@@ -27,8 +27,8 @@ echo 1 > tracing_on
 # Execute the command to trace
 #v4l2-ctl -c exposure=1000
 #v4l2-ctl -c gain=1000
-v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
-v4l2-ctl --stream-mmap --stream-count=1 --stream-to=file.raw
+#v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
+#v4l2-ctl --stream-mmap --stream-count=1 --stream-to=file.raw
 
 # Deactivate tracing
 echo 0 > tracing_on
