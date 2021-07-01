@@ -147,7 +147,7 @@ typedef struct
 static int  globVarQuitIff1 = 0;  // Will be set - for example - if CTRL-C is pressed,
 void  sig_handler(int signo);
 
-int  change_options_by_commandline(int argc, char *argv[], int *shutter, float *gain, int *image, int *fbOutIff1, char *pcFramebufferDev, int *stdOutIff1, int *fileOutIff1, int *bufCount, int *videoDevId, int *width, int *height, int *x0, int *y0, int *imageInfo, int *bitShift, VCWhiteBalCfg *cfgWB);
+int  change_options_by_commandline(int argc, char *argv[], int *shutter, float *gain, int *image, int *fbOutIff1, char *pcFramebufferDev, int *stdOutIff1, int *fileOutIff1, int *bufCount, int *videoDevId, int *width, int *height, int *x0, int *y0, int *imageInfo, int *bitShift, int *fps, VCWhiteBalCfg *cfgWB);
 int  media_set_roi(char *pcVideoDev, int optX0, int optY0, int optWidth, int optHeight);
 int  sensor_open(char *dev_video_device, VCMipiSenCfg *sen, unsigned int qBufCount);
 int  sensor_close(VCMipiSenCfg *sen);
@@ -157,11 +157,11 @@ int  sensor_set_cropping_roi(VCMipiSenCfg  *sen, int newX0, int newY0, int newWi
 int  sensor_streaming_start(VCMipiSenCfg *sen);
 int  sensor_streaming_stop(VCMipiSenCfg *sen);
 int  capture_buffer_enqueue(I32 bufIdx, VCMipiSenCfg *sen);
-int  capture_buffer_dequeue(I32 bufIdx, VCMipiSenCfg *sen);
+int  capture_buffer_dequeue(I32 bufIdx, VCMipiSenCfg *sen, __u32 *sequence, long *timestamp);
 int  sleep_for_next_capture(VCMipiSenCfg  *sen, int timeoutUS);
 int  imgnet_connect(VCImgNetCfg *imgnetCfg, U32 pixelformat, int dx, int dy);
 int  imgnet_disconnect(VCImgNetCfg *imgnetCfg);
-int  process_capture(unsigned int pixelformat, char *st, int dx, int dy, int pitch, int imageInfo, int bitShift, int stdOutIff1, int netSrvOutIff1, VCImgNetCfg *imgnetCfg, int fbOutIff1, int fileOutIff1, int frameNr, char *pcFramebufferDev, VCWhiteBalCfg *cfgWB);
+int  process_capture(unsigned int pixelformat, char *st, int dx, int dy, int pitch, int bitShift, int stdOutIff1, int netSrvOutIff1, VCImgNetCfg *imgnetCfg, int fbOutIff1, int fileOutIff1, int frameNr, char *pcFramebufferDev, VCWhiteBalCfg *cfgWB);
 I32  process_whitebalance(image *img, VCWhiteBalCfg *cfgWB);
 I32  copy_grey_to_image(image *imgOut, char *bufIn, I32 v4lX0, I32 v4lY0, I32 v4lDx, I32 v4lDy, I32 v4lPitch, I32 v4lPaddingBytes);
 I32  convert_raw10_to_image(image *imgOut, char *bufIn, U8 trackOffset, I32 v4lX0, I32 v4lY0, I32 v4lDx, I32 v4lDy, I32 v4lPitch, I32 v4lPaddingBytes);
@@ -179,6 +179,7 @@ I32  fill_image_with_pattern(image *imgOut, image *imgPat);
 I32  fill_image_with_hourglasses(image *imgOut);
 I32  fill_framebuffer_with_hourglasses(char *pcFramebufferDev, I32 dx, I32 dy);
 void print_image_to_stdout(image *img, int stp, int goUpIff1);
+void print_image_info(int sequence, long ts1, long ts2, unsigned int pixelformat, char *st, int dx, int dy, int pitch);
 void timemeasurement_start(struct  timeval *timer);
 void timemeasurement_stop(struct  timeval *timer, I64 *s, I64 *us);
 #ifdef __cplusplus
@@ -203,6 +204,17 @@ int  main(int argc, char *argv[])
 	char           acVideoDev[30]     = "";
 	char           acFramebufferDev[] = "/dev/fb0";
 	int            timeoutUS          = 1000;
+	unsigned int   sequence           = 0;
+	unsigned int   start_sequence     = 0;
+	unsigned int   last_sequence      = 0;
+	unsigned int   elapsed_sequence   = 0;
+	unsigned int   dropped_sequence   = 0;
+	unsigned int   processed_sequence = 0;
+	long 	       timestamp          = 0;
+	long           start_timestamp    = 0;
+	long           last_timestamp     = 0;
+	long           frame_time         = 0;
+	long           elapsed_time       = 0;
 
 	#ifdef DURATION_TEST
 		struct timeval timer;
@@ -215,7 +227,7 @@ int  main(int argc, char *argv[])
 	int            netSrvIff1 = 0;
 	int            frameNr=0;
 	int            optShutter, optMaxCaptures, optFBOutIff1, optStdOutIff1, optBufCount, optFileOutIff1, optVideoDevId;
-	int            optWidth, optHeight, optX0, optY0, bitShift, imageInfo;
+	int            optWidth, optHeight, optX0, optY0, bitShift, imageInfo, fps;
 	float          optGain;
 	VCMipiSenCfg   sen       = NULL_VCMipiSenCfg;
 	VCImgNetCfg    imgnetCfg = NULL_VCImgNetCfg;
@@ -246,10 +258,13 @@ int  main(int argc, char *argv[])
 		optY0          = -1;
 		imageInfo      = -1;
 		bitShift       = -1;
+		fps            = -1;
 
 		optMaxCaptures = -1;
 
-		rc =  change_options_by_commandline(argc, argv, &optShutter, &optGain, &optMaxCaptures, &optFBOutIff1, acFramebufferDev, &optStdOutIff1, &optFileOutIff1, &optBufCount, &optVideoDevId, &optWidth, &optHeight, &optX0, &optY0, &imageInfo, &bitShift, &cfgWB);
+		rc =  change_options_by_commandline(argc, argv, &optShutter, &optGain, &optMaxCaptures, &optFBOutIff1, acFramebufferDev, 
+			&optStdOutIff1, &optFileOutIff1, &optBufCount, &optVideoDevId, &optWidth, &optHeight, &optX0, &optY0, 
+			&imageInfo, &bitShift, &fps, &cfgWB);
 		if(rc>0){ee=0; goto quit;}
 		if(rc<0){ee=-2+100*rc; goto quit;}
 
@@ -318,25 +333,79 @@ int  main(int argc, char *argv[])
 			continue; //Timeout occured and no capture is ready, sleep again.
 		}
 
-		rc =  capture_buffer_dequeue(bufIdx, &sen);
+		// VC MIPI ****************************************************
+		rc =  capture_buffer_dequeue(bufIdx, &sen, &sequence, &timestamp);
 		if(rc>0){continue;} // Buffer not yet available, wait again, should not happen if using sleep_for_next_capture().
 		if(rc<0){ee=-9+100*rc; goto quit;}
-		
-		switch(sen.format.type)
-		{
-			case V4L2_BUF_TYPE_VIDEO_CAPTURE:
-				rc =  process_capture(sen.format.fmt.pix.pixelformat, sen.qbuf[bufIdx].st[0], 
-					sen.format.fmt.pix.width, sen.format.fmt.pix.height, sen.format.fmt.pix.bytesperline, 
-					imageInfo, bitShift, optStdOutIff1, netSrvIff1, &imgnetCfg, optFBOutIff1, optFileOutIff1, frameNr++, acFramebufferDev, &cfgWB);
-				break;
-			case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
-				rc =  process_capture(sen.format.fmt.pix_mp.pixelformat, sen.qbuf[bufIdx].st[0], 
-					sen.format.fmt.pix_mp.width, sen.format.fmt.pix_mp.height, sen.format.fmt.pix_mp.plane_fmt[0].bytesperline, 
-					imageInfo, bitShift, optStdOutIff1, netSrvIff1, &imgnetCfg, optFBOutIff1, optFileOutIff1, frameNr++, acFramebufferDev, &cfgWB);
-				break;
-			default: ee= -10; goto quit;
+
+		if(0==last_timestamp) {
+			frame_time = 0;
+		} else {
+			frame_time = timestamp - last_timestamp;
 		}
-		if(rc<0){ee=-11+100*rc; goto quit;}
+		last_timestamp = timestamp;
+
+		if(1==imageInfo) {
+			switch(sen.format.type)	{
+				case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+					print_image_info(sequence, timestamp, frame_time, sen.format.fmt.pix.pixelformat, sen.qbuf[bufIdx].st[0], 
+						sen.format.fmt.pix.width, sen.format.fmt.pix.height, sen.format.fmt.pix.bytesperline);
+					break;
+				case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+					print_image_info(sequence, timestamp, frame_time, sen.format.fmt.pix.pixelformat, sen.qbuf[bufIdx].st[0], 
+						sen.format.fmt.pix.width, sen.format.fmt.pix.height, sen.format.fmt.pix_mp.plane_fmt[0].bytesperline);
+					break;
+			}
+		}
+
+		if(1==fps) {
+			if(0==start_timestamp) {
+				start_sequence = sequence;
+				last_sequence = sequence;
+				elapsed_sequence = 0;
+				dropped_sequence = 0;
+				processed_sequence = 0;
+				start_timestamp = timestamp;
+				last_timestamp = timestamp;
+				elapsed_time = 0;
+				frame_time = 0;
+			}
+
+			if(sequence - last_sequence > 1) {
+				dropped_sequence += sequence - last_sequence - 1;
+			}
+			last_sequence = sequence;
+
+			elapsed_time = timestamp - start_timestamp;
+			if(elapsed_time >= 1000) {
+				elapsed_sequence = sequence - start_sequence;
+				printf("Captured FPS: %.2f (%u frames in %ld ms) %d dropped - Processed FPS: %.2f (%u frames in %ld ms)\n", 
+					elapsed_sequence*1000.0/elapsed_time, elapsed_sequence, elapsed_time, dropped_sequence,
+					processed_sequence*1000.0/elapsed_time, processed_sequence, elapsed_time);
+				start_timestamp = 0;
+			}
+		}
+		
+		if(1==optStdOutIff1 || 1==netSrvIff1 || 1==optFBOutIff1 || 1==optFileOutIff1) {
+			processed_sequence++;
+
+			switch(sen.format.type)
+			{
+				case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+					rc =  process_capture(sen.format.fmt.pix.pixelformat, sen.qbuf[bufIdx].st[0], 
+						sen.format.fmt.pix.width, sen.format.fmt.pix.height, sen.format.fmt.pix.bytesperline, 
+						bitShift, optStdOutIff1, netSrvIff1, &imgnetCfg, optFBOutIff1, optFileOutIff1, frameNr++, acFramebufferDev, &cfgWB);
+					break;
+				case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+					rc =  process_capture(sen.format.fmt.pix_mp.pixelformat, sen.qbuf[bufIdx].st[0], 
+						sen.format.fmt.pix_mp.width, sen.format.fmt.pix_mp.height, sen.format.fmt.pix_mp.plane_fmt[0].bytesperline, 
+						bitShift, optStdOutIff1, netSrvIff1, &imgnetCfg, optFBOutIff1, optFileOutIff1, frameNr++, acFramebufferDev, &cfgWB);
+					break;
+				default: ee= -10; goto quit;
+			}
+			if(rc<0){ee=-11+100*rc; goto quit;}
+		}
+		// ************************************************************
 
 		rc =  capture_buffer_enqueue(bufIdx, &sen);
 		if(rc<0){ee=-12+100*rc; goto quit;}
@@ -380,27 +449,6 @@ quit:
 }
 
 
-void print_line_byte(char *st, int x1, int x2, int y, int pitch)
-{
-	for (int x=x1; x<=x2; x=x+2) {
-		printf("%02x%02x ", st[y*pitch + x], st[y*pitch + x+1]);
-	}
-	printf("\n");
-}
-
-void print_line_bit(char *st, int x1, int x2, int y, int pitch)
-{
-	for (int x=x1; x<=x2; x++) {
-		char val = st[y*pitch + x];
-		for(int b=7; b>=0; b--) {
-			printf("%u", (U8)((val >> b) & 0x01));
-		}
-		print(" ");
-	}
-	printf("\n");
-}
-
-
 /*--*FUNCTION*-----------------------------------------------------------------*/
 /**
 * @brief  Processes a Capture: Copy it to several Outputs.
@@ -408,45 +456,11 @@ void print_line_bit(char *st, int x1, int x2, int y, int pitch)
 *  This function processes a capture image by copying it to selected outputs.
 */
 /*-----------------------------------------------------------------------------*/
-int process_capture(unsigned int pixelformat, char *st, int dx, int dy, int pitch, int imageInfo, int bitShift, int stdOutIff1, int netSrvOutIff1, VCImgNetCfg *imgnetCfg, int fbOutIff1, int fileOutIff1, int frameNr, char *pcFramebufferDev, VCWhiteBalCfg *cfgWB)
+int process_capture(unsigned int pixelformat, char *st, int dx, int dy, int pitch, int bitShift, int stdOutIff1, int netSrvOutIff1, VCImgNetCfg *imgnetCfg, int fbOutIff1, int fileOutIff1, int frameNr, char *pcFramebufferDev, VCWhiteBalCfg *cfgWB)
 {
 	int    rc, ee;
 	image  imgConverted = NULL_IMAGE;
 	char   acFilename[256];
-
-	// *** VC MIPI ********************************************************
-	{
-		int x = 0;
-		int y = 0;
-		int count = 20;
-		if(1==imageInfo)
-		{
-			// printf("img.org (fmt: %c%c%c%c, dx: %u, dy: %u, pitch: %u) - ", 
-			// 	(pixelformat >> 0 & 0xFF), (pixelformat >> 8 & 0xFF), (pixelformat >> 16 & 0xFF), (pixelformat >> 24 & 0xFF), 
-			// 	dx, dy, pitch);
-			printf("img (dx: %u, dy: %u, pitch: %u) - ", dx, dy, pitch);
-		}
-		// if(1==bitShift) 
-		// {
-		// 	for(int y=0; y<dy; y++) {	
-		// 		for (int x=0; x<pitch-1; x+=2) {
-		// 			// CC8X
-		// 			// U32 val32 = *(U32*)&st[y*pitch + x];
-		// 			// Apalis
-		// 			U32 val32 = *(U32*)&st[(y + 1)*pitch + x];
-		// 			U16 val16 = ((val32 >> 4) & 0xffff);
-		// 			U16 *p16 = (U16*)&st[y*pitch + x];
-		// 			*p16 = val16;
-		// 		}
-		// 		st[0] |= 0x0f;
-		// 	}
-		// }
-		if(1==imageInfo) 
-		{	
-			print_line_byte(st, x, x + count-1, y, pitch);
-		}
-	}
-	// ********************************************************************
 
 	// Allocate temporary image
 	{
@@ -597,13 +611,13 @@ fail:
 *  This function parses command line parameters.
 */
 /*-----------------------------------------------------------------------------*/
-int  change_options_by_commandline(int argc, char *argv[], int *shutter, float *gain, int *maxCaptures, int *fbOutIff1, char *pcFramebufferDev, int *stdOutIff1, int *fileOutIff1, int *bufCount, int *videoDevId, int *width, int *height, int *x0, int *y0, int *imageInfo, int *bitShift, VCWhiteBalCfg *cfgWB)
+int  change_options_by_commandline(int argc, char *argv[], int *shutter, float *gain, int *maxCaptures, int *fbOutIff1, char *pcFramebufferDev, int *stdOutIff1, int *fileOutIff1, int *bufCount, int *videoDevId, int *width, int *height, int *x0, int *y0, int *imageInfo, int *bitShift, int *fps, VCWhiteBalCfg *cfgWB)
 {
 	int  opt;
 
 	cfgWB->mode = WBMODE_INACTIVE;
 
-	while((opt =  getopt(argc, argv, "g:s:i:x4fabp:od:r:w:")) != -1)
+	while((opt =  getopt(argc, argv, "g:s:i:afpx4b:od:r:w:")) != -1)
 	{
 		switch(opt)
 		{
@@ -615,42 +629,43 @@ int  change_options_by_commandline(int argc, char *argv[], int *shutter, float *
 				printf("                                                                               \n");
 				printf("  Usage: %s [-s sh] [-g gain] [-i nr] [-f] [-a] [-o]\n", argv[0]);
 				printf("                                                                               \n");
-				printf("  -x,  Output image info and the first 20 bytes of the image in hex notation.  \n");
-				printf("  -4,  Apply a 4 bit right shift to the image raw data.                        \n");
-				printf("  -s,  Shutter Time.                                                           \n");
-				printf("  -g,  Gain Value.                                                             \n");
-				printf("  -i,  This Number of Images will be recorded, else continuously.              \n");
+				printf("  -a,  Suppress ASCII capture at stdout.                                       \n");
 				printf("  -b,  Buffer Count to use.                                                    \n");
+				printf("  -d,  Video device ID: /dev/videoX, default for X: 0                          \n");
 				printf("  -f,  Output Capture to framebuffer %s. (Some platforms show their framebuffer\n", pcFramebufferDev);
 				printf("       after pressing a Ctrl+Alt+F1-7 key combination)                         \n");
+				printf("  -g,  Gain Value.                                                             \n");
+				printf("  -i,  This Number of Images will be recorded, else continuously.              \n");
 				printf("  -o,  Output Captures to file in PGM or PPM format (openable by e.g. GIMP)    \n");
-				printf("  -a,  Suppress ASCII capture at stdout.                                       \n");
-				printf("  -d,  Video device ID: /dev/videoX, default for X: 0                          \n");
-				printf("  -w,  Followed by White Balance Settings as Triple (each [1..255]): 'wr wg wb'\n");
-				printf("       or 0 0 0 to determine these values by recording a white surface - adjust\n");
-				printf("       the shutter time so that all measured values are smaller than 200.      \n");
-				printf("       For example: -w '123 145 167'                                           \n");
-				printf("       Note that you may need also apply an IR filter for better visual colors.\n");
+				printf("  -p,  Output frames per second.                                               \n");
 				printf("  -r,  Region of interest:  (Left,Top)/WidthxHeight'                           \n");
 				printf("       For example: -r '(0,0)/640x480'                                         \n");
 				printf("       Attention: The ROI setting will only work properly if                   \n");
 				printf("       Platform specific and Module specific Limitations are satisfied!        \n");
 				printf("       and the ROI setting stays changed after the program ends.               \n");
+				printf("  -s,  Shutter Time.                                                           \n");
+				printf("  -w,  Followed by White Balance Settings as Triple (each [1..255]): 'wr wg wb'\n");
+				printf("       or 0 0 0 to determine these values by recording a white surface - adjust\n");
+				printf("       the shutter time so that all measured values are smaller than 200.      \n");
+				printf("       For example: -w '123 145 167'                                           \n");
+				printf("       Note that you may need also apply an IR filter for better visual colors.\n");
+				printf("  -x,  Output image info and the first 20 bytes of the image in hex notation.  \n");
+				printf("  -4,  Apply a 4 bit right shift to the image raw data.                        \n");
 				printf("_______________________________________________________________________________\n");
 				printf("                                                                               \n");
 				return(+1);
-			case 'x':  *imageInfo  = 1;             printf("Printing image info for every acquired image.\n"); break;
-			case '4':  *bitShift   = 1;             printf("Image raw data will be shifted 4 bits right.\n"); break;
-			case 's':  *shutter    = atol(optarg);  printf("Setting Shutter Value to %d.\n",*shutter);  break;
-			case 'g':  *gain       = atof(optarg);  printf("Setting Gain Value to %f.\n",   *gain   );  break;
-			case 'i':  *maxCaptures= atol(optarg);  printf("Take %d images.\n",*maxCaptures);           break;
-			case 'f':  *fbOutIff1  = 1;             printf("Activating /dev/fb0 framebuffer output.\n");break;
 			case 'a':  *stdOutIff1 = 0;             printf("Suppressing ASCII capture at stdout.\n" );  break;
-			case 'o':  *fileOutIff1= 1;             printf("Activating file output of captures.\n" );   break;
 			case 'b':  *bufCount   = atol(optarg);  printf("Setting Buffer Count to %d.\n",*bufCount);  break;
 			case 'd':  *videoDevId = atol(optarg);  printf("Using Video Device Id. %d:  /dev/video%d\n", *videoDevId, *videoDevId);break;
+			case 'f':  *fbOutIff1  = 1;             printf("Activating /dev/fb0 framebuffer output.\n");break;
+			case 'g':  *gain       = atof(optarg);  printf("Setting Gain Value to %f.\n",   *gain   );  break;
+			case 'i':  *maxCaptures= atol(optarg);  printf("Take %d images.\n",*maxCaptures);           break;
+			case 'o':  *fileOutIff1= 1;             printf("Activating file output of captures.\n" );   break;
+			case 'p':  *fps= 1;                     printf("Output frames per second.\n" );             break;
 			case 'r':  if(4 == sscanf(optarg, "(%d,%d)/%dx%d", x0, y0, width, height)){ printf("Setting ROI: (x0,y0):(%d,%d), (dx,dy):(%d,%d)\n", *x0, *y0, *width, *height); } else { *x0 = *y0 = *width = *height = -1; }  break;
-
+			case 's':  *shutter    = atol(optarg);  printf("Setting Shutter Value to %d.\n",*shutter);  break;
+			case 'x':  *imageInfo  = 1;             printf("Printing image info for every acquired image.\n"); break;
+			case '4':  *bitShift   = 1;             printf("Image raw data will be shifted 4 bits right.\n"); break;
 			case 'w':
 			{
 				//at beginning of function:  cfgWB->mode = WBMODE_INACTIVE;
@@ -1263,7 +1278,7 @@ fail:
 *  the image can be accessed by dequeuing the buffer from the capture queue.
 */
 /*-----------------------------------------------------------------------------*/
-int  capture_buffer_dequeue(I32 bufIdx, VCMipiSenCfg *sen)
+int  capture_buffer_dequeue(I32 bufIdx, VCMipiSenCfg *sen, __u32 *sequence, long *timestamp)
 {
 	I32                 ee, rc;
 	struct v4l2_buffer  buf;
@@ -1287,6 +1302,10 @@ int  capture_buffer_dequeue(I32 bufIdx, VCMipiSenCfg *sen)
 		ee=+2; goto fail;
 	}
 
+	// *** VC MIPI ********************************************************
+	*sequence = buf.sequence;
+	*timestamp = buf.timestamp.tv_sec*1e3 + buf.timestamp.tv_usec/1e3;
+	// ********************************************************************
 
 	ee = 0;
 fail:
@@ -1951,9 +1970,40 @@ void  print_image_to_stdout(image *img,  int stp, int goUpIff1)
 	fflush(NULL);
 }
 
+// *** VC MIPI ********************************************************
+void print_line_byte(char *st, int x1, int x2, int y, int pitch)
+{
+	for (int x=x1; x<=x2; x=x+2) {
+		printf("%02x%02x ", st[y*pitch + x], st[y*pitch + x+1]);
+	}
+	printf("\n");
+}
 
+void print_line_bit(char *st, int x1, int x2, int y, int pitch)
+{
+	for (int x=x1; x<=x2; x++) {
+		char val = st[y*pitch + x];
+		for(int b=7; b>=0; b--) {
+			printf("%u", (U8)((val >> b) & 0x01));
+		}
+		print(" ");
+	}
+	printf("\n");
+}
 
-
+void print_image_info(int sequence, long ts1, long ts2, unsigned int pixelformat, char *st, int dx, int dy, int pitch)
+{
+	int x = 0;
+	int y = 0;
+	int count = 20;
+	
+	// printf("img.org (fmt: %c%c%c%c, dx: %u, dy: %u, pitch: %u) - ", 
+	// 	(pixelformat >> 0 & 0xFF), (pixelformat >> 8 & 0xFF), (pixelformat >> 16 & 0xFF), (pixelformat >> 24 & 0xFF), 
+	// 	dx, dy, pitch);
+	printf("[#%04d, ts:%8ld, t:%4ld ms] (dx: %u, dy: %u, pitch: %u) - ", sequence, ts1, ts2, dx, dy, pitch);
+	print_line_byte(st, x, x + count-1, y, pitch);
+}
+// ********************************************************************
 
 
 
