@@ -30,7 +30,7 @@
 #define REG_STATUS_ERROR        0x01   // reg1[7:0] = 0x01 internal error during initialization
 #define REG_TRIGGER_IN_ENABLE   0x01
 #define REG_TRIGGER_IN_DISABLE  0x00
-#define REG_FLASH_OUT_ENABLE    0x01
+#define REG_FLASH_OUT_ENABLE    0x09
 #define REG_FLASH_OUT_DISABLE   0x00
 
 #define MASK_MODE_LANES         (FLAG_MODE_2_LANES | FLAG_MODE_4_LANES)
