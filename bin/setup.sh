@@ -1,56 +1,53 @@
-#/bin/bash
-#
-. config/configure.sh
+#!/bin/bash
 
-CMD=$1
+usage() {
+	echo "Usage: $0 [options]"
+	echo ""
+	echo "Setup host and target for development and testing."
+	echo ""
+	echo "Supported options:"
+	echo "-h, --help                Show this help text"
+        echo "-k, --kernel              Setup/Reset kernel sources"
+        echo "-n, --netboot             Setup netboot environment"
+        echo "-o, --host                Installs some system tools, the toolchain and kernel sources"
+}
 
-if [[ $CMD == "host" ]]; then
-        # Install Linux Tools
-        # *****************************************************************************
+configure() {
+        . config/configure.sh
+}
+
+install_system_tools() {
+        echo "Setup system tools."
         sudo apt update
         sudo apt install -y bc build-essential git libncurses5-dev lzop perl libssl-dev
         sudo apt install -y flex bison
         sudo apt install -y gcc-aarch64-linux-gnu
         sudo apt install -y device-tree-compiler
+}
 
+setup_toolchain() {
+        echo "Setup tool chain."
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
-
-        # Install Toolchain
-        # *****************************************************************************
+        rm -Rf gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu
         wget -O gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz "https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz?revision=61c3be5d-5175-4db6-9030-b565aae9f766&la=en&hash=0A37024B42028A9616F56A51C2D20755C5EBBCD7"
         tar xvf gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz
         rm gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz
+}
 
-        # Install Sources
-        # *****************************************************************************
-        # -----------------------------------------------------------------------------
-        # Toradex Easy Installer -> 5.1.0-devel-202012+build.5 (2020-12-01)
-        #
-        #git clone -b toradex_imx_v2020.04_5.4.24_2.1.0 git://git.toradex.com/u-boot-toradex.git
-        #git clone -b toradex_5.4-2.1.x-imx git://git.toradex.com/device-tree-overlays.git
-        #git clone -b toradex_5.4-2.1.x-imx git://git.toradex.com/linux-toradex.git
+setup_kernel() {
+        echo "Setup kernel sources."
+        mkdir -p $BUILD_DIR
+        cd $BUILD_DIR
+        rm -Rf $KERNEL_SOURCE
+        git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/linux-toradex.git $KERNEL_SOURCE
+        cd $KERNEL_SOURCE
+        # git checkout fca7e6292821c09a823ea6f471302b854d427f7f
+        cp -R $SRC_DIR/* $KERNEL_SOURCE        
+}
 
-        # Repo Kernel
-        # Linux apalis-imx8 5.4.77-31031-g322691f7b572 #1 SMP PREEMPT Fri Apr 23 13:15:42 CEST 2021 aarch64 aarch64 aarch64 GNU/Linux
-
-        # -----------------------------------------------------------------------------
-        # Toradex Easy Installer -> 5.2.0+build.7 (2021-04-08)
-        #
-        #git clone -b toradex_imx_v2020.04_5.4.70_2.3.0 git://git.toradex.com/u-boot-toradex.git
-        #sudo rm -Rf device-tree-overlays
-        #git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/device-tree-overlays.git
-        sudo rm -Rf linux-toradex
-        git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/linux-toradex.git
-
-        # Easy Installer Kernel
-        # Linux apalis-imx8 5.4.91-5.2.0+git.6afb048a71e3 #1 SMP PREEMPT Wed Apr 7 08:36:44 UTC 2021 aarch64 aarch64 aarch64 GNU/Linux
-        # Repo Kernel
-        # Linux apalis-imx8 5.4.91-33088-g8c05b31a44c3 #1 SMP PREEMPT Mon Apr 19 15:11:10 CEST 2021 aarch64 aarch64 aarch64 GNU/Linux
-fi
-
-if [[ $CMD == "netboot" ]]; then
-        # DHCP Server
+setup_dhcp_server() {
+        echo "Setup dhcp server."
         sudo apt install -y isc-dhcp-server
 
         # /etc/default/isc-dhcp-server
@@ -79,10 +76,15 @@ if [[ $CMD == "netboot" ]]; then
         #                 option root-path                "/srv/nfs/rootfs,v4,tcp,clientaddr=0.0.0.0";
         #       }
         # sudo service isc-dhcp-server restart
+}
 
-        # TFTP Server        
+setup_tftp_server() {
+        echo "Setup tftp server."
         sudo apt install -y tftpd-hpa 
+        sudo rm -Rf $TFTP_DIR/*
         sudo mkdir -p $TFTP_DIR
+        cd $DOWNLOADS_DIR/$TEZI
+        sudo tar xvfp Reference-Multimedia-Image-apalis-imx8.bootfs.tar.xz -C $TFTP_DIR
 
         # /etc/default/tftpd-hpa
         #       TFTP_USERNAME="tftp"
@@ -90,23 +92,23 @@ if [[ $CMD == "netboot" ]]; then
         #       TFTP_ADDRESS="0.0.0.0:69"
         #       TFTP_OPTIONS="--secure"
         # sudo service tftpd-hpa restart
+}
 
-        # NFS Server
+setup_nfs_server() {
+        echo "Setup nfs server."
         sudo apt install -y nfs-kernel-server 
+        sudo rm -Rf $NFS_DIR/*
         sudo mkdir -p $NFS_DIR
+        cd $DOWNLOADS_DIR/$TEZI
+        sudo tar xvfp Reference-Multimedia-Image-apalis-imx8.tar.xz -C $NFS_DIR
 
         # /etc/exports
         #       /srv/nfs 192.168.10.1/24(no_root_squash,no_subtree_check,rw)
-        # sudo service nfs-kernel-server restart
+        # sudo service nfs-kernel-server restart  
+}
 
-        mkdir -p $DOWNLOADS_DIR
-        cd $DOWNLOADS_DIR
-        
-        rm -Rf $TEZI
-        wget $TEZI_URL/$TEZI.tar
-        tar xf $TEZI.tar
-        rm -f $TEZI.tar
-
+setup_u_boot() {
+        echo "Setup u-boot server."
         #. ./netboot.sh recover
 
         # => setenv bootcmd 'run bootcmd_dhcp'
@@ -115,15 +117,43 @@ if [[ $CMD == "netboot" ]]; then
         # Boot from internal mmc again
         # => setenv bootcmd 'run distro_bootcmd'
         # => saveenv
-fi
+}
 
-if [[ $CMD == "test" ]]; then
-        #rm ~/.ssh/known_hosts
-        #ssh-copy-id -i ~/.ssh/id_rsa.pub $TARGET_USER@$TARGET_NAME
-    
-        TARGET_DIR=/home/$TARGET_USER/test
-        $TARGET_SHELL rm -Rf $TARGET_DIR
-        $TARGET_SHELL mkdir -p $TARGET_DIR
-        scp $WORKING_DIR/test/* $TARGET_USER@$TARGET_NAME:$TARGET_DIR
-        # $TARGET_SHELL chmod +x $TARGET_DIR/*.sh
-fi
+while [ $# != 0 ] ; do
+	option="$1"
+	shift
+
+	case "${option}" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-k|--kernel)
+		configure
+		setup_kernel
+                exit 0
+		;;
+	-o|--host)
+		configure
+                install_system_tools
+                setup_toolchain
+		setup_kernel
+                exit 0
+		;;
+        -n|--netboot)
+                configure
+                setup_dhcp_server
+                setup_tftp_server
+                setup_nfs_server
+                setup_u_boot
+                exit 0
+                ;;
+	*)
+		echo "Unknown option ${option}"
+		exit 1
+		;;
+	esac
+done
+
+usage
+exit 1

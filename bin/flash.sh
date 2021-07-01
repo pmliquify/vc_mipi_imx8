@@ -1,52 +1,112 @@
-#/bin/bash
-#
-. config/configure.sh
+#!/bin/bash
 
-#if [[ $1 == "a" ]]; then
-#        ./build.sh $1
-#fi
+usage() {
+	echo "Usage: $0 [options]"
+	echo ""
+	echo "Flash kernel image, modules, device tree, and test tools to the target."
+	echo ""
+	echo "Supported options:"
+        echo "-a, --all                 Flash kernel image, modules and device tree"
+        echo "-d, --dt                  Flash device tree"
+        echo "-h, --help                Show this help text"
+        echo "-k, --kernel              Flash kernel image"
+        echo "-m, --modules             Flash kernel modules"
+        echo "-r, --reboot              Reboot after flash."
+        echo "-t, --test                Flash test tools"
+}
 
-if [[ $1 == "k" || $1 == "all" ]]; then
-        scp $KERNEL_SOURCE/arch/arm64/boot/Image.gz root@$TARGET_NAME:/boot
-fi
-if [[ $1 == "m" || $1 == "all" ]]; then
-        #scp -r $BUILD_DIR/modules/* root@$TARGET_NAME:/
+configure() {
+        . config/configure.sh
+}
 
-        scp $BUILD_DIR/modules.tar.gz root@$TARGET_NAME:/home/root
-        $TARGET_SHELL tar -xzf modules.tar.gz -C /
-        $TARGET_SHELL rm modules.tar.gz
+flash_kernel() {
+        echo "Flash kernel ..."
+        scp $KERNEL_SOURCE/arch/arm64/boot/Image.gz $TARGET_USER@$TARGET_IP:/boot
+}
+
+flash_modules() {
+        echo "Flash kernel modules ..."
+        scp $BUILD_DIR/modules.tar.gz $TARGET_USER@$TARGET_IP:/home/$TARGET_USER
+        $TARGET_SHELL tar -xzvf modules.tar.gz -C /
+        $TARGET_SHELL rm -f modules.tar.gz
         $TARGET_SHELL rm -Rf /var/log
-        $TARGET_SHELL mkdir /var/log
-fi
-if [[ $1 == "d" || $1 == "a" ]]; then
+}
+
+flash_device_tree() {
+        echo "Flash device tree ..."
         # Verdin
         #scp $BUILD_DIR/image/$DTB_FILE root@$TARGET_NAME:/boot 
         
         # Apalis
         scp $KERNEL_SOURCE/arch/arm64/boot/dts/freescale/$DTO_FILE.dtbo root@$TARGET_NAME:/boot/overlays 
         scp $WORKING_DIR/misc/apalis/overlays.txt root@$TARGET_NAME:/boot
-fi
+}
 
-$TARGET_SHELL /sbin/reboot
+flash_test_tools() {
+        echo "Flash test tools ..."
+        TARGET_DIR=/home/$TARGET_USER/test
+        $TARGET_SHELL rm -Rf $TARGET_DIR
+        $TARGET_SHELL mkdir -p $TARGET_DIR
+        scp $WORKING_DIR/test/* $TARGET_USER@$TARGET_NAME:$TARGET_DIR
+}
 
-if [[ $2 == "b" || $2 == "s" ]]; then
-        printf "Waiting for $TARGET_NAME ..."
-        sleep 5
-        while ! ping -c 1 -n -w 1 $TARGET_NAME &> /dev/null
-        do
-                printf "."
-        done
-        printf " OK\n\n"
-fi
+reboot_target() {
+        if [[ -n ${reboot} ]]; then
+                $TARGET_SHELL /sbin/reboot
+        fi
+}
 
-if [[ $2 == "b" ]]; then
-        # Set loglevel=8 at boot time 
-        # setenv defargs xxx loglevel=8
-        $TARGET_SHELL dmesg | grep 'mxc\|5-00\|vc-mipi'
-fi
+reboot=
 
-if [[ $2 == "s" ]]; then
-        $TARGET_SHELL dmesg -n 8
-        $TARGET_SHELL v4l2-ctl --set-fmt-video=pixelformat=RGGB,width=3840,height=3040
-        $TARGET_SHELL v4l2-ctl --stream-mmap --stream-count=1 --stream-to=file.raw
-fi
+while [ $# != 0 ] ; do
+	option="$1"
+	shift
+
+	case "${option}" in
+	-a|--all)
+		configure
+                flash_kernel
+                flash_modules	
+                flash_device_tree
+                reboot_target
+                exit 0
+		;;
+        -d|--dt)
+                configure
+                flash_device_tree
+                reboot_target
+                exit 0
+		;;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-k|--kernel)
+		configure
+		flash_kernel
+                reboot_target
+                exit 0
+		;;
+        -m|--modules)
+		configure
+                flash_modules
+                reboot_target
+                exit 0
+		;;
+	-r|--reboot)
+                reboot=1
+                ;;
+        -t|--test)
+		configure
+                flash_test_tools		
+                exit 0
+		;;
+	*)
+		echo "Unknown option ${option}"
+		exit 1
+		;;
+	esac
+done
+
+usage
+exit 1
