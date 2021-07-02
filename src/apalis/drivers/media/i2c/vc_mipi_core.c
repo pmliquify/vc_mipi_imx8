@@ -292,7 +292,7 @@ int vc_mod_set_power(struct vc_cam *cam, int on)
 	return 0;
 }
 
-int vc_mod_get_status(struct i2c_client *client)
+int vc_mod_read_status(struct i2c_client *client)
 {
 	struct device *dev = &client->dev;
 	int ret;
@@ -306,7 +306,7 @@ int vc_mod_get_status(struct i2c_client *client)
 	return ret;
 }
 
-int vc_mod_set_trigger_in(struct i2c_client *client, int enable)
+int vc_mod_write_trigger_in(struct i2c_client *client, int enable)
 {
 	struct device *dev = &client->dev;
 	int ret;
@@ -320,7 +320,7 @@ int vc_mod_set_trigger_in(struct i2c_client *client, int enable)
 	return ret;
 }
 
-int vc_mod_set_flash_out(struct i2c_client *client, int enable)
+int vc_mod_write_flash_out(struct i2c_client *client, int enable)
 {
 	struct device *dev = &client->dev;
 	int ret;
@@ -346,7 +346,7 @@ int vc_mod_wait_until_module_is_ready(struct i2c_client *client)
 	try = 0;
 	while (status == REG_STATUS_NO_COM && try < 10) {
 		mdelay(100);
-		status = vc_mod_get_status(client);
+		status = vc_mod_read_status(client);
 		try++;
 	}
 	if (status == REG_STATUS_ERROR) {
@@ -426,7 +426,7 @@ int vc_core_init(struct vc_cam *cam, struct i2c_client *client)
 	return 0;
 }
 
-int vc_mod_set_exposure(struct i2c_client *client, __u32 value, __u32 sen_clk)
+int vc_mod_write_exposure(struct i2c_client *client, __u32 value, __u32 sen_clk)
 {
 	struct device *dev = &client->dev;
 	int ret;
@@ -521,6 +521,29 @@ int vc_mod_set_mode(struct vc_cam *cam)
 
 	return ret;
 }
+
+void vc_mod_set_trigger_in(struct vc_cam *cam, int enable)
+{
+	struct vc_state *state = &cam->state;
+
+	if (enable) {
+		state->flags |= FLAG_TRIGGER_IN;
+	} else {
+		state->flags &= ~FLAG_TRIGGER_IN;
+	}
+}
+
+void vc_mod_set_flash_out(struct vc_cam *cam, int enable)
+{
+	struct vc_state *state = &cam->state;
+
+	if (enable) {
+		state->flags |= FLAG_FLASH_OUT;
+	} else {
+		state->flags &= ~FLAG_FLASH_OUT;
+	}
+}
+
 
 
 // ------------------------------------------------------------------------------------------------
@@ -636,9 +659,9 @@ int vc_sen_start_stream(struct vc_cam *cam)
 	dev_dbg(dev, "%s(): Start streaming\n", __FUNCTION__);
 
 	if(ctrl->flags & MASK_IO_ENABLED) {
-		ret  = vc_mod_set_trigger_in(client_mod, 
+		ret  = vc_mod_write_trigger_in(client_mod, 
 			(state->flags & FLAG_TRIGGER_IN) ? REG_TRIGGER_IN_ENABLE : REG_TRIGGER_IN_DISABLE);
-		ret |= vc_mod_set_flash_out(client_mod, 
+		ret |= vc_mod_write_flash_out(client_mod, 
 			(state->flags & FLAG_FLASH_OUT) ? REG_FLASH_OUT_ENABLE : REG_FLASH_OUT_DISABLE);
 	}
 
@@ -659,8 +682,8 @@ int vc_sen_stop_stream(struct vc_cam *cam)
 	dev_dbg(dev, "%s(): Stop streaming\n", __FUNCTION__);
 
 	if (ctrl->flags & MASK_IO_ENABLED) {
-		ret |= vc_mod_set_trigger_in(client_mod, REG_TRIGGER_IN_DISABLE);
-		ret |= vc_mod_set_flash_out(client_mod, REG_FLASH_OUT_DISABLE);
+		ret |= vc_mod_write_trigger_in(client_mod, REG_TRIGGER_IN_DISABLE);
+		ret |= vc_mod_write_flash_out(client_mod, REG_FLASH_OUT_DISABLE);
 	}
 
 	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_standby);
@@ -685,7 +708,7 @@ int vc_sen_set_exposure_dirty(struct vc_cam *cam, int value)
 	int ret = 0;
 
 	if (state->flags & FLAG_TRIGGER_IN) {
-		return vc_mod_set_exposure(client_mod, value, ctrl->sen_clk);
+		return vc_mod_write_exposure(client_mod, value, ctrl->sen_clk);
 	}
 
 	dev_dbg(dev, "%s(): Set sensor exposure: %u us\n", __FUNCTION__, value);

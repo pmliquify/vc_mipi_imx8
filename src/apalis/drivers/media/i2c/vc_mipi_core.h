@@ -138,6 +138,8 @@ int vc_core_init(struct vc_cam *cam, struct i2c_client *client);
 // --- Functions for the VC MIPI Controller Module ----------------------------
 int vc_mod_set_power(struct vc_cam *cam, int on);
 int vc_mod_set_mode(struct vc_cam *cam);
+void vc_mod_set_trigger_in(struct vc_cam *cam, int enable);
+void vc_mod_set_flash_out(struct vc_cam *cam, int enable);
 
 // --- Functions for the VC MIPI Sensors --------------------------------------
 int vc_sen_set_roi(struct vc_cam *cam, int width, int height);
