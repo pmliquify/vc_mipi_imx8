@@ -379,7 +379,7 @@ int  main(int argc, char *argv[])
 			elapsed_time = timestamp - start_timestamp;
 			if(elapsed_time >= 1000) {
 				elapsed_sequence = sequence - start_sequence;
-				printf("Captured FPS: %.2f (%u frames in %ld ms) %d dropped - Processed FPS: %.2f (%u frames in %ld ms)\n", 
+				printf("Captured FPS: %.1f (%u frames in %ld ms) %d dropped - Processed FPS: %.1f (%u frames in %ld ms)\n", 
 					elapsed_sequence*1000.0/elapsed_time, elapsed_sequence, elapsed_time, dropped_sequence,
 					processed_sequence*1000.0/elapsed_time, processed_sequence, elapsed_time);
 				start_timestamp = 0;
