@@ -209,60 +209,67 @@ struct v4l2_ctrl_config ctrl_config_exposure = {
 	.step = 1,
 };
 
+int vc_sd_init_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, struct v4l2_ctrl_config* cfg, struct vc_control* control) 
+{
+	struct v4l2_subdev *sd = &device->sd;
+	struct i2c_client *client = device->cam.ctrl.client_sen;
+	struct device *dev = &client->dev;
+	struct v4l2_ctrl *ctrl;
+
+	if(control->enabled) {
+		cfg->min = control->min;
+		cfg->max = control->max;
+		cfg->def = control->default_val;
+		ctrl = v4l2_ctrl_new_custom(hdl, cfg, NULL);
+		if (ctrl == NULL) {
+			dev_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, cfg->name);
+			return -EIO;
+		}
+		ctrl->priv = (void*)sd;
+	}
+	return 0;
+}
+
 int vc_sd_init(struct vc_device *device)
 {
 	struct v4l2_subdev *sd = &device->sd;
 	struct i2c_client *client = device->cam.ctrl.client_sen;
 	struct device *dev = &client->dev;
-	struct v4l2_ctrl_handler *ctrl_hdl;
-	struct v4l2_ctrl *ctrl;
+	struct v4l2_ctrl_handler *hdl;
+	// struct v4l2_ctrl *ctrl;
 	int ret;
 
 	// Initializes the subdevice
 	v4l2_i2c_subdev_init(sd, client, &vc_subdev_ops);
 
 	// Initializes the ctrls
-	ctrl_hdl = devm_kzalloc(dev, sizeof(*ctrl_hdl), GFP_KERNEL);
-	ret = v4l2_ctrl_handler_init(ctrl_hdl, 2);
+	hdl = devm_kzalloc(dev, sizeof(*hdl), GFP_KERNEL);
+	ret = v4l2_ctrl_handler_init(hdl, 2);
 	if (ret) {
 		dev_err(dev, "%s(): Failed to init control handler\n", __FUNCTION__);
 		return ret;
 	}
 
-	if(device->cam.ctrl.exposure.enabled) {
-		ctrl_config_exposure.min = device->cam.ctrl.exposure.min;
-		ctrl_config_exposure.max = device->cam.ctrl.exposure.max;
-		ctrl_config_exposure.def = device->cam.ctrl.exposure.default_val;
-		ctrl = v4l2_ctrl_new_custom(ctrl_hdl, &ctrl_config_exposure, NULL);
-		if (ctrl == NULL) {
-			dev_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, ctrl_config_exposure.name);
-		}
-		ctrl->priv = (void*)sd;
-	}
+	ret = vc_sd_init_ctrl(device, hdl, &ctrl_config_exposure, &device->cam.ctrl.exposure);
+	if (ret) 
+		return ret;
 
-	if(device->cam.ctrl.gain.enabled) {
-		ctrl_config_gain.min = device->cam.ctrl.gain.min;
-		ctrl_config_gain.max = device->cam.ctrl.gain.max;
-		ctrl_config_gain.def = device->cam.ctrl.gain.default_val;
-		ctrl = v4l2_ctrl_new_custom(ctrl_hdl, &ctrl_config_gain, NULL);
-		if (ctrl == NULL) {
-			dev_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, ctrl_config_gain.name);
-		}
-		ctrl->priv = (void*)sd;
-	}
-
-	if (ctrl_hdl->error) {
-		ret = ctrl_hdl->error;
+	ret = vc_sd_init_ctrl(device, hdl, &ctrl_config_gain, &device->cam.ctrl.gain);
+	if (ret) 
+		return ret;
+	
+	if (hdl->error) {
+		ret = hdl->error;
 		dev_err(dev, "%s(): Control init failed (%d)\n", __FUNCTION__, ret);
 		goto error;
 	}
 
-	sd->ctrl_handler = ctrl_hdl;
+	sd->ctrl_handler = hdl;
 
 	return 0;
 
 error:
-	v4l2_ctrl_handler_free(ctrl_hdl);
+	v4l2_ctrl_handler_free(hdl);
 	return ret;
 }
 
@@ -303,6 +310,9 @@ static int vc_probe(struct i2c_client *client)
 	ret = vc_core_init(&device->cam, client);
 	if (ret) 
 		goto free_ctrls;
+
+	vc_mod_set_trigger_in(&device->cam, 1);
+	vc_mod_set_flash_out(&device->cam, 1);		
 
 	ret = vc_sd_init(device);
 	if (ret)
