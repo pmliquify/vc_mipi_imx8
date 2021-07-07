@@ -12,6 +12,7 @@
 
 #include <dt-bindings/clock/imx8-clock.h>
 #include <dt-bindings/gpio/gpio.h>
+#include "imx8qm.dtsi"
 
 / {
 	compatible = "toradex,apalis-imx8";

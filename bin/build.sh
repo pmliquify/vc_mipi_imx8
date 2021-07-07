@@ -54,7 +54,7 @@ if [[ $1 == "all" || $1 == "d" ]]; then
     
     # Apalis
     cpp -nostdinc -I $KERNEL_SOURCE/arch/arm64/boot/dts -I $KERNEL_SOURCE/include -undef -x assembler-with-cpp $DTO_FILE.dts $DTO_FILE.dts.preprocessed
-    dtc -@ -Hepapr -I dts -O dtb -i $KERNEL_SOURCE/arch/arm64/boot/dts/ -o $DTO_FILE.dtbo $DTO_FILE.dts.preprocessed
+    dtc -@ -Hepapr -q -I dts -O dtb -i $KERNEL_SOURCE/arch/arm64/boot/dts/ -o $DTO_FILE.dtbo $DTO_FILE.dts.preprocessed
 fi
 
 if [[ $1 == "test" ]]; then 
