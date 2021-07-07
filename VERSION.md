@@ -1,5 +1,9 @@
 # Version History
 
+## v0.2.1 (BugFix)
+  * BugFixes
+    * Added missing include of SoC dtsi in apalis-imx8_vc_mipi_overlay.dts.
+
 ## v0.2.0 (Image streaming with 4 bit left shifted image)
   * New Features
     * Image Streaming in SGBRG10-RAW format (4 bit left shifted).
