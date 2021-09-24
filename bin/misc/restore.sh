@@ -2,4 +2,4 @@
 #
 . config/configure.sh
 
-scp $BUILD_DIR/boot/* root@$TARGET_NAME:/boot/
+scp $BUILD_DIR/boot/* $TARGET_USER@$TARGET_IP:/boot/

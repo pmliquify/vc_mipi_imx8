@@ -35,11 +35,11 @@ flash_modules() {
 flash_device_tree() {
         echo "Flash device tree ..."
         # Verdin
-        #scp $BUILD_DIR/image/$DTB_FILE root@$TARGET_NAME:/boot 
+        #scp $BUILD_DIR/image/$DTB_FILE $TARGET_USER@$TARGET_IP:/boot 
         
         # Apalis
-        scp $KERNEL_SOURCE/arch/arm64/boot/dts/freescale/$DTO_FILE.dtbo root@$TARGET_NAME:/boot/overlays 
-        scp $WORKING_DIR/misc/apalis/overlays.txt root@$TARGET_NAME:/boot
+        scp $KERNEL_SOURCE/arch/arm64/boot/dts/freescale/$DTO_FILE.dtbo $TARGET_USER@$TARGET_IP:/boot/overlays 
+        scp $WORKING_DIR/misc/apalis/overlays.txt $TARGET_USER@$TARGET_IP:/boot
 }
 
 flash_test_tools() {
@@ -47,7 +47,7 @@ flash_test_tools() {
         TARGET_DIR=/home/$TARGET_USER/test
         $TARGET_SHELL rm -Rf $TARGET_DIR
         $TARGET_SHELL mkdir -p $TARGET_DIR
-        scp $WORKING_DIR/test/* $TARGET_USER@$TARGET_NAME:$TARGET_DIR
+        scp $WORKING_DIR/test/* $TARGET_USER@$TARGET_IP:$TARGET_DIR
 }
 
 reboot_target() {
