@@ -1,11 +1,5 @@
 // VC MIPI CSI-2 Camera Module
 // Based on /device-tree-overlays/overlays/apalis-imx8_ov5640_overlay.dts
-//
-// Standard DTB File in U-Boot für Apalis/Ixora
-// imx8qm-apalis-v1.1-eval.dtb
-// (Alternativ) imx8qm-apalis-v1.1-ixora-v1.1.dtb
-//
-// DOC linux-toradex/Documentation/devicetree/bindings/graph.txt
 
 /dts-v1/;
 /plugin/;
@@ -13,22 +7,24 @@
 #include <dt-bindings/clock/imx8-clock.h>
 #include <dt-bindings/gpio/gpio.h>
 
+#define VC_MIPI_LANES   2
+#if VC_MIPI_LANES == 1
+    #define DATA_LANES <1>
+    #define NUM_LANES "1" 
+#endif
+#if VC_MIPI_LANES == 2
+    #define DATA_LANES <1 2>
+    #define NUM_LANES "2" 
+#endif
+#if VC_MIPI_LANES == 4
+    #define DATA_LANES <1 2 3 4>
+    #define NUM_LANES "4" 
+#endif
+
 / {
 	compatible = "toradex,apalis-imx8";
 };
 
-// --- i.MX8 Image ----------------------------------------------------------------------
-// DOC /linux-toradex/Documentation/devicetree/bindings/media/video-interfaces.txt
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8-ss-img.dtsi
-// --------------------------------------------------------------------------------------
-
-// --- NXP Image Sensor Interface -------------------------------------------------------
-// DOC /linux-toradex/Documentation/devicetree/bindings/media/imx8-isi.txt
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8-ss-img.dtsi
-// DRV "fsl-imx8-isi" "imx-isi-capture" 
-//     /linux-toradex/drivers/staging/media/imx/imx8-isi-cap.c
-//     /linux-toradex/drivers/staging/media/imx/imx8-isi-core.c
-// --------------------------------------------------------------------------------------
 &isi_4 { 
 	status = "okay";
 
@@ -37,13 +33,6 @@
 	};
 };
 
-// --- MIPI CSI-2 -----------------------------------------------------------------------
-// DOC /linux-toradex/Documentation/devicetree/bindings/media/imx8-mipi-csi.txt
-// DOC /linux-toradex/Documentation/devicetree/bindings/media/video-interfaces.txt
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8-ss-img.dtsi
-// DRV "fsl,mxc-mipi-csi2"
-//     /linux-toradex/drivers/staging/media/imx/imx8-mipi-csi2.c
-// --------------------------------------------------------------------------------------
 &mipi_csi_1 { 
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -51,102 +40,41 @@
 	status = "okay";
 
 	/* Camera 1 MIPI CSI-2 (CSIS0) */
-	// port node
-	//---------
-	// - reg : (required) can take the values 0 which mean the port is a
-	//         sink port;
 	port@1 {
 		reg = <1>;
 
-		// /linux-toradex/Documentation/devicetree/bindings/media/imx8-mipi-csi.txt 
-		// endpoint node
-		// -------------
-		// - data-lanes : (required) an array specifying active physical MIPI-CSI2
-		//                data input lanes and their mapping to logical lanes; this
-                //                shall only be applied to port 0 (sink port), the array's
-                //                content is unused only its length is meaningful
-		// 
 		mipi_csi1_ep: endpoint {
-			bus-type = <4>; 			// 4 - MIPI CSI-2 D-PHY
-			data-lanes = <1 2>;			// log-lane 0 - phy-lane 1
-								// log-lane 1 - phy-lane 2
-								// assuming clock-lane is on phy-lane 0
+			data-lanes = DATA_LANES;
 			remote-endpoint = <&imx_mipi_1_ep>;
 		};
 	};
 };
 
-// --------------------------------------------------------------------------------------
-// DOC /linux-toradex/Documentation/devicetree/bindings/media/video-interfaces.txt
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8-apalis-eval.dtsi
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8-ss-dma.dtsi
-// DTS /linux-toradex/arch/arm64/boot/dts/freescale/imx8qm-ss-dma.dtsi (<-DRV)
-// DRV "fsl,imx8qm-lpi2c"
-// --------------------------------------------------------------------------------------
 &i2c3 { 
 	#address-cells = <1>;
 	#size-cells = <0>;
 	status = "okay";
 
-	// SoC internal blocks are described by DT nodes, placed similarly to other SoC
-	// blocks.  External devices are represented as child nodes of their respective
-	// bus controller nodes, e.g. I2C.
 	imx_mipi@1a {
-		compatible = "vc,vc_mipi";
+		compatible 	= "vc,vc_mipi";
+		reg 		= <0x1a>;
+		status 		= "okay";
 
-		reg = <0x1a>;
-		status = "okay";
-
-		clocks = <&xtal24m>;
-		clock-names = "xclk";
-		csi_id = <0>;
-		mclk = <24000000>;
-		mclk_source = <0>;
-		mipi_csi;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_gpio1>, <&pinctrl_gpio2>;
-		powerdown-gpios = <&lsio_gpio0 9 GPIO_ACTIVE_HIGH>;	/* Apalis GPIO2 */
-		reset-gpios = <&lsio_gpio0 8 GPIO_ACTIVE_LOW>;		/* Apalis GPIO1 */
+		num_lanes 	= NUM_LANES;
+		// Trigger Modes:
+		// 0: DISABLE     
+		// 1: EXTERNAL    2: PULSEWIDTH  
+		// 3: SELF        4: SINGLE      5: SYNC
+		// 6: STREAM EDGE 7: STREAM LEVEL
+		trigger_mode 	= "1";
+		flash_mode 	= "1";
+		frame_rate      = "10";
 
 		port {
 			imx_mipi_1_ep: endpoint {
-				clocks-lanes = <0>;		// clock-lane on hardware lane 0
-				data-lanes = <1 2>;		// log-lane 0 - phy-lane 1
-								// log-lane 1 - phy-lane 2
-								// assuming clock-lane is on phy-lane 0
+				clocks-lanes = <0>;
 				remote-endpoint = <&mipi_csi1_ep>;
 			};
 		};
     	};
 };
-
-/* Apalis I2C3 (CAM) */
-// &i2c3 {
-// 	#address-cells = <1>;
-// 	#size-cells = <0>;
-// 	status = "okay";
-
-// 	ov5640_mipi@3c {
-// 		compatible = "ovti,ov5640";
-// 		clocks = <&xtal24m>;
-// 		clock-names = "xclk";
-// 		csi_id = <0>;
-// 		mclk = <24000000>;
-// 		mclk_source = <0>;
-// 		mipi_csi;
-// 		pinctrl-names = "default";
-// 		pinctrl-0 = <&pinctrl_gpio1>, <&pinctrl_gpio2>;
-// 		powerdown-gpios = <&lsio_gpio0 9 GPIO_ACTIVE_HIGH>;	/* Apalis GPIO2 */
-// 		reg = <0x3c>;
-// 		reset-gpios = <&lsio_gpio0 8 GPIO_ACTIVE_LOW>;		/* Apalis GPIO1 */
-// 		status = "okay";
-
-// 		port {
-// 			imx_mipi_1_ep: endpoint {
-// 				clocks-lanes = <0>;
-// 				data-lanes = <1 2>;
-// 				remote-endpoint = <&mipi_csi1_ep>;
-// 			};
-// 		};
-// 	};
-// };
