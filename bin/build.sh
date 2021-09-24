@@ -75,7 +75,7 @@ build_device_tree() {
         #    Do not search the standard system directories for header files. Only the directories explicitly specified with -I,
         #   -iquote, -isystem, and/or -idirafter options (and the directory of the current file, if appropriate) are searched.
         # -x <language>
-        dtc -@ -I dts -O dtb -o $DTO_FILE.dtbo $DTO_FILE.dts.preprocessed
+        dtc -@ -q -I dts -O dtb -o $DTO_FILE.dtbo $DTO_FILE.dts.preprocessed
         # Usage: dtc [options] <input file>
         # -@ 
         #    Enable generation of symbols
