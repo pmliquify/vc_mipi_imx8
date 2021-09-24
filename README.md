@@ -1,15 +1,16 @@
 # Vision Components MIPI CSI-2 driver for Toradex Apalis i.MX8
 ![VC MIPI camera](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/VC_MIPI_Camera_Module_Hardware_Operating_Manual-Dateien/mipi_sensor_front_back.png)
 
-## Version 0.2.0 ([History](VERSION.md))
+## Version 0.3.0 ([History](VERSION.md))
 * Supported boards
   * Toradex Ixora Carrier Board V1.2A
 * Supported cameras 
   * VC MIPI IMX226 / VC MIPI IMX226C  
+  * VC MIPI IMX178
 * Linux kernel 
-  * Version 5.4.115
+  * Version 5.4.129
 * Features
-  * Image Streaming in SGBRG10 format (4 bit left shifted).
+  * Image Streaming in Y10 and SGBRG10 format (4 bit left shifted).
   * Exposure and Gain can be set via V4L2 library.
   * vcmipidemo supports software implementation to correct the 4 bit left shift.
 
@@ -74,15 +75,19 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
      # dmesg | grep 5-00
    ```
    ```
-     [    3.478661] i2c 5-0010: VC MIPI Module - Hardware Descriptor
-     [    3.484348] i2c 5-0010: [ MAGIC  ] [ mipi-module ]
-     [    3.489156] i2c 5-0010: [ MANUF. ] [ Vision Components ] [ MID=0x0427 ]
-     [    3.495780] i2c 5-0010: [ SENSOR ] [ SONY IMX226C ]
-     [    3.500672] i2c 5-0010: [ MODULE ] [ ID=0x0226 ] [ REV=0x0008 ]
-     [    3.506612] i2c 5-0010: [ MODES  ] [ NR=0x000c ] [ BPM=0x0010 ]
-     [    3.929809] i2c 5-0010: VC MIPI Sensor succesfully initialized.
-     [    4.749053] mx8-img-md: Registered sensor subdevice: vc-mipi-cam 5-001a (1)
-     [    4.769124] mx8-img-md: created link [vc-mipi-cam 5-001a] => [mxc-mipi-csi2.1]
+     [    3.535176] vc-mipi-cam 5-001a: vc_mod_setup(): Setup the module
+     [    3.798698] i2c 5-0010: +--- VC MIPI Camera -----------------------------------+
+     [    3.806134] i2c 5-0010: | MANUF. | Vision Components               MID: 0x0427 |
+     [    3.813562] i2c 5-0010: | MODULE | ID:  0x0178                     REV: 0x0000 |
+     [    3.820984] i2c 5-0010: | SENSOR | SONY IMX178                                 |
+     [    3.828412] i2c 5-0010: +--------+---------------------------------------------+
+     [    3.835837] i2c 5-0010: +--- Sensor Registers ------+--------+--------+--------+
+     [    3.843272] i2c 5-0010: |                           | low    | mid    | high   |
+     [    3.850694] i2c 5-0010: +---------------------------+--------+--------+--------+
+     [    3.858121] i2c 5-0010: | idle                      | 0x7000 |        |        |
+     [    3.865540] i2c 5-0010: | horizontal start          | 0x6013 | 0x6014 |        |
+     [    3.872968] i2c 5-0010: | vertical start            | 0x600e | 0x600f |        |
+     ...
    ```
 
 4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1.   

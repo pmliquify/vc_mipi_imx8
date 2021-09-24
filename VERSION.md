@@ -1,5 +1,11 @@
 # Version History
 
+## v0.3.0 (Support IMX178)
+  * New Features
+    * Linux Kernel Version 5.4.129
+    * Image Streaming in Y10-RAW format (4 bit left shifted).
+    * Camera support for IMX178
+
 ## v0.2.0 (Image streaming with 4 bit left shifted image)
   * New Features
     * Image Streaming in SGBRG10-RAW format (4 bit left shifted).
