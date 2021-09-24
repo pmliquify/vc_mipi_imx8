@@ -95,17 +95,17 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
    ```
      # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
      # ./test/vcmipidemo -afx4 -s 2000 -g 10
-     img.org (dx: 1920, dy: 1080, pitch: 3840) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
-     img.org (dx: 1920, dy: 1080, pitch: 3840) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
-     img.org (dx: 1920, dy: 1080, pitch: 3840) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
-     img.org (dx: 1920, dy: 1080, pitch: 3840) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
+     img.org (dx: 3840, dy: 3040, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
+     img.org (dx: 3840, dy: 3040, pitch: 7680) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
+     img.org (dx: 3840, dy: 3040, pitch: 7680) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
+     img.org (dx: 3840, dy: 3040, pitch: 7680) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
      ...
    ```
 
 5. The image information output shows the first 20 byte of the image raw data. In your application you have to correct the 4 bit shift while debayering raw image data.
    ```
                                                 G    B    G    B    ...
-    img.org (dx: 1920, dy: 1080, pitch: 3840) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022
+    img.org (dx: 3840, dy: 3040, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022
                                                   ^    ^    ^    ^  ...
                                                   This are the MSBs (most significant bits)
                                                   A color component is represented as little endian
