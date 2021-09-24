@@ -5,6 +5,7 @@
     * Linux Kernel Version 5.4.129
     * Image Streaming in Y10-RAW format (4 bit left shifted)
     * Camera support for IMX178
+    * Support for EXTERNAL trigger mode
 
 ## v0.2.1 (BugFix)
   * BugFixes

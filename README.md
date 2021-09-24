@@ -10,9 +10,10 @@
 * Linux kernel 
   * Version 5.4.129
 * Features
-  * Image Streaming in Y10 and SGBRG10 format (4 bit left shifted).
-  * Exposure and Gain can be set via V4L2 library.
-  * vcmipidemo supports software implementation to correct the 4 bit left shift.
+  * Image Streaming in Y10 and SGBRG10 format (4 bit left shifted)
+  * Exposure and Gain can be set via V4L2 library
+  * Support for EXTERNAL trigger mode
+  * vcmipidemo supports software implementation to correct the 4 bit left shift
 
 ## Prerequisites for cross-compiling
 ### Host PC
@@ -32,17 +33,17 @@ When we use the **$** sign it is meant that the command is executed on the host 
 2. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* or *device-tree-compiler*.
    ```
      $ cd vc_mipi_toradex/bin
-     $ ./setup.sh host
+     $ ./setup.sh --host
    ```
 
 3. Build (all) the kernel image, kernel modules and device tree files.
    ```
-     $ ./build.sh all
+     $ ./build.sh --all
    ```
 
 4. Create a new Toradex Easy Installer Image. Insert a USB stick (FAT formated) with minimum 1GB capacity. The script will download the reference image from toradex patch it with the build kernel and device tree files from step 3 and copy the image to the usb stick.
    ```
-     $ ./misc/create_tezi.sh c /media/<username>/<usb-stick-name>
+     $ ./create_tezi.sh -m /media/<username>/<usb-stick-name>
    ```
 
 5. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
@@ -55,7 +56,7 @@ We provide a script to easily flash an image. It will download the tools from to
 
 7. After boot up, install the kernel modules we have build in step 3.
    ```
-     $ ./flash.sh m
+     $ ./flash.sh --modules
    ```
 
 # Testing the camera
@@ -63,8 +64,8 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
 
 1. First install the test tools to the target.
    ```
-     $ ./build.sh test
-     $ ./setup.sh test
+     $ ./build.sh --test
+     $ ./flash.sh --test
    ```
 
 2. On the target switch to a console terminal by pressing Ctrl+Alt+F1
@@ -93,16 +94,18 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
 4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1.   
    **Please note the option -afx4 to suppress ASCII output, output the image to the framebuffer, output image informations and apply the 4 bit shift correction**
    ```
-     # v4l2-ctl --set-fmt-video=pixelformat=GB10,width=3840,height=3040
-     # ./test/vcmipidemo -afx4 -s 2000 -g 10
-     img.org (dx: 3840, dy: 3040, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
-     img.org (dx: 3840, dy: 3040, pitch: 7680) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
-     img.org (dx: 3840, dy: 3040, pitch: 7680) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
-     img.org (dx: 3840, dy: 3040, pitch: 7680) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
+     # v4l2-ctl --set-fmt-video=pixelformat='Y10 ',width=1920,height=1080
+     # ./test/vcmipidemo -afx4 -s 5000 -g 0
+     img.org (dx: 1920, dy: 1080, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
+     img.org (dx: 1920, dy: 1080, pitch: 7680) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
+     img.org (dx: 1920, dy: 1080, pitch: 7680) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
+     img.org (dx: 1920, dy: 1080, pitch: 7680) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
      ...
    ```
 
-5. The image information output shows the first 20 byte of the image raw data. In your application you have to correct the 4 bit shift while debayering raw image data.
+5. The image information output shows the first 20 byte of the image raw data. 
+   * If you are using a monochrome camera you have to correct the 4 bit shift before further processing.
+   * If you are using a color format camera you have to correct the 4 bit shift while debayering raw image data.
    ```
                                                 G    B    G    B    ...
     img.org (dx: 3840, dy: 3040, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022
