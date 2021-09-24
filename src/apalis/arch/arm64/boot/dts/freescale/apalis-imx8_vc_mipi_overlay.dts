@@ -66,8 +66,8 @@
 		// 1: EXTERNAL    2: PULSEWIDTH  
 		// 3: SELF        4: SINGLE      5: SYNC
 		// 6: STREAM EDGE 7: STREAM LEVEL
-		trigger_mode 	= "1";
-		flash_mode 	= "1";
+		trigger_mode 	= "0";
+		flash_mode 	= "0";
 		frame_rate      = "10";
 
 		port {
