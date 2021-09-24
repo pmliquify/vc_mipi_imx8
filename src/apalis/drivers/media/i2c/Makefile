@@ -110,9 +110,7 @@ obj-$(CONFIG_VIDEO_ML86V7667)	+= ml86v7667.o
 obj-$(CONFIG_VIDEO_OV2659)	+= ov2659.o
 obj-$(CONFIG_VIDEO_TC358743)	+= tc358743.o
 
-obj-$(CONFIG_VIDEO_VC_MIPI) 	+= vc_mipi_camera.o
-obj-$(CONFIG_VIDEO_VC_MIPI) 	+= vc_mipi_core.o
-obj-$(CONFIG_VIDEO_VC_MIPI) 	+= vc_mipi_modules.o
+obj-$(CONFIG_VIDEO_VC_MIPI) 	+= vc_mipi_camera.o vc_mipi_core.o vc_mipi_modules.o
 
 obj-$(CONFIG_VIDEO_IMX214)	+= imx214.o
 obj-$(CONFIG_VIDEO_IMX258)	+= imx258.o
