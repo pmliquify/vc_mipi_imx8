@@ -42,24 +42,24 @@ static inline struct vc_cam *to_vc_cam(struct v4l2_subdev *sd)
 
 // --- v4l2_subdev_core_ops ---------------------------------------------------
 
-int vc_sd_s_power(struct v4l2_subdev *sd, int on)
+static int vc_sd_s_power(struct v4l2_subdev *sd, int on)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
 	return vc_mod_set_power(cam, on);
 }
 
-int vc_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
+static int vc_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 {
 	struct device *dev = sd->dev;
 	struct v4l2_ctrl *ctrl = v4l2_ctrl_find(sd->ctrl_handler, control->id);
 	if (ctrl == NULL)
 		return -EINVAL;
 
-	dev_dbg(dev, "%s(): Get control '%s' value %d\n", __FUNCTION__, ctrl->name, control->value);
+	vc_dbg(dev, "%s(): Get control '%s' value %d\n", __FUNCTION__, ctrl->name, ctrl->val);
 	return v4l2_g_ctrl(sd->ctrl_handler, control);
 }
 
-__s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
+static __s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
 {
 	struct v4l2_control control;
 	control.id = id;
@@ -68,7 +68,7 @@ __s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
 	return control.value;
 }
 
-int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
+static int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
 	struct device *dev = sd->dev;
@@ -76,56 +76,57 @@ int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 
 	ctrl = v4l2_ctrl_find(sd->ctrl_handler, control->id);
 	if (ctrl == NULL) {
-		dev_err(dev, "%s(): Control with id: 0x%08x not defined!\n", __FUNCTION__, control->id);
+		vc_err(dev, "%s(): Control with id: 0x%08x not defined!\n", __FUNCTION__, control->id);
 		return -EINVAL;
 	}
 
 	if (control->value < ctrl->minimum || control->value > ctrl->maximum) {
-		dev_err(dev, "%s(): Control '%s' with value: %d exceeds allowed range (%lld - %lld)\n", __FUNCTION__,
+		vc_err(dev, "%s(): Control '%s' with value: %d exceeds allowed range (%lld - %lld)\n", __FUNCTION__,
 			ctrl->name, control->value, ctrl->minimum, ctrl->maximum);
 		return -EINVAL;
 	}
 
-	dev_dbg(dev, "%s(): Set control '%s' to value %d\n", __FUNCTION__, ctrl->name, control->value);
+	vc_dbg(dev, "%s(): Set control '%s' to value %d\n", __FUNCTION__, ctrl->name, control->value);
 
 	// Store value in ctrl to get and restore ctrls later and after power off.
 	v4l2_ctrl_s_ctrl(ctrl, control->value);
 
 	switch (ctrl->id) {
 	case V4L2_CID_EXPOSURE:
-		return vc_sen_set_exposure_dirty(cam, control->value);
+		return vc_sen_set_exposure(cam, control->value);
 
 	case V4L2_CID_GAIN:
 		return vc_sen_set_gain(cam, control->value);
 	}
 
-	dev_warn(dev, "%s(): Control with id: 0x%08x is not handled\n", __FUNCTION__, ctrl->id);
+	vc_warn(dev, "%s(): Control with id: 0x%08x is not handled\n", __FUNCTION__, ctrl->id);
 	return -EINVAL;
 }
 
 
 // --- v4l2_subdev_video_ops ---------------------------------------------------
 
-int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
+static int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
-	struct vc_ctrl *ctrl = &cam->ctrl;
+	// struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 	struct device *dev = sd->dev;
+	struct vc_size *framesize = vc_core_get_frame(cam);
 	int ret = 0;
 
-	dev_dbg(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable ? "on" : "off");
+	vc_dbg(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable ? "on" : "off");
 
 	if (enable) {
 		if (state->streaming == 1) {
-			dev_warn(dev, "%s(): Sensor is already streaming!\n", __FUNCTION__);
+			vc_warn(dev, "%s(): Sensor is already streaming!\n", __FUNCTION__);
 			ret = vc_sen_stop_stream(cam);
 		}
 
 		ret  = vc_mod_set_mode(cam);
-		ret |= vc_sen_set_exposure_dirty(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
+		ret |= vc_sen_set_exposure(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
 		ret |= vc_sen_set_gain(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
-		ret |= vc_sen_set_roi(cam, ctrl->o_frame.width, ctrl->o_frame.height);
+		ret |= vc_sen_set_roi(cam, framesize->width, framesize->height);
 
 		ret |= vc_sen_start_stream(cam);
 		if (ret == 0)
@@ -142,22 +143,21 @@ int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 
 // --- v4l2_subdev_pad_ops ---------------------------------------------------
 
-int vc_sd_get_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format)
+static int vc_sd_get_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
-	struct vc_frame* frame;
+	struct vc_size* framesize = vc_core_get_frame(cam);
 
 	mf->code = vc_core_get_format(cam);
-	frame = vc_core_get_frame(cam);
-	mf->width = frame->width;
-	mf->height = frame->height;
+	mf->width = framesize->width;
+	mf->height = framesize->height;
 	// mf->reserved[1] = 30;
 
 	return 0;
 }
 
-int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format)
+static int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, struct v4l2_subdev_format *format)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
@@ -172,28 +172,28 @@ int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *cfg, st
 
 // *** Initialisation *********************************************************
 
-const struct v4l2_subdev_core_ops vc_core_ops = {
+static const struct v4l2_subdev_core_ops vc_core_ops = {
 	.s_power = vc_sd_s_power,
 	.g_ctrl = vc_sd_g_ctrl,
 	.s_ctrl = vc_sd_s_ctrl,
 };
 
-const struct v4l2_subdev_video_ops vc_video_ops = {
+static const struct v4l2_subdev_video_ops vc_video_ops = {
 	.s_stream = vc_sd_s_stream,
 };
 
-const struct v4l2_subdev_pad_ops vc_pad_ops = {
+static const struct v4l2_subdev_pad_ops vc_pad_ops = {
 	.get_fmt = vc_sd_get_fmt,
 	.set_fmt = vc_sd_set_fmt,
 };
 
-const struct v4l2_subdev_ops vc_subdev_ops = {
+static const struct v4l2_subdev_ops vc_subdev_ops = {
 	.core = &vc_core_ops,
 	.video = &vc_video_ops,
 	.pad = &vc_pad_ops,
 };
 
-struct v4l2_ctrl_config ctrl_config_gain = {
+static struct v4l2_ctrl_config ctrl_config_gain = {
 	.id = V4L2_CID_GAIN,
 	.name = "Gain",
 	.type = V4L2_CTRL_TYPE_INTEGER,
@@ -201,7 +201,7 @@ struct v4l2_ctrl_config ctrl_config_gain = {
 	.step = 1,
 };
 
-struct v4l2_ctrl_config ctrl_config_exposure = {
+static struct v4l2_ctrl_config ctrl_config_exposure = {
 	.id = V4L2_CID_EXPOSURE,
 	.name = "Exposure", 
 	.type = V4L2_CTRL_TYPE_INTEGER,
@@ -209,28 +209,84 @@ struct v4l2_ctrl_config ctrl_config_exposure = {
 	.step = 1,
 };
 
-int vc_sd_init_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, struct v4l2_ctrl_config* cfg, struct vc_control* control) 
+static int vc_sd_init_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, struct v4l2_ctrl_config* cfg, struct vc_control* control) 
 {
 	struct v4l2_subdev *sd = &device->sd;
 	struct i2c_client *client = device->cam.ctrl.client_sen;
 	struct device *dev = &client->dev;
 	struct v4l2_ctrl *ctrl;
 
-	if(control->enabled) {
-		cfg->min = control->min;
-		cfg->max = control->max;
-		cfg->def = control->default_val;
-		ctrl = v4l2_ctrl_new_custom(hdl, cfg, NULL);
-		if (ctrl == NULL) {
-			dev_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, cfg->name);
-			return -EIO;
-		}
-		ctrl->priv = (void*)sd;
+	cfg->min = control->min;
+	cfg->max = control->max;
+	cfg->def = control->def;
+	ctrl = v4l2_ctrl_new_custom(hdl, cfg, NULL);
+	if (ctrl == NULL) {
+		vc_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, cfg->name);
+		return -EIO;
 	}
+	ctrl->priv = (void*)sd;
+	
 	return 0;
 }
 
-int vc_sd_init(struct vc_device *device)
+static int read_property_u32(struct device_node *node, const char *name, int radix, __u32 *value)
+{
+	const char *str;
+	int ret = 0;
+
+    	ret = of_property_read_string(node, name, &str);
+    	if (ret)
+        	return -ENODATA;
+
+	ret = kstrtou32(str, radix, value);
+	if (ret)
+		return -EFAULT;
+
+    	return 0;
+}
+
+static int vc_sd_parse_dt(struct vc_device *device)
+{
+	struct vc_cam *cam = &device->cam;
+	struct device *dev = vc_core_get_sen_device(cam);
+	struct device_node *node = dev->of_node;
+	int value = 0;
+	int ret = 0;
+
+	if (node != NULL) {
+		ret = read_property_u32(node, "num_lanes", 10, &value);
+		if (ret) {
+			vc_err(dev, "%s(): Unable to read num_lanes from device tree!\n", __FUNCTION__);
+		} else {
+			vc_core_set_num_lanes(cam, value);
+		}
+
+		ret = read_property_u32(node, "trigger_mode", 10, &value);
+		if (ret) {
+			vc_err(dev, "%s(): Unable to read trigger_mode from device tree!\n", __FUNCTION__);
+		} else {
+			vc_mod_set_trigger_mode(cam, value);
+		}
+
+		ret = read_property_u32(node, "flash_mode", 10, &value);
+		if (ret) {
+			vc_err(dev, "%s(): Unable to read flash_mode from device tree!\n", __FUNCTION__);
+		} else {
+			vc_mod_set_io_mode(cam, value);
+		}
+
+		ret = read_property_u32(node, "frame_rate", 10, &value);
+		if (ret) {
+			vc_err(dev, "%s(): Unable to read frame_rate from device tree!\n", __FUNCTION__);
+		} else {
+			vc_core_set_framerate(cam, value);
+		}
+	}
+
+	return 0;
+}
+
+static int vc_sd_init(struct vc_device *device)
 {
 	struct v4l2_subdev *sd = &device->sd;
 	struct i2c_client *client = device->cam.ctrl.client_sen;
@@ -246,7 +302,7 @@ int vc_sd_init(struct vc_device *device)
 	hdl = devm_kzalloc(dev, sizeof(*hdl), GFP_KERNEL);
 	ret = v4l2_ctrl_handler_init(hdl, 2);
 	if (ret) {
-		dev_err(dev, "%s(): Failed to init control handler\n", __FUNCTION__);
+		vc_err(dev, "%s(): Failed to init control handler\n", __FUNCTION__);
 		return ret;
 	}
 
@@ -260,7 +316,7 @@ int vc_sd_init(struct vc_device *device)
 	
 	if (hdl->error) {
 		ret = hdl->error;
-		dev_err(dev, "%s(): Control init failed (%d)\n", __FUNCTION__, ret);
+		vc_err(dev, "%s(): Control init failed (%d)\n", __FUNCTION__, ret);
 		goto error;
 	}
 
@@ -288,31 +344,34 @@ static int vc_probe(struct i2c_client *client)
 	struct device *dev = &client->dev;
 	struct fwnode_handle *endpoint;
 	struct vc_device *device;
+	struct vc_cam *cam;
 	int ret;
 
 	device = devm_kzalloc(dev, sizeof(*device), GFP_KERNEL);
 	if (!device)
 		return -ENOMEM;
+	cam = &device->cam;
 
 	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(dev), NULL);
 	if (!endpoint) {
-		dev_err(dev, "%s(): Endpoint node not found\n", __FUNCTION__);
+		vc_err(dev, "%s(): Endpoint node not found\n", __FUNCTION__);
 		return -EINVAL;
 	}
 
 	ret = v4l2_fwnode_endpoint_parse(endpoint, &device->ep);
 	fwnode_handle_put(endpoint);
 	if (ret) {
-		dev_err(dev, "%s(): Could not parse endpoint\n", __FUNCTION__);
+		vc_err(dev, "%s(): Could not parse endpoint\n", __FUNCTION__);
 		return ret;
 	}
 
-	ret = vc_core_init(&device->cam, client);
-	if (ret) 
+	ret  = vc_core_init(cam, client);
+	if (ret)
 		goto free_ctrls;
 
-	vc_mod_set_trigger_in(&device->cam, 1);
-	vc_mod_set_flash_out(&device->cam, 1);		
+	ret = vc_sd_parse_dt(device);
+	if (ret)
+		goto free_ctrls;
 
 	ret = vc_sd_init(device);
 	if (ret)
