@@ -4,8 +4,7 @@
 WORKING_DIR=$(dirname $PWD)
 BIN_DIR=$WORKING_DIR/bin
 
-#. $BIN_DIR/config/config_verdin.sh
-. $BIN_DIR/config/config_apalis.sh
+. $BIN_DIR/config/config_apalis_iMX8.sh
 
 BUILD_DIR=$WORKING_DIR/build/$SOM
 PATCH_DIR=$WORKING_DIR/patch/$SOM

@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/src/apalis_iMX8/drivers/media/i2c/**",
                 "${workspaceFolder}/build/apalis/linux-toradex/include/**",
                 "${workspaceFolder}/build/apalis/linux-toradex/arch/arm64/include/generated/**"
             ],

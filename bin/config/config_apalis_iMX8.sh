@@ -1,13 +1,10 @@
 #/bin/bash
-#
 
 BOARD=ixora
-SOM=apalis
+SOM=apalis_iMX8
 
 TARGET_IP=apalis-imx8
 TARGET_USER=root
-
-#DTB_FILE=imx8qm-apalis-v1.1-eval.dtb
 DTO_FILE=apalis-imx8_vc_mipi_overlay
 
 TEZI_RECOVER_URL=https://artifacts.toradex.com/artifactory/tezi-oe-prod-frankfurt/thud/release/4/apalis-imx8/tezi/tezi-run/oedeploy
