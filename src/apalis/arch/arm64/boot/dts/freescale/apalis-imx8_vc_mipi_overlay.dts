@@ -68,7 +68,8 @@
 		// 6: STREAM EDGE 7: STREAM LEVEL
 		trigger_mode 	= "0";
 		flash_mode 	= "0";
-		frame_rate      = "10";
+		// Set frame rate to 0 to get maximal frame rate
+		frame_rate      = "0";
 
 		port {
 			imx_mipi_1_ep: endpoint {
