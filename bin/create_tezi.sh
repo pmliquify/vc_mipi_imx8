@@ -111,5 +111,5 @@ done
 
 configure
 setup_tezi
-# patch_tezi
+patch_tezi
 copy_tezi
