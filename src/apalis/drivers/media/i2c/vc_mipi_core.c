@@ -32,7 +32,6 @@
 
 #define REG_IO_DISABLE     	 0x00
 #define REG_IO_FLASH_ENABLE      0x01
-#define REG_IO_XTRIG_ENABLE    	 0x09
 
 #define REG_TRIGGER_DISABLE      0x00
 #define REG_TRIGGER_EXTERNAL     0x01
@@ -40,8 +39,8 @@
 #define REG_TRIGGER_SELF         0x04
 #define REG_TRIGGER_SINGLE       0x08
 #define REG_TRIGGER_SYNC         0x10
-#define REG_TRIGGER_STREAM_EDGE  0x21
-#define REG_TRIGGER_STREAM_LEVEL 0x61
+#define REG_TRIGGER_STREAM_EDGE  0x20
+#define REG_TRIGGER_STREAM_LEVEL 0x60
 
 
 // ------------------------------------------------------------------------------------------------
@@ -49,8 +48,8 @@
 
 #define U_BYTE(value) (__u8)((value >> 24) & 0xff)
 #define H_BYTE(value) (__u8)((value >> 16) & 0xff)
-#define M_BYTE(value) (__u8)((value >> 8) & 0xff)
-#define L_BYTE(value) (__u8)(value & 0xff)
+#define M_BYTE(value) (__u8)((value >>  8) & 0xff)
+#define L_BYTE(value) (__u8)((value >>  0) & 0xff)
 
 static __u8 i2c_read_reg(struct i2c_client *client, const __u16 addr)
 {
@@ -97,7 +96,6 @@ static int i2c_write_reg(struct device *dev, struct i2c_client *client, const __
 	tx[1] = addr & 0xff;
 	tx[2] = value;
 	ret = i2c_transfer(adap, &msg, 1);
-	mdelay(2);
 
 	return ret == 1 ? 0 : -EIO;
 }
@@ -186,7 +184,7 @@ static void vc_core_print_desc(struct device *dev, struct vc_desc *desc)
 
 	vc_notice(dev, "+--- VC MIPI Camera -----------------------------------+\n");
 	vc_notice(dev, "| MANUF. | %s               MID: 0x%04x |\n", desc->manuf, desc->manuf_id);
-	vc_notice(dev, "| MODULE | ID:  0x%04x                     REV: 0x%04x |\n", desc->mod_id, desc->mod_rev);
+	vc_notice(dev, "| MODULE | ID:  0x%04x                     REV:   %04u |\n", desc->mod_id, desc->mod_rev);
 	vc_notice(dev, "| SENSOR | %s %s%s                                |\n", desc->sen_manuf, desc->sen_type, is_color ? "" : " ");
 	vc_notice(dev, "+--------+---------------------------------------------+\n");
 }
@@ -226,10 +224,10 @@ static void vc_core_print_modes(struct device *dev, struct vc_desc *desc)
 		mode = &desc->modes[index];
 		data_rate = (*(__u32*)mode->data_rate)/1000000;
 		switch (mode->format) {
-		case 0x2a: strcpy(format, "RAW08"); break;
-		case 0x2b: strcpy(format, "RAW10"); break;
-		case 0x2c: strcpy(format, "RAW12"); break;
-		case 0x2d: strcpy(format, "RAW14"); break;
+		case FORMAT_RAW08: strcpy(format, "RAW08"); break;
+		case FORMAT_RAW10: strcpy(format, "RAW10"); break;
+		case FORMAT_RAW12: strcpy(format, "RAW12"); break;
+		case FORMAT_RAW14: strcpy(format, "RAW14"); break;
 		default: sprintf(format, "0x%02x ", mode->format); break;
 		}
 		switch (mode->type) {
@@ -267,6 +265,10 @@ static int vc_core_get_v4l2_fmt(__u32 code, char *buf)
 	case MEDIA_BUS_FMT_SRGGB10_1X10: sprintf(buf, "RG10"); break;
 	case MEDIA_BUS_FMT_SRGGB12_1X12: sprintf(buf, "RG12"); break;
 	case MEDIA_BUS_FMT_SRGGB14_1X14: sprintf(buf, "RG14"); break;
+	case MEDIA_BUS_FMT_SGBRG8_1X8:   sprintf(buf, "GBRG"); break;
+	case MEDIA_BUS_FMT_SGBRG10_1X10: sprintf(buf, "GB10"); break;
+	case MEDIA_BUS_FMT_SGBRG12_1X12: sprintf(buf, "GB12"); break;
+	case MEDIA_BUS_FMT_SGBRG14_1X14: sprintf(buf, "GB14"); break;
 	default: return -EINVAL;
 	}
 	return 0;
@@ -277,36 +279,47 @@ static __u8 vc_core_v4l2_code_to_format(__u32 code)
 	switch (code) {
 	case MEDIA_BUS_FMT_Y8_1X8:
 	case MEDIA_BUS_FMT_SRGGB8_1X8:
-		return 0x2a;
+	case MEDIA_BUS_FMT_SGBRG8_1X8:
+		return FORMAT_RAW08;
 	case MEDIA_BUS_FMT_Y10_1X10:
 	case MEDIA_BUS_FMT_SRGGB10_1X10:
-		return 0x2b;
+	case MEDIA_BUS_FMT_SGBRG10_1X10:
+		return FORMAT_RAW10;
 	case MEDIA_BUS_FMT_Y12_1X12:
 	case MEDIA_BUS_FMT_SRGGB12_1X12:
-		return 0x2c;
+	case MEDIA_BUS_FMT_SGBRG12_1X12:
+		return FORMAT_RAW12;
 	case MEDIA_BUS_FMT_Y14_1X14:
 	case MEDIA_BUS_FMT_SRGGB14_1X14:
-		return 0x2d;
+	case MEDIA_BUS_FMT_SGBRG14_1X14:
+		return FORMAT_RAW14;
 	}
 	return 0;
 }
 
-static __u32 vc_core_format_to_v4l2_code(__u8 format, int is_color)
+static __u32 vc_core_format_to_v4l2_code(__u8 format, int is_color, int is_gbrg)
 {
 	switch (format) {
-	case 0x2a: return is_color ? MEDIA_BUS_FMT_SRGGB8_1X8   : MEDIA_BUS_FMT_Y8_1X8;
-	case 0x2b: return is_color ? MEDIA_BUS_FMT_SRGGB10_1X10 : MEDIA_BUS_FMT_Y10_1X10;
-	case 0x2c: return is_color ? MEDIA_BUS_FMT_SRGGB12_1X12 : MEDIA_BUS_FMT_Y12_1X12;
-	case 0x2d: return is_color ? MEDIA_BUS_FMT_SRGGB14_1X14 : MEDIA_BUS_FMT_Y14_1X14;
+	case FORMAT_RAW08: 
+		return is_color ? (is_gbrg ? MEDIA_BUS_FMT_SGBRG8_1X8 : MEDIA_BUS_FMT_SRGGB8_1X8) : MEDIA_BUS_FMT_Y8_1X8;
+	case FORMAT_RAW10: 
+		return is_color ? (is_gbrg ? MEDIA_BUS_FMT_SGBRG10_1X10 : MEDIA_BUS_FMT_SRGGB10_1X10) : MEDIA_BUS_FMT_Y10_1X10;
+	case FORMAT_RAW12: 
+		return is_color ? (is_gbrg ? MEDIA_BUS_FMT_SGBRG12_1X12 : MEDIA_BUS_FMT_SRGGB12_1X12) : MEDIA_BUS_FMT_Y12_1X12;
+	case FORMAT_RAW14: 
+		return is_color ? (is_gbrg ? MEDIA_BUS_FMT_SGBRG14_1X14 : MEDIA_BUS_FMT_SRGGB14_1X14) : MEDIA_BUS_FMT_Y14_1X14;
 	}
 	return 0;
 }
 
-static __u32 vc_core_get_default_format(struct vc_desc *desc)
+static __u32 vc_core_get_default_format(struct vc_cam *cam)
 {
+	struct vc_desc *desc = &cam->desc;
+	struct vc_ctrl *ctrl = &cam->ctrl;
 	__u8 format = desc->modes[0].format;
 	int is_color = vc_mod_is_color_sensor(desc);
-	return vc_core_format_to_v4l2_code(format, is_color);
+	int is_bgrg = ctrl->flags & FLAG_FORMAT_GBRG;
+	return vc_core_format_to_v4l2_code(format, is_color, is_bgrg);
 }
 
 int vc_core_try_format(struct vc_cam *cam, __u32 code)
@@ -333,16 +346,15 @@ int vc_core_try_format(struct vc_cam *cam, __u32 code)
 
 int vc_core_set_format(struct vc_cam *cam, __u32 code)
 {
-	struct vc_desc *desc = &cam->desc;
 	struct vc_state *state = &cam->state;
 	struct device *dev = vc_core_get_sen_device(cam);
 	char fourcc[5];
 
 	vc_core_get_v4l2_fmt(code, fourcc);
-	vc_info(dev, "%s(): Set format: 0x%04x (%s)\n", __FUNCTION__, code, fourcc);
+	vc_notice(dev, "%s(): Set format 0x%04x (%s)\n", __FUNCTION__, code, fourcc);
 
 	if (vc_core_try_format(cam, code)) {
-		state->format_code = vc_core_get_default_format(desc);
+		state->format_code = vc_core_get_default_format(cam);
 		vc_err(dev, "%s(): Format 0x%04x not supported! (Set default format: 0x%04x)\n", __FUNCTION__, code, state->format_code);
 	 	return -EINVAL;
 	}
@@ -360,45 +372,58 @@ __u32 vc_core_get_format(struct vc_cam *cam)
 	char fourcc[5];
 
 	vc_core_get_v4l2_fmt(code, fourcc);
-	vc_info(dev, "%s(): Get format: 0x%04x (%s)\n", __FUNCTION__, code, fourcc);
+	vc_info(dev, "%s(): Get format 0x%04x (%s)\n", __FUNCTION__, code, fourcc);
 
 	return code;
 }
 
-int vc_core_set_frame(struct vc_cam *cam, __u32 width, __u32 height)
+int vc_core_set_frame(struct vc_cam *cam, __u32 x, __u32 y, __u32 width, __u32 height)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
-	struct vc_size *frame = &state->framesize;
+	struct vc_frame *frame = &state->frame;
 	struct device *dev = vc_core_get_sen_device(cam);
 
-	vc_info(dev, "%s(): Set frame: (width: %u, height: %u)\n", __FUNCTION__, width, height);
+	vc_notice(dev, "%s(): Set frame (x: %u, y: %u, width: %u, height: %u)\n", __FUNCTION__, x, y, width, height);
 
-	if (width > ctrl->framesize.width) {
-		frame->width = ctrl->framesize.width;
-	} else if (width < 0) {
-		frame->width = 0;
+	if (width > ctrl->frame.width) {
+		frame->width = ctrl->frame.width;
 	} else {
 		frame->width = width;
 	}
 
-	if (height > ctrl->framesize.height) {
-		frame->height = ctrl->framesize.height;
-	} else if (height < 0) {
-		frame->height = 0;
+	if (x > ctrl->frame.width - frame->width) {
+		frame->x = ctrl->frame.width - frame->width;
+	} else {
+		frame->x = x;
+	}
+
+	if (height > ctrl->frame.height) {
+		frame->height = ctrl->frame.height;
 	} else {
 		frame->height = height;
+	}
+
+	if (y > ctrl->frame.height - frame->height) {
+		frame->y = ctrl->frame.height - frame->height;
+	} else {
+		frame->y = y;
+	}
+
+	if (frame->x != x || frame->y != y || frame->width != width || frame->height != height) {
+		vc_warn(dev, "%s(): Adjusted frame (x: %u, y: %u, width: %u, height: %u)\n", __FUNCTION__, 
+		frame->x, frame->y, frame->width, frame->height);
 	}
 
 	return 0;
 }
 
-struct vc_size *vc_core_get_frame(struct vc_cam *cam)
+struct vc_frame *vc_core_get_frame(struct vc_cam *cam)
 {
-	struct vc_size* frame = &cam->state.framesize;
+	struct vc_frame* frame = &cam->state.frame;
 	struct device *dev = vc_core_get_sen_device(cam);
 
-	vc_info(dev, "%s(): Get frame: (width: %u, height: %u)\n", __FUNCTION__, frame->width, frame->height);
+	vc_info(dev, "%s(): Get frame (width: %u, height: %u)\n", __FUNCTION__, frame->width, frame->height);
 
 	return frame;
 }
@@ -413,7 +438,7 @@ int vc_core_set_num_lanes(struct vc_cam *cam, __u32 number)
 	for (index = 0; index < desc->num_modes; index++) {
 		struct vc_desc_mode *mode = &desc->modes[index];
 		if (mode->num_lanes == number) {
-			vc_info(dev, "%s(): Set number of lanes: %u\n", __FUNCTION__, number);
+			vc_info(dev, "%s(): Set number of lanes %u\n", __FUNCTION__, number);
 			state->num_lanes = number;
 			return 0;
 		}
@@ -438,7 +463,7 @@ int vc_core_set_framerate(struct vc_cam *cam, __u32 framerate)
 	struct vc_state *state = &cam->state;
 	struct device *dev = vc_core_get_sen_device(cam);
 
-	vc_info(dev, "%s(): Set framerate: %u Hz\n", __FUNCTION__, framerate);
+	vc_notice(dev, "%s(): Set framerate %u Hz\n", __FUNCTION__, framerate);
 
 	if (framerate < ctrl->framerate.min) {
 		framerate = ctrl->framerate.min;
@@ -456,7 +481,7 @@ __u32 vc_core_get_framerate(struct vc_cam *cam)
 	struct vc_state *state = &cam->state;
 	struct device *dev = vc_core_get_sen_device(cam);
 
-	vc_info(dev, "%s(): Get framerate: %u Hz\n", __FUNCTION__, state->framerate);
+	vc_info(dev, "%s(): Get framerate %u Hz\n", __FUNCTION__, state->framerate);
 	return state->framerate;
 }
 
@@ -564,7 +589,7 @@ static int vc_mod_wait_until_module_is_ready(struct i2c_client *client)
 	status = REG_STATUS_NO_COM;
 	try = 0;
 	while (status == REG_STATUS_NO_COM && try < 10) {
-		mdelay(100);
+		usleep_range(200000, 200000);
 		status = vc_mod_read_status(client);
 		try++;
 	}
@@ -627,26 +652,28 @@ static int vc_mod_setup(struct vc_ctrl *ctrl, int mod_i2c_addr, struct vc_desc *
 
 static void vc_core_state_init(struct vc_cam *cam)
 {
-	struct vc_desc *desc = &cam->desc;
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 
-	state->mode = 0;
+	state->mode = 0xff;
 	state->exposure = ctrl->exposure.def;
 	state->gain = ctrl->gain.def;
+	state->blacklevel = ctrl->blacklevel.def;
 	state->shs = 0;
 	state->vmax = 0;
 	state->exposure_cnt = 0;
 	state->retrigger_cnt = 0;
 	state->framerate = ctrl->framerate.def;
-	state->format_code = vc_core_get_default_format(desc);
-	state->framesize.width = ctrl->framesize.width;
-	state->framesize.height = ctrl->framesize.height;	
+	state->format_code = vc_core_get_default_format(cam);
+	state->frame.x = 0;
+	state->frame.y = 0;
+	state->frame.width = ctrl->frame.width;
+	state->frame.height = ctrl->frame.height;	
 	state->streaming = 0;
 	state->flags = 0x00;
 }
 
-static int vc_sen_read_image_size(struct vc_ctrl *ctrl, struct vc_size *size);
+static int vc_sen_read_image_size(struct vc_ctrl *ctrl, struct vc_frame *size);
 
 int vc_core_init(struct vc_cam *cam, struct i2c_client *client) 
 {
@@ -663,7 +690,9 @@ int vc_core_init(struct vc_cam *cam, struct i2c_client *client)
 	if (ret) {
 		return -EIO;
 	}
-	vc_sen_read_image_size(ctrl, &ctrl->framesize);
+	if (ctrl->frame.width == 0 || ctrl->frame.height == 0) {
+		vc_sen_read_image_size(ctrl, &ctrl->frame);
+	}
 	vc_core_state_init(cam);
 
 	vc_notice(&ctrl->client_mod->dev, "VC MIPI Core succesfully initialized");
@@ -748,14 +777,18 @@ static int vc_mod_reset_module(struct vc_cam *cam, __u8 mode)
 	return ret;
 }
 
-int vc_mod_set_mode(struct vc_cam *cam)
+int vc_mod_set_mode(struct vc_cam *cam, int *reset)
 {
+	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 	struct device *dev = vc_core_get_mod_device(cam);
 	__u8 num_lanes = state->num_lanes;
 	__u8 format = vc_core_v4l2_code_to_format(state->format_code);
+	char fourcc[5];
+	char *stype;
 	__u8 type = 0;
 	__u8 binning = 0; // TODO: Not implemented yet
+	__u8 mode = 0;
 	int ret = 0;
 
 	switch (cam->state.trigger_mode) {
@@ -765,25 +798,37 @@ int vc_mod_set_mode(struct vc_cam *cam)
 	case REG_TRIGGER_STREAM_LEVEL:
 	default:
 		type = 0x01;
+		stype = "STREAM";
 		break;
 	case REG_TRIGGER_EXTERNAL:
 	case REG_TRIGGER_PULSEWIDTH:
 	case REG_TRIGGER_SELF:
 	case REG_TRIGGER_SINGLE:
 		type = 0x02;
+		stype = "EXT.TRG";
 		break;
 	}
-	
-	vc_info(dev, "%s(): Set module mode: (lanes: %u, format: 0x%02x, type: 0x%02x)\n", __FUNCTION__, num_lanes, format, type);
 
-	state->mode = vc_mod_find_mode(cam, num_lanes, format, type, binning);
+	mode = vc_mod_find_mode(cam, num_lanes, format, type, binning);
+	if (mode == state->mode && !(ctrl->flags & FLAG_RESET_ALWAYS)) {
+		vc_dbg(dev, "%s(): Module mode %u already set!\n", __FUNCTION__, mode);
+		*reset = 0;
+		return 0;
+	}
 
-	ret  = vc_mod_reset_module(cam, state->mode);
+	vc_core_get_v4l2_fmt(state->format_code, fourcc);
+	vc_notice(dev, "%s(): Set module mode: %u (lanes: %u, format: %s, type: %s)\n", __FUNCTION__, 
+		mode, num_lanes, fourcc, stype);
+
+	ret = vc_mod_reset_module(cam, mode);
 	if (ret) {
-		vc_err(dev, "%s(): Unable to set module mode: (lanes: %u, format: 0x%02x, type: 0x%02x) (error: %d)\n", __func__, 
-			num_lanes, format, type, ret);
+		vc_err(dev, "%s(): Unable to set module mode: %u (lanes: %u, format: %s, type: %s) (error: %d)\n", __func__, 
+			mode, num_lanes, fourcc, stype, ret);
 		return ret;
 	}
+
+	state->mode = mode;
+	*reset = 1;
 
 	return ret;
 }
@@ -829,7 +874,7 @@ int vc_mod_set_trigger_mode(struct vc_cam *cam, int mode)
 		state->trigger_mode = REG_TRIGGER_STREAM_EDGE;
 		
 	} else if (mode == 7 && ctrl->flags & FLAG_TRIGGER_STREAM_LEVEL) {
-		mode_desc = "STREAM_EDGE";
+		mode_desc = "STREAM_LEVEL";
 		state->trigger_mode = REG_TRIGGER_STREAM_LEVEL;
 		
 	} else {
@@ -837,7 +882,7 @@ int vc_mod_set_trigger_mode(struct vc_cam *cam, int mode)
 		return -EINVAL;
 	}
 
-	vc_info(dev, "%s(): Set trigger mode: %s\n", __FUNCTION__, mode_desc);
+	vc_notice(dev, "%s(): Set trigger mode: %s\n", __FUNCTION__, mode_desc);
 
 	return 0;
 }
@@ -855,6 +900,16 @@ int vc_mod_get_trigger_mode(struct vc_cam *cam)
 	case REG_TRIGGER_STREAM_LEVEL:	return 7;
 	}
 	return 0;
+}
+
+int vc_mod_set_single_trigger(struct vc_cam *cam)
+{
+	struct i2c_client *client = cam->ctrl.client_mod;
+	struct device *dev = &client->dev;
+
+	vc_notice(dev, "%s(): Set single trigger\n", __FUNCTION__);
+
+	return i2c_write_reg(dev, client, MOD_REG_EXTTRIG, REG_TRIGGER_SINGLE, __FUNCTION__);
 }
 
 int vc_mod_is_io_enabled(struct vc_cam *cam)
@@ -875,17 +930,14 @@ int vc_mod_set_io_mode(struct vc_cam *cam, int mode)
 	} else if (mode == 1 && ctrl->flags & FLAG_IO_FLASH_ENABLED) {
 		mode_desc = "FLASH";
 		state->io_mode = REG_IO_FLASH_ENABLE;
-	} else if (mode == 2 && ctrl->flags & FLAG_IO_XTRIG_ENABLED) {
-		mode_desc = "XTRIG";
-		state->io_mode = REG_IO_XTRIG_ENABLE;
 	} else {
 		vc_err(dev, "%s(): IO mode %d not supported!\n", __FUNCTION__, mode);
 		return -EINVAL;
 	}
 
-	vc_info(dev, "%s(): Set IO mode: %s\n", __FUNCTION__, mode_desc);
+	vc_notice(dev, "%s(): Set IO mode: %s\n", __FUNCTION__, mode_desc);
 
-	return -EINVAL;
+	return 0;
 }
 
 int vc_mod_get_io_mode(struct vc_cam *cam)
@@ -893,7 +945,6 @@ int vc_mod_get_io_mode(struct vc_cam *cam)
 	switch (cam->state.io_mode)  {
 	case REG_IO_DISABLE: 		return 0;
 	case REG_IO_FLASH_ENABLE: 	return 1;
-	case REG_IO_XTRIG_ENABLE: 	return 2;
 	}
 	return 0;
 }
@@ -935,7 +986,7 @@ static int vc_sen_write_mode(struct vc_ctrl *ctrl, int mode)
 	return ret;
 }
 
-static int vc_sen_read_image_size(struct vc_ctrl *ctrl, struct vc_size *size)
+static int vc_sen_read_image_size(struct vc_ctrl *ctrl, struct vc_frame *size)
 {
 	struct i2c_client *client = ctrl->client_sen;
 	struct device *dev = &client->dev;
@@ -948,23 +999,37 @@ static int vc_sen_read_image_size(struct vc_ctrl *ctrl, struct vc_size *size)
 	return 0;
 }
 
-int vc_sen_set_roi(struct vc_cam *cam, int width, int height)
+int vc_sen_set_roi(struct vc_cam *cam, int x, int y, int width, int height)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct i2c_client *client = ctrl->client_sen;
 	struct device *dev = &client->dev;
-	int ret;
+	int w_y = y;
+	int w_height = height;
+	int ret = 0;
 
-	vc_info(dev, "%s(): Set sensor roi: (width: %u, height: %u)\n", __FUNCTION__, width, height);
+	vc_notice(dev, "%s(): Set sensor roi: (x: %u, y: %u, width: %u, height: %u)\n", __FUNCTION__, x, y, width, height);
 
-	ret  = vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_standby);
+	if (ctrl->flags & FLAG_DOUBLE_HEIGHT) {
+		w_y = 2*y;
+		w_height = 2*height;
+	}
+
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.h_start, x, __FUNCTION__);
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.v_start, w_y, __FUNCTION__);
 	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_width, width, __FUNCTION__);
-	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_height, height, __FUNCTION__);
-	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_operating);
-	if (ret) 
-		vc_err(dev, "%s(): Couldn't set sensor roi: (width: %u, height: %u) (error: %d)\n", __FUNCTION__, width, height, ret);
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.o_height, w_height, __FUNCTION__);
+	if (ret) {
+		vc_err(dev, "%s(): Couldn't set sensor roi: (x: %u, y: %u, width: %u, height: %u) (error: %d)\n", __FUNCTION__, 
+			x, y, width, height, ret);
+		return ret;
+	}
 
-	return ret;
+	cam->state.frame.x = x;
+	cam->state.frame.y = y;
+	cam->state.frame.width = width;
+	cam->state.frame.height = height;
+	return 0;
 }
 
 static __u32 vc_sen_read_vmax(struct vc_ctrl *ctrl)
@@ -1009,6 +1074,26 @@ static int vc_sen_write_shs(struct vc_ctrl *ctrl, __u32 shs)
 	return i2c_write_reg4(dev, client, &ctrl->csr.sen.shs, shs, __FUNCTION__);
 }
 
+static int vc_sen_write_flash_duration(struct vc_ctrl *ctrl, __u32 duration)
+{
+	struct i2c_client *client = ctrl->client_sen;
+	struct device *dev = &client->dev;
+
+	vc_dbg(dev, "%s(): Write sensor flash duration: 0x%08x (%u)\n", __FUNCTION__, duration, duration);
+
+	return i2c_write_reg4(dev, client, &ctrl->csr.sen.flash_duration, duration, __FUNCTION__);
+}
+
+static int vc_sen_write_flash_offset(struct vc_ctrl *ctrl, __u32 offset)
+{
+	struct i2c_client *client = ctrl->client_sen;
+	struct device *dev = &client->dev;
+
+	vc_dbg(dev, "%s(): Write sensor flash offset: 0x%08x (%u)\n", __FUNCTION__, offset, offset);
+
+	return i2c_write_reg4(dev, client, &ctrl->csr.sen.flash_offset, offset, __FUNCTION__);
+}
+
 int vc_sen_set_gain(struct vc_cam *cam, int gain)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
@@ -1023,12 +1108,38 @@ int vc_sen_set_gain(struct vc_cam *cam, int gain)
 
 	vc_notice(dev, "%s(): Set sensor gain: %u\n", __FUNCTION__, gain);
 
-	ret = i2c_write_reg2(dev, client, &ctrl->csr.sen.gain, gain, __FUNCTION__);
-	if (ret)
-		vc_err(dev, "%s(): Couldn't set 'Gain' (error: %d)\n", __FUNCTION__, ret);
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.gain, gain, __FUNCTION__);
+	if (ret) {
+		vc_err(dev, "%s(): Couldn't set gain (error: %d)\n", __FUNCTION__, ret);
+		return ret;
+	}
 
 	cam->state.gain = gain;
-	return ret;
+	return 0;
+}
+
+int vc_sen_set_blacklevel(struct vc_cam *cam, int blacklevel)
+{
+	struct vc_ctrl *ctrl = &cam->ctrl;
+	struct i2c_client *client = ctrl->client_sen;
+	struct device *dev = &client->dev;
+	int ret = 0;
+
+	if (blacklevel < ctrl->blacklevel.min) 
+		blacklevel = ctrl->blacklevel.min;
+	if (blacklevel > ctrl->blacklevel.max)
+		blacklevel = ctrl->blacklevel.max;
+
+	vc_notice(dev, "%s(): Set sensor black level: %u\n", __FUNCTION__, blacklevel);
+
+	ret |= i2c_write_reg2(dev, client, &ctrl->csr.sen.blacklevel, blacklevel, __FUNCTION__);
+	if (ret) {
+		vc_err(dev, "%s(): Couldn't set black level (error: %d)\n", __FUNCTION__, ret);
+		return ret;
+	}
+
+	cam->state.blacklevel = blacklevel;
+	return 0;
 }
 
 int vc_sen_start_stream(struct vc_cam *cam)
@@ -1039,18 +1150,43 @@ int vc_sen_start_stream(struct vc_cam *cam)
 	struct device *dev = &ctrl->client_sen->dev;
 	int ret = 0;
 	
-	vc_info(dev, "%s(): Start streaming\n", __FUNCTION__);
+	vc_notice(dev, "%s(): Start streaming\n", __FUNCTION__);
+	vc_dbg(dev, "%s(): MM: 0x%02x, TM: 0x%02x, IO: 0x%02x\n",
+		__FUNCTION__, state->mode, state->trigger_mode, state->io_mode);
 
-	ret  = vc_mod_write_trigger_mode(client_mod, state->trigger_mode);
+	if (state->streaming) {
+		vc_sen_stop_stream(cam);
+	}
+
+	state->retrigger_cnt = 0;
+	if (state->trigger_mode == REG_TRIGGER_SELF) {
+		if (state->framerate > 0) {
+			__u32 frametime;
+			__u32 retrigger = 0;
+
+			frametime = 1000000 / state->framerate;
+			if (frametime >= state->exposure) {
+				retrigger = frametime - state->exposure;
+			} 
+			state->retrigger_cnt = ((__u64)retrigger * cam->ctrl.sen_clk) / 1000000;
+			if (state->retrigger_cnt < ctrl->retrigger_def) {
+				state->retrigger_cnt = ctrl->retrigger_def;
+			}
+			
+		} else {
+			state->retrigger_cnt = ctrl->retrigger_def;
+		}
+		ret |= vc_mod_write_retrigger(client_mod, state->retrigger_cnt);
+	}
+
+	ret |= vc_mod_write_trigger_mode(client_mod, state->trigger_mode);
 	ret |= vc_mod_write_io_mode(client_mod, state->io_mode);
-
-	vc_notice(dev, "%s(): MM: 0x%02x, TM: 0x%02x, IO: 0x%02x, VMAX: %5u, SHS: %5u, EXPC: %6u, RETC: %6u\n",
-		__FUNCTION__, state->mode, state->trigger_mode, state->io_mode, state->vmax, state->shs, 
-		state->exposure_cnt, state->retrigger_cnt);
 
 	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_operating);
 	if (ret)
 		vc_err(dev, "%s(): Unable to start streaming (error: %d)\n", __FUNCTION__, ret);
+
+	state->streaming = 1;
 
 	return ret;
 }
@@ -1058,11 +1194,12 @@ int vc_sen_start_stream(struct vc_cam *cam)
 int vc_sen_stop_stream(struct vc_cam *cam)
 {
 	struct vc_ctrl *ctrl = &cam->ctrl;
+	struct vc_state *state = &cam->state;
 	struct i2c_client *client_mod = ctrl->client_mod;
 	struct device *dev = &ctrl->client_sen->dev;
 	int ret = 0;
 
-	vc_info(dev, "%s(): Stop streaming\n", __FUNCTION__);
+	vc_notice(dev, "%s(): Stop streaming\n", __FUNCTION__);
 
 	ret |= vc_mod_write_trigger_mode(client_mod, REG_TRIGGER_DISABLE);
 	ret |= vc_mod_write_io_mode(client_mod, REG_IO_DISABLE);
@@ -1070,6 +1207,10 @@ int vc_sen_stop_stream(struct vc_cam *cam)
 	ret |= vc_sen_write_mode(ctrl, ctrl->csr.sen.mode_standby);
 	if (ret)
 		vc_err(dev, "%s(): Unable to stop streaming (error: %d)\n", __FUNCTION__, ret);
+
+	state->streaming = 0;
+
+	vc_dbg(dev, "%s(): ----------------------------------------------------------\n", __FUNCTION__);
 
 	return ret;
 }
@@ -1084,7 +1225,27 @@ static void vc_calculate_exposure_simple(struct vc_cam *cam, __u32 exposure)
 	__u32 factor = ctrl->expo_factor;
 	__u32 toffset = ctrl->expo_toffset;
 
-	state->shs = (((__u64)exposure)*factor)/1000 - toffset;
+	state->shs = (((__u64)exposure)*factor)/1000000 - toffset;
+}
+
+static void vc_core_get_timing(struct vc_cam *cam, __u32 *period_1H_ns)
+{
+	struct vc_desc *desc = &cam->desc;
+	struct vc_ctrl *ctrl = &cam->ctrl;
+	struct vc_state *state = &cam->state;
+	__u8 num_lanes = state->num_lanes;
+	__u8 format = vc_core_v4l2_code_to_format(state->format_code);
+	__u8 index = 0;
+
+	for (index = 0; index < 6; index++) {
+		struct vc_timing *timing = &ctrl->expo_timing[index];
+		if (timing->num_lanes == num_lanes && timing->format == format) {
+			*period_1H_ns = ((__u64)timing->clk * 1000000000) / desc->clk_pixel;
+			return;
+		}
+	}
+
+	*period_1H_ns = ctrl->expo_period_1H;
 }
 
 static void vc_calculate_exposure_vmax(struct vc_cam *cam, __u32 exposure)
@@ -1092,14 +1253,18 @@ static void vc_calculate_exposure_vmax(struct vc_cam *cam, __u32 exposure)
 	struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 	struct device *dev = &ctrl->client_sen->dev;
-	__u32 toffset = ctrl->expo_toffset;
-	__u32 period_1H = ctrl->expo_period_1H;
+	__u32 period_1H_ns = 0;
 	__u32 shs_min = ctrl->expo_shs_min;
-	__u64 exposure_period;
+	__u64 frametime_ns;
+	__u64 frametime_1H;
+	__u64 exposure_ns;
 	__u64 exposure_1H;
 	// __u64 hmax;
+
+	vc_core_get_timing(cam, &period_1H_ns);
 	
-	vc_dbg(dev, "%s(): flags: %02x, toffset: %u period_1H: %u\n", __FUNCTION__, ctrl->flags, toffset, period_1H);
+	vc_dbg(dev, "%s(): flags: 0x%04x, period_1H_ns: %u, shs_min: %u, vmax: %u\n", __FUNCTION__, 
+		ctrl->flags, period_1H_ns, shs_min, ctrl->expo_vmax);
 
 	if (ctrl->flags & FLAG_EXPOSURE_READ_VMAX) {	
 		state->vmax = vc_sen_read_vmax(&cam->ctrl);
@@ -1110,27 +1275,50 @@ static void vc_calculate_exposure_vmax(struct vc_cam *cam, __u32 exposure)
 	} else {
 		state->vmax = ctrl->expo_vmax;	
 	}
-	
+
+	if (state->framerate > 0) {
+		frametime_ns = 1000000000 / state->framerate;
+		frametime_1H = frametime_ns / period_1H_ns;
+		if (frametime_1H > state->vmax) {
+			state->vmax = frametime_1H;
+		}
+
+		vc_dbg(dev, "%s(): framerate: %u, frametime: %llu ns, %llu 1H", __FUNCTION__, 
+			state->framerate, frametime_ns, frametime_1H);
+	}	
+
 	// hmax = vc_sen_read_hmax(&cam->ctrl);
 	// h1period = (hmax*1000000)/ctrl->sen_clk;
 
 	// Exposure time [s] = (1 H period) × (Number of lines per frame - SHS) 
 	//                     + Exposure time error (t OFFSET ) [µs]
-	exposure_period = (__u64)(exposure)*16384;
-	if (exposure_period > toffset) {
-		exposure_1H = (exposure_period - toffset) / period_1H;
 
-	} else {
-		state->shs = state->vmax - shs_min;
-		return;
-	}
-	
-	if (exposure_1H <= state->vmax - shs_min) {
+	// Convert exposure time from µs to ns.
+	exposure_ns = (__u64)(exposure)*1000;
+	// Calculate number of lines equivalent to the exposure time without shs_min.
+	exposure_1H = exposure_ns / period_1H_ns;
+
+	// Is exposure time less than frame time?
+	if (exposure_1H < state->vmax - shs_min) {
+		// Yes then calculate exposure delay (shs) in between frame time.
+		// |                 VMAX (frame time)             ---> |
+		// | SHS_MIN |                                          |
+		// +----------------------------+-----------------------+
+		// | SHS (exposure delay) --->  |    exposure time ---> | 
 		state->shs = state->vmax - exposure_1H;
 	
 	} else {
+		// No, then increase frame time and set exposure delay to the minimal value.
+		// |                 VMAX (frame time)                   ---> |
+		// +---------+------------------------------------------------+
+		// | SHS     |                             exposure time ---> | 
 		state->vmax = shs_min + exposure_1H;
 		state->shs = shs_min;
+	}
+
+	// Special case: Framerate of slave module has to be a little bit faster (Tested with IMX183)
+	if (state->trigger_mode == REG_TRIGGER_SYNC) {
+		state->vmax--;
 	}
 }
 
@@ -1140,8 +1328,6 @@ int vc_sen_set_exposure(struct vc_cam *cam, int exposure)
 	struct vc_state *state = &cam->state;
 	struct device *dev = vc_core_get_sen_device(cam);
 	struct i2c_client *client_mod = ctrl->client_mod;
-	__u32 frametime;
-	__u32 retrigger;
 	int ret = 0;
 
 	vc_notice(dev, "%s(): Set sensor exposure: %u us\n", __FUNCTION__, exposure);
@@ -1154,33 +1340,32 @@ int vc_sen_set_exposure(struct vc_cam *cam, int exposure)
 	state->vmax = 0;
 	state->shs = 0;
 	state->exposure_cnt = 0;
-	state->retrigger_cnt = 0;
-
-	// TODO: For testing read shs and vmax when using vc_mod_write_exposure.
 
 	switch (state->trigger_mode) {
 	case REG_TRIGGER_EXTERNAL:
 	case REG_TRIGGER_SINGLE:
 		state->exposure_cnt = ((__u64)exposure * cam->ctrl.sen_clk) / 1000000;
 		ret  = vc_mod_write_exposure(client_mod, state->exposure_cnt);
-		ret |= vc_mod_write_retrigger(client_mod, 0);
 		break;
 	case REG_TRIGGER_PULSEWIDTH:
-		ret  = vc_mod_write_exposure(client_mod, 0);
-		ret |= vc_mod_write_retrigger(client_mod, 0);
 		break;
 	case REG_TRIGGER_SELF:
-		frametime = 1000000 / state->framerate;
-		if (frametime >= exposure) {
-			retrigger = frametime - exposure;
-		} else {
-			retrigger = 0;
-		}
-		vc_dbg(dev, "%s(): frametime: %u us, exposure: %u us, retrigger: %u us\n", __FUNCTION__, frametime, exposure, retrigger);
 		state->exposure_cnt = ((__u64)exposure * cam->ctrl.sen_clk) / 1000000;
-		state->retrigger_cnt = ((__u64)retrigger * cam->ctrl.sen_clk) / 1000000;
-		ret  = vc_mod_write_exposure(client_mod, state->exposure_cnt);
-		ret |= vc_mod_write_retrigger(client_mod, state->retrigger_cnt);
+		if (state->streaming && state->framerate > 0) {
+			vc_notice(dev, "%s(): Need to restart streaming!\n", __FUNCTION__);
+			// Workaround to be able to change exposure time and keep framerate.
+			ret |= vc_sen_stop_stream(cam);
+			usleep_range(100000, 100000);
+			ret |= vc_mod_write_exposure(client_mod, state->exposure_cnt);
+			if (ret == 0) {
+				// It is necessary to update state.exposure so that the retrigger counter
+				// can be calculated correctly.
+				cam->state.exposure = exposure;
+				ret |= vc_sen_start_stream(cam);
+			}
+		} else {
+			ret |= vc_mod_write_exposure(client_mod, state->exposure_cnt);
+		}
 		break;
 	case REG_TRIGGER_DISABLE:
 	case REG_TRIGGER_SYNC:
@@ -1188,20 +1373,28 @@ int vc_sen_set_exposure(struct vc_cam *cam, int exposure)
 	case REG_TRIGGER_STREAM_LEVEL:
 		if (ctrl->flags & FLAG_EXPOSURE_SIMPLE) {
 			vc_calculate_exposure_simple(cam, exposure);
-			ret = vc_sen_write_shs(ctrl, state->shs);
 
 		} else if (ctrl->flags & (FLAG_EXPOSURE_READ_VMAX | FLAG_EXPOSURE_WRITE_VMAX)) {
 			vc_calculate_exposure_vmax(cam, exposure);
-			ret = vc_sen_write_shs(ctrl, state->shs);
-			if (ctrl->flags & FLAG_EXPOSURE_WRITE_VMAX) {
-				ret |= vc_sen_write_vmax(ctrl, state->vmax);
-			}
 		} 
+		ret = vc_sen_write_shs(ctrl, state->shs);
+		if (ctrl->flags & FLAG_EXPOSURE_WRITE_VMAX) {
+			ret |= vc_sen_write_vmax(ctrl, state->vmax);
+		}
+	}
+
+	if (ctrl->flags & FLAG_IO_FLASH_DURATION) {
+		__u32 duration = (((__u64)exposure)*ctrl->flash_factor)/1000000;
+		ret |= vc_sen_write_flash_duration(ctrl, duration);
+		ret |= vc_sen_write_flash_offset(ctrl, ctrl->flash_toffset);
 	}
 
 	if (ret == 0) {
 		cam->state.exposure = exposure;
 	}
+
+	vc_dbg(dev, "%s(): VMAX: %5u, SHS: %5u, EXPC: %6u, RETC: %6u\n",
+		__FUNCTION__, state->vmax, state->shs, state->exposure_cnt, state->retrigger_cnt);
 
 	return ret;
 }

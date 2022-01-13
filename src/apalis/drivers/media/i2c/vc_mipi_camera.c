@@ -44,8 +44,7 @@ static inline struct vc_cam *to_vc_cam(struct v4l2_subdev *sd)
 
 static int vc_sd_s_power(struct v4l2_subdev *sd, int on)
 {
-	struct vc_cam *cam = to_vc_cam(sd);
-	return vc_mod_set_power(cam, on);
+	return 0;
 }
 
 static int vc_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
@@ -112,10 +111,11 @@ static int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 	// struct vc_ctrl *ctrl = &cam->ctrl;
 	struct vc_state *state = &cam->state;
 	struct device *dev = sd->dev;
-	struct vc_size *framesize = vc_core_get_frame(cam);
+	struct vc_frame *frame = vc_core_get_frame(cam);
+	int reset = 0;
 	int ret = 0;
 
-	vc_dbg(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable ? "on" : "off");
+	vc_notice(dev, "%s(): Set streaming: %s\n", __FUNCTION__, enable ? "on" : "off");
 
 	if (enable) {
 		if (state->streaming == 1) {
@@ -123,11 +123,13 @@ static int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 			ret = vc_sen_stop_stream(cam);
 		}
 
-		ret  = vc_mod_set_mode(cam);
-		ret |= vc_sen_set_exposure(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
-		ret |= vc_sen_set_gain(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
-		ret |= vc_sen_set_roi(cam, framesize->width, framesize->height);
-
+		ret  = vc_mod_set_mode(cam, &reset);
+		if (!ret && reset) {
+			ret |= vc_sen_set_roi(cam, frame->x, frame->y, frame->width, frame->height);
+			ret |= vc_sen_set_exposure(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
+			ret |= vc_sen_set_gain(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
+			ret |= vc_sen_set_blacklevel(cam, cam->state.blacklevel);
+		}
 		ret |= vc_sen_start_stream(cam);
 		if (ret == 0)
 			state->streaming = 1;
@@ -147,11 +149,11 @@ static int vc_sd_get_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *
 {
 	struct vc_cam *cam = to_vc_cam(sd);
 	struct v4l2_mbus_framefmt *mf = &format->format;
-	struct vc_size* framesize = vc_core_get_frame(cam);
+	struct vc_frame* frame = vc_core_get_frame(cam);
 
 	mf->code = vc_core_get_format(cam);
-	mf->width = framesize->width;
-	mf->height = framesize->height;
+	mf->width = frame->width;
+	mf->height = frame->height;
 	// mf->reserved[1] = 30;
 
 	return 0;
@@ -163,7 +165,7 @@ static int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *
 	struct v4l2_mbus_framefmt *mf = &format->format;
 
 	vc_core_set_format(cam, mf->code);
-	vc_core_set_frame(cam, mf->width, mf->height);
+	vc_core_set_frame(cam, 0, 0, mf->width, mf->height);
 	
 	return 0;
 }
