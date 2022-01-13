@@ -42,8 +42,13 @@ setup_kernel() {
         rm -Rf $KERNEL_SOURCE
         git clone -b toradex_5.4-2.3.x-imx git://git.toradex.com/linux-toradex.git $KERNEL_SOURCE
         cd $KERNEL_SOURCE
-        # git checkout fca7e6292821c09a823ea6f471302b854d427f7f
-        cp -R $SRC_DIR/* $KERNEL_SOURCE        
+        git config --local advice.detachedHead "false"
+        # Kernel commit from Apalis-iMX8_Reference-Multimedia-Image-Tezi_5.4.0+build.11
+        git checkout cb88cc157bfb 
+        for patchfile in $PATCH_DIR/*.patch; do
+                git am -3 --whitespace=fix --ignore-whitespace < ${patchfile}
+        done
+        cp -R $SRC_DIR/* $KERNEL_SOURCE
 }
 
 setup_dhcp_server() {

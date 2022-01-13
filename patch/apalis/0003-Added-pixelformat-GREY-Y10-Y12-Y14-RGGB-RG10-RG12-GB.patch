@@ -1,0 +1,120 @@
+From 54e065c1a30f58118138fcdbd8e13592bf2f82dc Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Thu, 13 Jan 2022 11:03:15 +0100
+Subject: [PATCH 3/4] Added pixelformat GREY, Y10, Y12, Y14, RGGB, RG10, RG12,
+ GBRG, GB10, GB12
+
+---
+ drivers/staging/media/imx/imx8-isi-cap.c | 80 ++++++++++++++++++++++--
+ include/uapi/linux/media-bus-format.h    |  1 +
+ 2 files changed, 77 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
+index bc9ad25f0c92..b683cdec871f 100644
+--- a/drivers/staging/media/imx/imx8-isi-cap.c
++++ b/drivers/staging/media/imx/imx8-isi-cap.c
+@@ -34,13 +34,85 @@
+ 
+ struct mxc_isi_fmt mxc_isi_out_formats[] = {
+ 	{
+-		.name		= "UYVY-16",
+-		.fourcc		= V4L2_PIX_FMT_UYVY,
++		.name		= "Y8-RAW",
++		.fourcc		= V4L2_PIX_FMT_GREY,
++		.depth		= { 8 },
++		.color		= MXC_ISI_OUT_FMT_RAW8,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_Y8_1X8,
++	}, {
++		.name		= "Y10-RAW",
++		.fourcc		= V4L2_PIX_FMT_Y10,
+ 		.depth		= { 16 },
+-		.color		= MXC_ISI_OUT_FMT_YUV422_1P8P,
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_Y10_1X10,
++	}, {
++		.name		= "Y12-RAW",
++		.fourcc		= V4L2_PIX_FMT_Y12,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_Y12_1X12,
++	}, {
++		.name		= "Y14-RAW",
++		.fourcc		= V4L2_PIX_FMT_Y14,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_Y14_1X14,
++	}, {
++		.name		= "SRGGB8-RAW",
++		.fourcc		= V4L2_PIX_FMT_SRGGB8,
++		.depth		= { 8 },
++		.color		= MXC_ISI_OUT_FMT_RAW8,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_SRGGB8_1X8,
++	}, {
++		.name		= "SRGGB10-RAW",
++		.fourcc		= V4L2_PIX_FMT_SRGGB10,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_SRGGB10_1X10,
++	}, {
++		.name		= "SRGGB12-RAW",
++		.fourcc		= V4L2_PIX_FMT_SRGGB12,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_SRGGB12_1X12,
++	}, {
++		.name		= "SGBRG8-RAW",
++		.fourcc		= V4L2_PIX_FMT_SGBRG8,
++		.depth		= { 8 },
++		.color		= MXC_ISI_OUT_FMT_RAW8,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_SGBRG8_1X8,
++	}, {
++		.name		= "SGBRG10-RAW",
++		.fourcc		= V4L2_PIX_FMT_SGBRG10,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
++		.memplanes	= 1,
++		.colplanes	= 1,
++		.mbus_code	= MEDIA_BUS_FMT_SGBRG10_1X10,
++	}, {
++		.name		= "SGBRG12-RAW",
++		.fourcc		= V4L2_PIX_FMT_SGBRG12,
++		.depth		= { 16 },
++		.color		= MXC_ISI_OUT_FMT_RAW16,
+ 		.memplanes	= 1,
+ 		.colplanes	= 1,
+-		.mbus_code  = MEDIA_BUS_FMT_UYVY8_2X8,
++		.mbus_code	= MEDIA_BUS_FMT_SGBRG12_1X12,
+ 	}, {
+ 		.name		= "RGB565",
+ 		.fourcc		= V4L2_PIX_FMT_RGB565,
+diff --git a/include/uapi/linux/media-bus-format.h b/include/uapi/linux/media-bus-format.h
+index 9f460453c774..d111c1af726a 100644
+--- a/include/uapi/linux/media-bus-format.h
++++ b/include/uapi/linux/media-bus-format.h
+@@ -91,6 +91,7 @@
+ #define MEDIA_BUS_FMT_VYUY12_2X12		0x201d
+ #define MEDIA_BUS_FMT_YUYV12_2X12		0x201e
+ #define MEDIA_BUS_FMT_YVYU12_2X12		0x201f
++#define MEDIA_BUS_FMT_Y14_1X14			0x202d
+ #define MEDIA_BUS_FMT_UYVY8_1X16		0x200f
+ #define MEDIA_BUS_FMT_VYUY8_1X16		0x2010
+ #define MEDIA_BUS_FMT_YUYV8_1X16		0x2011
+-- 
+2.25.1
+

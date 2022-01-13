@@ -1,0 +1,57 @@
+From 3214533ccdefbd36d0a51611388d75549d511cd1 Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Thu, 13 Jan 2022 11:14:23 +0100
+Subject: [PATCH 3/3] Fixed reg dump in imx8-isi-hw.c
+
+---
+ drivers/staging/media/imx/imx8-isi-hw.c | 6 ++++--
+ drivers/staging/media/imx/imx8-isi-hw.h | 2 ++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/media/imx/imx8-isi-hw.c b/drivers/staging/media/imx/imx8-isi-hw.c
+index f8e804483a48..8521dd5eacce 100644
+--- a/drivers/staging/media/imx/imx8-isi-hw.c
++++ b/drivers/staging/media/imx/imx8-isi-hw.c
+@@ -63,14 +63,14 @@ void dump_isi_regs(struct mxc_isi_dev *mxc_isi)
+ 		{ 0x90, "CHNL_OUT_BUF2_ADDR_U" },
+ 		{ 0x94, "CHNL_OUT_BUF2_ADDR_V" },
+ 		{ 0x98, "CHNL_SCL_IMG_CFG" },
+-		{ 0x9C, "CHNL_FLOW_CTRL" },
++		// { 0x9C, "CHNL_FLOW_CTRL" },
+ 	};
+ 	u32 i;
+ 
+ 	dev_dbg(dev, "ISI CHNLC register dump, isi%d\n", mxc_isi->id);
+ 	for (i = 0; i < ARRAY_SIZE(registers); i++) {
+ 		u32 reg = readl(mxc_isi->regs + registers[i].offset);
+-		dev_dbg(dev, "%20s[0x%.2x]: %.2x\n",
++		dev_dbg(dev, "%20s[0x%02x]: 0x%08x\n",
+ 			registers[i].name, registers[i].offset, reg);
+ 	}
+ }
+@@ -718,7 +718,9 @@ void mxc_isi_channel_enable(struct mxc_isi_dev *mxc_isi, bool m2m_enabled)
+ 		return;
+ 	}
+ 
++#ifdef DEBUG
+ 	dump_isi_regs(mxc_isi);
++#endif
+ 	msleep(300);
+ }
+ EXPORT_SYMBOL_GPL(mxc_isi_channel_enable);
+diff --git a/drivers/staging/media/imx/imx8-isi-hw.h b/drivers/staging/media/imx/imx8-isi-hw.h
+index 54cde426fa0d..489ba726ee96 100644
+--- a/drivers/staging/media/imx/imx8-isi-hw.h
++++ b/drivers/staging/media/imx/imx8-isi-hw.h
+@@ -7,6 +7,8 @@
+ #ifndef __MXC_ISI_HW_H__
+ #define __MXC_ISI_HW_H__
+ 
++// #define DEBUG
++
+ #include <linux/delay.h>
+ #include <linux/types.h>
+ #include <linux/errno.h>
+-- 
+2.25.1
+

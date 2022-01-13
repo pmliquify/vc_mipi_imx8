@@ -8,6 +8,7 @@ BIN_DIR=$WORKING_DIR/bin
 . $BIN_DIR/config/config_apalis.sh
 
 BUILD_DIR=$WORKING_DIR/build/$SOM
+PATCH_DIR=$WORKING_DIR/patch/$SOM
 SRC_DIR=$WORKING_DIR/src/$SOM
 MISC_DIR=$WORKING_DIR/misc/$SOM
 

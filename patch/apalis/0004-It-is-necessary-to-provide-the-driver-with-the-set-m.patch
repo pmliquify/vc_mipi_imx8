@@ -1,0 +1,26 @@
+From 7dc7eda5d9ec9f5e47b602c8278445b1cbf8e625 Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Thu, 13 Jan 2022 11:05:11 +0100
+Subject: [PATCH 4/4] It is necessary to provide the driver with the set media
+ bus format
+
+---
+ drivers/staging/media/imx/imx8-isi-cap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
+index b683cdec871f..43a94928c003 100644
+--- a/drivers/staging/media/imx/imx8-isi-cap.c
++++ b/drivers/staging/media/imx/imx8-isi-cap.c
+@@ -986,7 +986,7 @@ static int mxc_isi_source_fmt_init(struct mxc_isi_cap_dev *isi_cap)
+ 
+ 	src_fmt.pad = source_pad->index;
+ 	src_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-	src_fmt.format.code = MEDIA_BUS_FMT_UYVY8_2X8;
++	src_fmt.format.code = dst_f->fmt->mbus_code;
+ 	src_fmt.format.width = dst_f->width;
+ 	src_fmt.format.height = dst_f->height;
+ 	ret = v4l2_subdev_call(src_sd, pad, set_fmt, NULL, &src_fmt);
+-- 
+2.25.1
+

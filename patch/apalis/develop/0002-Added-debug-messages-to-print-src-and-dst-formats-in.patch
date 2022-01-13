@@ -1,0 +1,64 @@
+From 820e6ea8041a7a547374f02e449a387e6806360b Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Thu, 13 Jan 2022 11:12:48 +0100
+Subject: [PATCH 2/3] Added debug messages to print src and dst formats in
+ imx8-isi-cap.c
+
+---
+ drivers/staging/media/imx/imx8-isi-cap.c | 26 ++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/drivers/staging/media/imx/imx8-isi-cap.c b/drivers/staging/media/imx/imx8-isi-cap.c
+index 43a94928c003..f8fd5554cc6a 100644
+--- a/drivers/staging/media/imx/imx8-isi-cap.c
++++ b/drivers/staging/media/imx/imx8-isi-cap.c
+@@ -9,6 +9,8 @@
+  *
+  */
+ 
++// #define DEBUG
++
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+@@ -32,6 +34,26 @@
+ 
+ #define sd_to_cap_dev(ptr)	container_of(ptr, struct mxc_isi_cap_dev, sd)
+ 
++#ifdef DEBUG
++void dbg_mxc_isi_fmt(struct device *dev, char *desc, struct mxc_isi_fmt *format)
++{
++	dev_info(
++		dev,
++		"%s N:%s CODE:0x%04x FOURCC: 0x%08x COLOR: 0x%02x MPLANES: %u COLPLANES: %u\n",
++		desc, format->name, format->mbus_code, format->fourcc,
++		format->color, format->memplanes, format->colplanes);
++}
++
++void dbg_mxc_isi_frame(struct device *dev, char *desc,
++		       struct mxc_isi_frame *frame)
++{
++	dbg_mxc_isi_fmt(dev, desc, frame->fmt);
++	dev_info(dev, "%s ORG(%u, %u) CROP(%u, %u, %u, %u) OUT(%u, %u)\n", desc,
++		 frame->o_width, frame->o_height, frame->c_width,
++		 frame->c_height, frame->h_off, frame->v_off, frame->width,
++		 frame->height);
++}
++#endif
+ struct mxc_isi_fmt mxc_isi_out_formats[] = {
+ 	{
+ 		.name		= "Y8-RAW",
+@@ -1109,6 +1131,10 @@ static int mxc_isi_config_parm(struct mxc_isi_cap_dev *isi_cap)
+ 	if (ret < 0)
+ 		return -EINVAL;
+ 
++#ifdef DEBUG
++	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "SRC >>> ", &isi_cap->src_f);
++	dbg_mxc_isi_frame(&isi_cap->pdev->dev, "DST <<< ", &isi_cap->dst_f);
++#endif
+ 	mxc_isi_channel_init(mxc_isi);
+ 	mxc_isi_channel_config(mxc_isi, &isi_cap->src_f, &isi_cap->dst_f);
+ 
+-- 
+2.25.1
+
