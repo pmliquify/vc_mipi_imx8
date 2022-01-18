@@ -39,7 +39,7 @@ flash_device_tree() {
         
         # Apalis
         scp $KERNEL_SOURCE/arch/arm64/boot/dts/freescale/$DTO_FILE.dtbo $TARGET_USER@$TARGET_IP:/boot/overlays 
-        scp $WORKING_DIR/misc/apalis/overlays.txt $TARGET_USER@$TARGET_IP:/boot
+        scp $WORKING_DIR/misc/$SOM/overlays.txt $TARGET_USER@$TARGET_IP:/boot
 }
 
 flash_test_tools() {
