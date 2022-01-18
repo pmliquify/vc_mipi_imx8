@@ -9,6 +9,7 @@ BIN_DIR=$WORKING_DIR/bin
 BUILD_DIR=$WORKING_DIR/build/$SOM
 PATCH_DIR=$WORKING_DIR/patch/$SOM
 SRC_DIR=$WORKING_DIR/src/$SOM
+DT_CAM_FILE=$WORKING_DIR/src/$SOM/arch/arm64/boot/dts/freescale/apalis-imx8_vc_mipi_overlay.dts
 MISC_DIR=$WORKING_DIR/misc/$SOM
 
 DOWNLOADS_DIR=$BUILD_DIR/downloads

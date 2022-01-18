@@ -6,6 +6,7 @@ usage() {
 	echo "Setup host and target for development and testing."
 	echo ""
 	echo "Supported options:"
+        echo "-c, --camera              Open device tree file to activate camera."
 	echo "-h, --help                Show this help text"
         echo "-k, --kernel              Setup/Reset kernel sources"
         echo "-n, --netboot             Setup netboot environment"
@@ -49,6 +50,10 @@ setup_kernel() {
                 git am -3 --whitespace=fix --ignore-whitespace < ${patchfile}
         done
         cp -R $SRC_DIR/* $KERNEL_SOURCE
+}
+
+setup_camera() {
+    nano -l +17 $DT_CAM_FILE
 }
 
 setup_dhcp_server() {
@@ -129,6 +134,11 @@ while [ $# != 0 ] ; do
 	shift
 
 	case "${option}" in
+        -c|--camera)
+		configure
+                setup_camera
+		exit 0
+		;;
 	-h|--help)
 		usage
 		exit 0
