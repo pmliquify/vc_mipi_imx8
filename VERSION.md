@@ -1,5 +1,20 @@
 # Version History
 
+## v0.4.0 (Support all pixel formats)
+  * Added support for VC MIPI Camera Modules
+      * IMX183
+      * IMX250, IMX252, IMX264, IMX265, IMX273, IMX392
+      * IMX290, IMX327
+      * IMX296
+      * IMX412
+      * IMX415
+      * OV9281
+  * New Features
+    * Image Streaming in Y10, Y12, Y14, RG10, RG12, GB10, GB12 (2 bit right shifted)
+    * **Trigger mode** '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via device tree property 'trigger_mode'
+    * **Flash mode** '0: disabled', '1: enabled' can be set via device tree property 'flash_mode'
+    * **Frame rate** can be set via device tree property 'frame_rate' *(except IMX412 and OV9281)*
+
 ## v0.3.0 (Support IMX178)
   * New Features
     * Linux Kernel Version 5.4.129

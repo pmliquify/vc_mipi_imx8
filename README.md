@@ -1,19 +1,29 @@
 # Vision Components MIPI CSI-2 driver for Toradex Apalis i.MX8
 ![VC MIPI camera](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/VC_MIPI_Camera_Module_Hardware_Operating_Manual-Dateien/mipi_sensor_front_back.png)
 
-## Version 0.3.0 ([History](VERSION.md))
-* Supported boards
-  * Toradex Ixora Carrier Board V1.2A
-* Supported cameras 
-  * VC MIPI IMX226 / VC MIPI IMX226C  
-  * VC MIPI IMX178
+## Version 0.4.0 ([History](VERSION.md))
+* Supported system on modules
+  * [Toradex Apalis iMX8](https://www.toradex.com/de/computer-on-modules/apalis-arm-family/nxp-imx-8)
+* Supported carrier boards
+  * [Toradex Ixora Carrier Board V1.2A](https://www.toradex.com/de/products/carrier-board/ixora-carrier-board)
+* Supported [VC MIPI Camera Modules](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/index.html) 
+  * IMX178, IMX183, IMX226
+  * IMX250, IMX252, IMX264, IMX265, IMX273, IMX392
+  * IMX290, IMX327
+  * IMX296
+  * IMX412
+  * IMX415
+  * OV9281
 * Linux kernel 
   * Version 5.4.129
 * Features
-  * Image Streaming in Y10 and SGBRG10 format (4 bit left shifted)
-  * Exposure and Gain can be set via V4L2 library
-  * Support for EXTERNAL trigger mode
-  * vcmipidemo supports software implementation to correct the 4 bit left shift
+  * Image Streaming in Y10, Y12, Y14, RG10, RG12, GB10, GB12 (2 bit right shifted)
+  * **Exposure** can be set via V4L2 API 'exposure'
+  * **Gain** can be set via V4L2 API 'gain'
+  * **Trigger mode** '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via device tree property 'trigger_mode'
+  * **Flash mode** '0: disabled', '1: enabled' can be set via device tree property 'flash_mode'
+  * **Frame rate** can be set via device tree property 'frame_rate' *(except IMX412 and OV9281)*
+  * **Black level** can be set via device tree property 'black_level' *(only IMX183 and IMX296)*
 
 ## Prerequisites for cross-compiling
 ### Host PC
