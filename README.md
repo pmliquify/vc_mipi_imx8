@@ -32,55 +32,52 @@
 * All other packages are installed by the scripts contained in this repository
 
 # Installation
-When we use the **$** sign it is meant that the command is executed on the host PC. A **#** sign indicates the promt from the target so the execution on the target. In our case the Ixora Apalis board.
+> When we use the **$** sign it is meant that the command is executed on the host PC. A **#** sign indicates the promt from the target.
 
-1. Create a directory and clone the repository   
+1. Download the Apalis-iMX8_Reference-Multimedia-Image with integrated VC MIPI camera driver from [Releases](https://github.com/pmliquify/vc_mipi_imx8/releases).  
+
+2. Unzip the archive and copy all the contents onto an empty FAT formatted USB stick.
+
+3. Create a directory and clone the repository   
    ```
      $ cd <working_dir>
-     $ git clone https://github.com/pmliquify/vc_mipi_toradex
+     $ git clone https://github.com/pmliquify/vc_mipi_imx8
    ```
 
-2. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* or *device-tree-compiler*.
-   ```
-     $ cd vc_mipi_toradex/bin
-     $ ./setup.sh --host
-   ```
-
-3. Build (all) the kernel image, kernel modules and device tree files.
-   ```
-     $ ./build.sh --all
-   ```
-
-4. Create a new Toradex Easy Installer Image. Insert a USB stick (FAT formated) with minimum 1GB capacity. The script will download the reference image from toradex patch it with the build kernel and device tree files from step 3 and copy the image to the usb stick.
-   ```
-     $ ./create_tezi.sh -m /media/<username>/<usb-stick-name>
-   ```
-
-5. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
+4. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
 We provide a script to easily flash an image. It will download the tools from toradex and start to watch for a matching usb device to flash to.
    ```
      $ ./recover.sh
    ```
+5. Plugin the USB stick and install the image.
 
-6. Plugin the USB stick and install the prepared image.
-
-7. After boot up, install the kernel modules we have build in step 3.
+6. After boot up, adjust the IP address of your target in the configuration file.
    ```
-     $ ./flash.sh --modules
-   ```
-
-# Testing the camera
-The system should start properly and the Qt Cinematic Demo should be seen on the screen.   
-
-1. First install the test tools to the target.
-   ```
-     $ ./build.sh --test
-     $ ./flash.sh --test
+     $ nano config/config_apalis_iMX8.sh
    ```
 
-2. On the target switch to a console terminal by pressing Ctrl+Alt+F1
+7. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* and the *device-tree-compiler*.
+   ```
+     $ cd vc_mipi_toradex/bin
+     $ ./setup.sh --host
+   ```
+8. You have to install a first version of the device tree overlay file to load the camera driver. To achieve that follow the instructions in the next section.
 
-3. Login and check if the driver was loaded properly. You should see something like this in the second box.
+# Changing camera settings in the device tree
+If you want to change some settings of a camera in the device tree, please follow these steps.
+
+1. Edit the device tree file for your hardware setup. To edit the device tree file you can simply use the setup script. It will open the device tree file in the nano editor.
+   ```
+     $ ./setup.sh --camera
+   ```
+
+2. Build and flash the device tree file to the target. The `--reboot` parameter causes the target to be restarted directly. 
+   ```
+     $ ./build.sh --dt
+     $ ./flash.sh --reboot --dt
+   ```
+
+3. Login to your target and check if the driver was loaded properly. You should see something like this in the second box.
    ```
      apalis-imx8 login: root
      # dmesg | grep 5-00
@@ -89,7 +86,7 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
      [    3.535176] vc-mipi-cam 5-001a: vc_mod_setup(): Setup the module
      [    3.798698] i2c 5-0010: +--- VC MIPI Camera -----------------------------------+
      [    3.806134] i2c 5-0010: | MANUF. | Vision Components               MID: 0x0427 |
-     [    3.813562] i2c 5-0010: | MODULE | ID:  0x0178                     REV: 0x0000 |
+     [    3.813562] i2c 5-0010: | MODULE | ID:  0x0178                     REV:   0000 |
      [    3.820984] i2c 5-0010: | SENSOR | SONY IMX178                                 |
      [    3.828412] i2c 5-0010: +--------+---------------------------------------------+
      [    3.835837] i2c 5-0010: +--- Sensor Registers ------+--------+--------+--------+
@@ -101,30 +98,70 @@ The system should start properly and the Qt Cinematic Demo should be seen on the
      ...
    ```
 
-4. Start image aquisition by executing following commands. The folder *test* was installed by the script in step 1.   
-   **Please note the option -afx4 to suppress ASCII output, output the image to the framebuffer, output image informations and apply the 4 bit shift correction**
-   ```
-     # v4l2-ctl --set-fmt-video=pixelformat='Y10 ',width=1920,height=1080
-     # ./test/vcmipidemo -afx4 -s 5000 -g 0
-     img.org (dx: 1920, dy: 1080, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022 
-     img.org (dx: 1920, dy: 1080, pitch: 7680) - 4025 7021 b024 7022 1025 1022 9025 8022 2025 7022 
-     img.org (dx: 1920, dy: 1080, pitch: 7680) - 0025 f021 8024 d022 2025 5022 e024 7022 6025 1022 
-     img.org (dx: 1920, dy: 1080, pitch: 7680) - e024 7022 6025 4022 4024 4022 f024 c022 d024 e021
-     ...
-   ```
+# Special pixel format
+According to the **i.MX 8QuadMax Applications Processor Reference Manual** (iMX8QM_RM_Rev_F.pdf, Page 5300, Section 15.2.1.3.6 CSI-2 Rx Controller Core Data Types Formatting) all RAW pixel formats a left aligned formated. The MSB for RAW08 to RAW14 format starts on BIT[13]. Bit[15] and Bit[14] are zero. Unfortunatly it is necessary to transmit 8 bit pixel format in 16 bit memory layout to obtain all data.
 
-5. The image information output shows the first 20 byte of the image raw data. 
-   * If you are using a monochrome camera you have to correct the 4 bit shift before further processing.
-   * If you are using a color format camera you have to correct the 4 bit shift while debayering raw image data.
+> **<center>NOTE** (Quote from manual)</center> 
+The CSI data is right LSB aligned and zero padded depending on data format. When interfacing ISI, CSI data is shifted 6-bits due to ISI bits [5:0] always being zero (0bxxCSIDATAxxxxxx). All RAW14, RAW12, RAW10, RAW8, and RAW6 video data is filled from BIT[13] to LSB, the remaining bits are zero padded. Only RAW16 input data will be saved to memory from BIT[15] to LSB.
+
+For the different pixel formats you will get the following memory layout. x stands for a value of zero.
+```
+              MSB
+               v
+  RAW08 -> 0bxx76543210xxxxxx
+  RAW10 -> 0bxx9876543210xxxx
+  RAW12 -> 0bxxba9876543210xx
+  RAW14 -> 0bxxdcba9876543210
+```
+
+> In your application, you must take this into account when interpreting the pixel data. The ```-2``` parameter of the vcmipidemo application does this for demonstration purposes.
+
+# Testing the camera
+
+1. On the target switch to a console terminal by pressing Ctrl+Alt+F1
+
+2. Setup the image width, height and the pixel format
    ```
-                                                G    B    G    B    ...
-    img.org (dx: 3840, dy: 3040, pitch: 7680) - 9024 5022 f025 0022 7024 a022 0025 4022 2025 b022
-                                                  ^    ^    ^    ^  ...
-                                                  This are the MSBs (most significant bits)
-                                                  A color component is represented as little endian
-                                                  
-                                                0902 4502 2f02 5002 2702 4a02 2002 5402 2202 5b02
-                        >> 4 bit right shifted     ^    ^    ^    ^    ^    ^    ^    ^    ^    ^
-                                    big endian  0209 0245 022f 0250 0227 024a 0220 0254 0222 025b
-                                       decimal   521  581  559  592  551  586  544  596  546  603
+     # v4l2-ctl --set-fmt-video=width=3072,height=2076,pixelformat='Y14 '
+   ```
+   In the table you will find the correct settings for your camera module.
+
+   | Camera | width       | height      | RAW08 | RAW10 | RAW12 | RAW14 |
+   | ------ | ----------- | ----------- | ----- | ----- | ----- | ----- |
+   | IMX178 |        3072 |        2076 |     X |     X |     X |     X |
+   | IMX183 |        5440 |        3648 |       |     X |     X |       |
+   | IMX226 |        3840 |        3046 |       |     X |     X |       |
+   | IMX250 |        2448 |        2048 |     X |     X |     X |       |
+   | IMX252 |        2048 |        1536 |     X |     X |     X |       |
+   | IMX264 |        2432 |        2048 |     X |     X |     X |       |
+   | IMX265 |        2048 |        1536 |     X |     X |     X |       |
+   | IMX273 |        1440 |        1080 |     X |     X |     X |       |
+   | IMX290 |        1920 |        1080 |       |     X |     X |       |
+   | IMX296 |        1440 |        1080 |       |     X |       |       |
+   | IMX327 |        1920 |        1080 |       |     X |     X |       |
+   | IMX392 |        1920 |        1200 |     X |     X |     X |       |
+   | IMX412 |        4032 |        3040 |       |     X |       |       |
+   | IMX415 |        3840 |        2160 |       |     X |       |       |
+   | OV9281 |        1280 |         800 |     X |     X |       |       |
+
+3. Start image aquisition by executing the preinstalled vcmipidemo application.
+   ```
+     # vcmipidemo -fa -y1 -2 -s 100000
+   ```
+   | Parameter | Description
+   | --------- | --------------------------------------------------------- |
+   | -fa       | Activates framebuffer output and deactivates ASCII output |
+   | -y1       | Prints the first six bytes in binary format               |
+   | -2        | Shifts pixel date two bits to the left                    |
+   | -s        | Sets the shutter time in ms                               |
+   ```
+     Suppressing ASCII capture at stdout.
+     Activating /dev/fb0 framebuffer output.
+     Printing image info for every acquired image.
+     Setting Shutter Value to 100000 us.
+     [#0001, ts: 7321301, t:   0 ms] (fmt: Y14 , dx: 3072, dy: 2076, pitch: 6144) - 0000000110111011 0000000111100100 0000000111011011 
+     [#0002, ts: 7321401, t: 100 ms] (fmt: Y14 , dx: 3072, dy: 2076, pitch: 6144) - 0000000111111100 0000001000010111 0000001000001111 
+     [#0003, ts: 7321501, t: 100 ms] (fmt: Y14 , dx: 3072, dy: 2076, pitch: 6144) - 0000001000010010 0000000111111010 0000001000001000 
+     [#0004, ts: 7321601, t: 100 ms] (fmt: Y14 , dx: 3072, dy: 2076, pitch: 6144) - 0000000111100111 0000000111110010 0000000111111110 
+     ...
    ```
