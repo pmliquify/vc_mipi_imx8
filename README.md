@@ -43,23 +43,25 @@
      $ git clone https://github.com/pmliquify/vc_mipi_imx8
    ```
 
-4. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
+4. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* and the *device-tree-compiler*.
+   ```
+     $ cd vc_mipi_imx8/bin
+     $ ./setup.sh --host
+   ```
+
+5. Enter recovery mode by following the [imx-recovery-mode](https://developer.toradex.com/knowledge-base/imx-recovery-mode) instructions.   
 We provide a script to easily flash an image. It will download the tools from toradex and start to watch for a matching usb device to flash to.
    ```
      $ ./recover.sh
    ```
-5. Plugin the USB stick and install the image.
 
-6. After boot up, adjust the IP address of your target in the configuration file.
+6. Plugin the USB stick and install the image.
+
+7. After boot up, adjust the IP address of your target in the configuration file.
    ```
      $ nano config/config_apalis_iMX8.sh
    ```
 
-7. Setup the toolchain and the kernel sources. The script will additionaly install some necessary packages like *build-essential* and the *device-tree-compiler*.
-   ```
-     $ cd vc_mipi_toradex/bin
-     $ ./setup.sh --host
-   ```
 8. You have to install a first version of the device tree overlay file to load the camera driver. To achieve that follow the instructions in the next section.
 
 # Changing camera settings in the device tree
