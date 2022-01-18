@@ -62,11 +62,13 @@
 
 		num_lanes 	= NUM_LANES;
 		// Trigger Modes:
-		// 0: DISABLE     
+		// 0: DISABLE
 		// 1: EXTERNAL    2: PULSEWIDTH  
 		// 3: SELF        4: SINGLE      5: SYNC
 		// 6: STREAM EDGE 7: STREAM LEVEL
 		trigger_mode 	= "0";
+		// 0: DISABLE
+		// 1: ENABLE
 		flash_mode 	= "0";
 		// Set frame rate to 0 to get maximal frame rate
 		frame_rate      = "0";
