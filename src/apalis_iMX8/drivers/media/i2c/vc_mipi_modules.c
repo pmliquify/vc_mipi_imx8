@@ -23,14 +23,14 @@ static void vc_init_ctrl(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	ctrl->csr.sen.mode.l 		= desc->csr_mode;
 	ctrl->csr.sen.mode.m 		= 0;
 
-	ctrl->csr.sen.mode_standby	= 0x00; 
+	ctrl->csr.sen.mode_standby	= 0x00;
 	ctrl->csr.sen.mode_operating	= 0x01;
-	
+
 	ctrl->csr.sen.shs.l 		= desc->csr_exposure_l;
 	ctrl->csr.sen.shs.m 		= desc->csr_exposure_m;
 	ctrl->csr.sen.shs.h 		= desc->csr_exposure_h;
 	ctrl->csr.sen.shs.u 		= 0;
-	
+
 	ctrl->csr.sen.gain.l 		= desc->csr_gain_l;
 	ctrl->csr.sen.gain.m 		= desc->csr_gain_h;
 
@@ -89,16 +89,16 @@ static void vc_init_ctrl_imx290_base(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	ctrl->exposure			= (vc_control) { .min =   1, .max =  15000000, .def =  10000 };
 	ctrl->gain			= (vc_control) { .min =   0, .max =       255, .def =      0 };
 	ctrl->framerate 		= (vc_control) { .min =   0, .max =        60, .def =      0 };
-	
+
 	ctrl->csr.sen.vmax              = (vc_csr4) { .l = 0x3018, .m = 0x3019, .h = 0x301A, .u = 0x0000 };
 	ctrl->csr.sen.mode_standby	= 0x01;
 	ctrl->csr.sen.mode_operating	= 0x00;
-	
+
 	ctrl->expo_timing[0] 		= (vc_timing) { 2, FORMAT_RAW10, .clk =  1100 };
 	ctrl->expo_timing[1] 		= (vc_timing) { 2, FORMAT_RAW12, .clk =  1100 };
-	ctrl->expo_timing[2] 		= (vc_timing) { 4, FORMAT_RAW10, .clk =  1100 }; 
+	ctrl->expo_timing[2] 		= (vc_timing) { 4, FORMAT_RAW10, .clk =  1100 };
 	ctrl->expo_timing[3] 		= (vc_timing) { 4, FORMAT_RAW12, .clk =  1100 };
-	
+
 	desc->clk_ext_trigger		= 74250000;
 	desc->clk_pixel			= desc->clk_ext_trigger;
 	ctrl->sen_clk                   = desc->clk_ext_trigger;
@@ -119,6 +119,9 @@ static void vc_init_ctrl_imx178(struct vc_ctrl *ctrl, struct vc_desc* desc)
 
 	vc_init_ctrl_imx183_base(ctrl, desc);
 
+        ctrl->blacklevel 		= (vc_control) { .min =   0, .max =       4095, .def =     60 };
+
+	ctrl->csr.sen.blacklevel        = (vc_csr2) { .l = 0x3015, .m = 0x3016 };
 
 	ctrl->frame.width		= 3104;
 	ctrl->frame.height		= 2076;
@@ -149,7 +152,7 @@ static void vc_init_ctrl_imx183(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	vc_init_ctrl_imx183_base(ctrl, desc);
 
 	ctrl->blacklevel 		= (vc_control) { .min =   0, .max =       255, .def =     50 };
-	
+
 	ctrl->csr.sen.blacklevel        = (vc_csr2) { .l = 0x0045, .m = 0x0000 };
 
 	ctrl->frame.width		= 5440;
@@ -330,7 +333,7 @@ static void vc_init_ctrl_imx296(struct vc_ctrl *ctrl, struct vc_desc* desc)
 
 	ctrl->gain			= (vc_control) { .min =   0, .max =       512, .def =      0 };
 	ctrl->blacklevel 		= (vc_control) { .min =   0, .max =       255, .def =     60 };
-	
+
 	ctrl->csr.sen.vmax              = (vc_csr4) { .l = 0x3010, .m = 0x3011, .h = 0x3012, .u = 0x0000 };
 	ctrl->csr.sen.mode              = (vc_csr2) { .l = 0x3000, .m = 0x300A };
 	ctrl->csr.sen.mode_standby	= 0x01;
@@ -395,7 +398,7 @@ static void vc_init_ctrl_imx412(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	struct device *dev = &ctrl->client_mod->dev;
 
 	vc_notice(dev, "%s(): Initialising module control for IMX412\n", __FUNCTION__);
-	
+
 	ctrl->exposure			= (vc_control) { .min = 190, .max =    405947, .def =  10000 };
 	ctrl->gain			= (vc_control) { .min =   0, .max =      1023, .def =      0 };
 	ctrl->framerate 		= (vc_control) { .min =   0, .max =        41, .def =      0 };
@@ -420,7 +423,7 @@ static void vc_init_ctrl_imx415(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	struct device *dev = &ctrl->client_mod->dev;
 
 	vc_notice(dev, "%s(): Initialising module control for IMX415\n", __FUNCTION__);
-	
+
 	ctrl->exposure			= (vc_control) { .min =   1, .max =   5000000, .def =  10000 };
 	ctrl->gain			= (vc_control) { .min =   0, .max =       240, .def =      0 };
 
@@ -446,8 +449,8 @@ static void vc_init_ctrl_imx415(struct vc_ctrl *ctrl, struct vc_desc* desc)
 // ------------------------------------------------------------------------------------------------
 //  Settings for OV9281
 //
-//  TODO: 
-//  - Set frame length to increase exposure time. 
+//  TODO:
+//  - Set frame length to increase exposure time.
 //    Maximum exposure time is frame length -25 row periods, where frame length is set by registers
 //    {0x380E, 0x380F}
 //  - Trigger mode could not be activated. When 0x0108 = 0x01 exposure time has no effect.
@@ -457,7 +460,7 @@ static void vc_init_ctrl_ov9281(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	struct device *dev = &ctrl->client_mod->dev;
 
 	vc_notice(dev, "%s(): Initialising module control for OV9281\n", __FUNCTION__);
-	
+
 	// exposure max => L4T 32.5.0+: 8253, L4T 32.6.1+: 8244 (if > black line in image)
 	ctrl->exposure			= (vc_control) { .min =  29, .max =      8244, .def =   1000 };
 	ctrl->gain			= (vc_control) { .min =   1, .max =       255, .def =      0 };
@@ -466,7 +469,7 @@ static void vc_init_ctrl_ov9281(struct vc_ctrl *ctrl, struct vc_desc* desc)
 	ctrl->csr.sen.flash_offset	= (vc_csr4) { .l = 0x3924, .m = 0x3923, .h = 0x3922, .u = 0x0000 };
 	// NOTE: Modules rom table contains swapped address assigment.
 	ctrl->csr.sen.gain 		= (vc_csr2) { .l = 0x3509, .m = 0x0000 };
-	
+
 	ctrl->frame.width		= 1280;
 	ctrl->frame.height		= 800;
 
