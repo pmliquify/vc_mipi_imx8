@@ -1,5 +1,4 @@
-# /bin/bash
-#
+#!/usr/bin/env bash
 
 device=0
 if [[ -n $1 ]]; then

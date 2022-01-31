@@ -1,15 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 usage() {
-	echo "Usage: $0 [options]"
-	echo ""
-	echo "Setup host and target for development and testing."
-	echo ""
-	echo "Supported options:"
+        echo "Usage: $0 [options]"
+        echo ""
+        echo "Setup host and target for development and testing."
+        echo ""
+        echo "Supported options:"
         echo "-c, --camera              Open device tree file to activate camera."
-	echo "-h, --help                Show this help text"
+        echo "-h, --help                Show this help text"
         echo "-k, --kernel              Setup/Reset kernel sources"
         echo "-n, --netboot             Setup netboot environment"
+        echo "-t, --target              Setup ssh login and installs some scripts."
         echo "-o, --host                Installs some system tools, the toolchain and kernel sources"
 }
 
@@ -54,6 +55,15 @@ setup_kernel() {
 
 setup_camera() {
     nano -l +17 $DT_CAM_FILE
+}
+
+setup_target() {
+    TARGET_DIR=/home/$TARGET_USER/test
+    $TARGET_SHELL rm -Rf $TARGET_DIR
+    $TARGET_SHELL mkdir -p $TARGET_DIR
+    scp $WORKING_DIR/target/$SOM/* $TARGET_USER@$TARGET_IP:$TARGET_DIR
+    $TARGET_SHELL chmod +x $TARGET_DIR/*.sh
+    scp ~/Projects/vc_mipi_demo/src/vcmipidemo $TARGET_USER@$TARGET_IP:$TARGET_DIR
 }
 
 setup_dhcp_server() {
@@ -130,31 +140,36 @@ setup_u_boot() {
 }
 
 while [ $# != 0 ] ; do
-	option="$1"
-	shift
+        option="$1"
+        shift
 
-	case "${option}" in
+        case "${option}" in
         -c|--camera)
-		configure
+                configure
                 setup_camera
-		exit 0
-		;;
-	-h|--help)
-		usage
-		exit 0
-		;;
-	-k|--kernel)
-		configure
-		setup_kernel
                 exit 0
-		;;
-	-o|--host)
-		configure
+                ;;
+        -h|--help)
+                usage
+                exit 0
+                ;;
+        -k|--kernel)
+                configure
+                setup_kernel
+                exit 0
+                ;;
+        -t|--target)
+                configure
+                setup_target
+                exit 0
+                ;;
+        -o|--host)
+                configure
                 install_system_tools
                 setup_toolchain
-		setup_kernel
+                setup_kernel
                 exit 0
-		;;
+                ;;
         -n|--netboot)
                 configure
                 setup_dhcp_server
@@ -163,11 +178,11 @@ while [ $# != 0 ] ; do
                 setup_u_boot
                 exit 0
                 ;;
-	*)
-		echo "Unknown option ${option}"
-		exit 1
-		;;
-	esac
+        *)
+                echo "Unknown option ${option}"
+                exit 1
+                ;;
+        esac
 done
 
 usage

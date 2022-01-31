@@ -1,7 +1,6 @@
-#/bin/bash
-#
+#!/usr/bin/env bash
 
-WORKING_DIR=$(dirname $PWD)
+WORKING_DIR=$(dirname "$PWD")
 BIN_DIR=$WORKING_DIR/bin
 
 . $BIN_DIR/config/config_apalis_iMX8.sh

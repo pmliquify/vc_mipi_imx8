@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 BOARD=ixora
 SOM=apalis_iMX8
