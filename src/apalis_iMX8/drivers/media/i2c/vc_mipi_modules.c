@@ -119,7 +119,8 @@ static void vc_init_ctrl_imx178(struct vc_ctrl *ctrl, struct vc_desc* desc)
 
 	vc_init_ctrl_imx183_base(ctrl, desc);
 
-	ctrl->frame.width		= 3072;
+
+	ctrl->frame.width		= 3104;
 	ctrl->frame.height		= 2076;
 
 	ctrl->expo_timing[0] 		= (vc_timing) { 2, FORMAT_RAW08, .clk =  680 };

@@ -48,7 +48,7 @@ get_image_size() {
 	sensor="$(journalctl -k | grep -oe '5-0.*SENSOR.*' | grep -oe 'IMX[0-9]*')"
 
 	case "${sensor}" in
-		IMX178) width=3104 height=2076 ;;
+		IMX178) width=3072 height=2076 ;;
 		IMX183) width=5440 height=3648 ;;
 		IMX226) width=3840 height=3046 ;;
 		IMX250) width=2448 height=2048 ;;
