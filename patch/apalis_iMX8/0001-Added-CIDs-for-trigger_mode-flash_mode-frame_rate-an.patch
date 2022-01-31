@@ -1,0 +1,29 @@
+From 3926a1ae4be2aed4e404fcc623a65add7f46a9d5 Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Sat, 29 Jan 2022 10:25:25 +0100
+Subject: [PATCH] Added CIDs for trigger_mode, flash_mode, frame_rate and
+ single_trigger
+
+---
+ include/uapi/linux/v4l2-controls.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/uapi/linux/v4l2-controls.h b/include/uapi/linux/v4l2-controls.h
+index a2669b79b294..e7f00d2d0c88 100644
+--- a/include/uapi/linux/v4l2-controls.h
++++ b/include/uapi/linux/v4l2-controls.h
+@@ -146,6 +146,11 @@ enum v4l2_colorfx {
+ /* last CID + 1 */
+ #define V4L2_CID_LASTP1                         (V4L2_CID_BASE+43)
+ 
++#define V4L2_CID_TRIGGER_MODE			(V4L2_CID_BASE+50)
++#define V4L2_CID_FLASH_MODE			(V4L2_CID_BASE+51)
++#define V4L2_CID_FRAME_RATE			(V4L2_CID_BASE+52)
++#define V4L2_CID_SINGLE_TRIGGER			(V4L2_CID_BASE+53)
++
+ /* USER-class private control IDs */
+ 
+ /* The base for the meye driver controls. See linux/meye.h for the list
+-- 
+2.25.1
+

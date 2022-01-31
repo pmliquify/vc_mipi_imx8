@@ -22,6 +22,7 @@
 
 struct vc_device {
 	struct v4l2_subdev sd;
+	struct v4l2_ctrl_handler ctrl_handler;
 	struct media_pad pad;
 	struct v4l2_fwnode_endpoint ep; 	// the parsed DT endpoint info
 
@@ -47,61 +48,40 @@ static int vc_sd_s_power(struct v4l2_subdev *sd, int on)
 	return 0;
 }
 
-static int vc_sd_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
-{
-	struct device *dev = sd->dev;
-	struct v4l2_ctrl *ctrl = v4l2_ctrl_find(sd->ctrl_handler, control->id);
-	if (ctrl == NULL)
-		return -EINVAL;
-
-	vc_dbg(dev, "%s(): Get control '%s' value %d\n", __FUNCTION__, ctrl->name, ctrl->val);
-	return v4l2_g_ctrl(sd->ctrl_handler, control);
-}
-
-static __s32 vc_sd_get_ctrl_value(struct v4l2_subdev *sd, __u32 id)
-{
-	struct v4l2_control control;
-	control.id = id;
-	vc_sd_g_ctrl(sd, &control);
-	// TODO: Errorhandling
-	return control.value;
-}
-
 static int vc_sd_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *control)
 {
 	struct vc_cam *cam = to_vc_cam(sd);
-	struct device *dev = sd->dev;
-	struct v4l2_ctrl *ctrl;
+	struct device *dev = vc_core_get_sen_device(cam);
 
-	ctrl = v4l2_ctrl_find(sd->ctrl_handler, control->id);
-	if (ctrl == NULL) {
-		vc_err(dev, "%s(): Control with id: 0x%08x not defined!\n", __FUNCTION__, control->id);
-		return -EINVAL;
-	}
-
-	if (control->value < ctrl->minimum || control->value > ctrl->maximum) {
-		vc_err(dev, "%s(): Control '%s' with value: %d exceeds allowed range (%lld - %lld)\n", __FUNCTION__,
-			ctrl->name, control->value, ctrl->minimum, ctrl->maximum);
-		return -EINVAL;
-	}
-
-	vc_dbg(dev, "%s(): Set control '%s' to value %d\n", __FUNCTION__, ctrl->name, control->value);
-
-	// Store value in ctrl to get and restore ctrls later and after power off.
-	v4l2_ctrl_s_ctrl(ctrl, control->value);
-
-	switch (ctrl->id) {
+	switch (control->id) {
 	case V4L2_CID_EXPOSURE:
 		return vc_sen_set_exposure(cam, control->value);
 
 	case V4L2_CID_GAIN:
 		return vc_sen_set_gain(cam, control->value);
+
+	case V4L2_CID_BLACK_LEVEL:
+		return vc_sen_set_blacklevel(cam, control->value);
+
+	case V4L2_CID_TRIGGER_MODE:
+		return vc_mod_set_trigger_mode(cam, control->value);
+
+	case V4L2_CID_FLASH_MODE:
+		return vc_mod_set_io_mode(cam, control->value);
+
+	case V4L2_CID_FRAME_RATE:
+		return vc_core_set_framerate(cam, control->value);
+
+        case V4L2_CID_SINGLE_TRIGGER:
+                return vc_mod_set_single_trigger(cam);
+
+	default:
+		vc_warn(dev, "%s(): Unkown control 0x%08x\n", __FUNCTION__, control->id);
+		return -EINVAL;
 	}
 
-	vc_warn(dev, "%s(): Control with id: 0x%08x is not handled\n", __FUNCTION__, ctrl->id);
-	return -EINVAL;
+	return 0;
 }
-
 
 // --- v4l2_subdev_video_ops ---------------------------------------------------
 
@@ -126,8 +106,8 @@ static int vc_sd_s_stream(struct v4l2_subdev *sd, int enable)
 		ret  = vc_mod_set_mode(cam, &reset);
 		if (!ret && reset) {
 			ret |= vc_sen_set_roi(cam, frame->x, frame->y, frame->width, frame->height);
-			ret |= vc_sen_set_exposure(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_EXPOSURE));
-			ret |= vc_sen_set_gain(cam, vc_sd_get_ctrl_value(sd, V4L2_CID_GAIN));
+			ret |= vc_sen_set_exposure(cam, cam->state.exposure);
+			ret |= vc_sen_set_gain(cam, cam->state.gain);
 			ret |= vc_sen_set_blacklevel(cam, cam->state.blacklevel);
 		}
 		ret |= vc_sen_start_stream(cam);
@@ -170,66 +150,23 @@ static int vc_sd_set_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_pad_config *
 	return 0;
 }
 
+// --- v4l2_ctrl_ops ---------------------------------------------------
+
+int vc_ctrl_s_ctrl(struct v4l2_ctrl *ctrl)
+{
+	struct vc_device *device = container_of(ctrl->handler, struct vc_device, ctrl_handler);
+	struct v4l2_control control;
+
+	control.id = ctrl->id;
+	control.value = ctrl->val;
+	vc_sd_s_ctrl(&device->sd, &control);
+
+	return 0;
+}
+
 
 
 // *** Initialisation *********************************************************
-
-static const struct v4l2_subdev_core_ops vc_core_ops = {
-	.s_power = vc_sd_s_power,
-	.g_ctrl = vc_sd_g_ctrl,
-	.s_ctrl = vc_sd_s_ctrl,
-};
-
-static const struct v4l2_subdev_video_ops vc_video_ops = {
-	.s_stream = vc_sd_s_stream,
-};
-
-static const struct v4l2_subdev_pad_ops vc_pad_ops = {
-	.get_fmt = vc_sd_get_fmt,
-	.set_fmt = vc_sd_set_fmt,
-};
-
-static const struct v4l2_subdev_ops vc_subdev_ops = {
-	.core = &vc_core_ops,
-	.video = &vc_video_ops,
-	.pad = &vc_pad_ops,
-};
-
-static struct v4l2_ctrl_config ctrl_config_gain = {
-	.id = V4L2_CID_GAIN,
-	.name = "Gain",
-	.type = V4L2_CTRL_TYPE_INTEGER,
-	.flags = V4L2_CTRL_FLAG_SLIDER,
-	.step = 1,
-};
-
-static struct v4l2_ctrl_config ctrl_config_exposure = {
-	.id = V4L2_CID_EXPOSURE,
-	.name = "Exposure", 
-	.type = V4L2_CTRL_TYPE_INTEGER,
-	.flags = V4L2_CTRL_FLAG_SLIDER,
-	.step = 1,
-};
-
-static int vc_sd_init_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, struct v4l2_ctrl_config* cfg, struct vc_control* control) 
-{
-	struct v4l2_subdev *sd = &device->sd;
-	struct i2c_client *client = device->cam.ctrl.client_sen;
-	struct device *dev = &client->dev;
-	struct v4l2_ctrl *ctrl;
-
-	cfg->min = control->min;
-	cfg->max = control->max;
-	cfg->def = control->def;
-	ctrl = v4l2_ctrl_new_custom(hdl, cfg, NULL);
-	if (ctrl == NULL) {
-		vc_err(dev, "%s(): Failed to init %s ctrl\n", __FUNCTION__, cfg->name);
-		return -EIO;
-	}
-	ctrl->priv = (void*)sd;
-	
-	return 0;
-}
 
 static int read_property_u32(struct device_node *node, const char *name, int radix, __u32 *value)
 {
@@ -262,73 +199,141 @@ static int vc_sd_parse_dt(struct vc_device *device)
 		} else {
 			vc_core_set_num_lanes(cam, value);
 		}
-
-		ret = read_property_u32(node, "trigger_mode", 10, &value);
-		if (ret) {
-			vc_err(dev, "%s(): Unable to read trigger_mode from device tree!\n", __FUNCTION__);
-		} else {
-			vc_mod_set_trigger_mode(cam, value);
-		}
-
-		ret = read_property_u32(node, "flash_mode", 10, &value);
-		if (ret) {
-			vc_err(dev, "%s(): Unable to read flash_mode from device tree!\n", __FUNCTION__);
-		} else {
-			vc_mod_set_io_mode(cam, value);
-		}
-
-		ret = read_property_u32(node, "frame_rate", 10, &value);
-		if (ret) {
-			vc_err(dev, "%s(): Unable to read frame_rate from device tree!\n", __FUNCTION__);
-		} else {
-			vc_core_set_framerate(cam, value);
-		}
 	}
 
 	return 0;
 }
 
-static int vc_sd_init(struct vc_device *device)
+static const struct v4l2_subdev_core_ops vc_core_ops = {
+	.s_power = vc_sd_s_power,
+	.s_ctrl = vc_sd_s_ctrl,
+};
+
+static const struct v4l2_subdev_video_ops vc_video_ops = {
+	.s_stream = vc_sd_s_stream,
+};
+
+static const struct v4l2_subdev_pad_ops vc_pad_ops = {
+	.get_fmt = vc_sd_get_fmt,
+	.set_fmt = vc_sd_set_fmt,
+};
+
+static const struct v4l2_subdev_ops vc_subdev_ops = {
+	.core = &vc_core_ops,
+	.video = &vc_video_ops,
+	.pad = &vc_pad_ops,
+};
+
+static const struct v4l2_ctrl_ops vc_ctrl_ops = {
+        .s_ctrl = vc_ctrl_s_ctrl,
+};
+
+static int vc_ctrl_init_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, int id, struct vc_control* control) 
 {
-	struct v4l2_subdev *sd = &device->sd;
 	struct i2c_client *client = device->cam.ctrl.client_sen;
 	struct device *dev = &client->dev;
-	struct v4l2_ctrl_handler *hdl;
-	// struct v4l2_ctrl *ctrl;
+	struct v4l2_ctrl *ctrl;
+
+	ctrl = v4l2_ctrl_new_std(&device->ctrl_handler, &vc_ctrl_ops, id, control->min, control->max, 1, control->def);
+	if (ctrl == NULL) {
+		vc_err(dev, "%s(): Failed to init 0x%08x ctrl\n", __FUNCTION__, id);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static int vc_ctrl_init_custom_ctrl(struct vc_device *device, struct v4l2_ctrl_handler *hdl, const struct v4l2_ctrl_config *config) 
+{
+	struct i2c_client *client = device->cam.ctrl.client_sen;
+	struct device *dev = &client->dev;
+	struct v4l2_ctrl *ctrl;
+
+	ctrl = v4l2_ctrl_new_custom(&device->ctrl_handler, config, NULL);
+	if (ctrl == NULL) {
+		vc_err(dev, "%s(): Failed to init 0x%08x ctrl\n", __FUNCTION__, config->id);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static const struct v4l2_ctrl_config ctrl_trigger_mode = {
+        .ops = &vc_ctrl_ops,
+        .id = V4L2_CID_TRIGGER_MODE,
+        .name = "Trigger Mode",
+        .type = V4L2_CTRL_TYPE_INTEGER,
+        .flags = V4L2_CTRL_FLAG_SLIDER,
+	.min = 0,
+        .max = 7,
+        .step = 1,
+	.def = 0,
+};
+
+static const struct v4l2_ctrl_config ctrl_flash_mode = {
+        .ops = &vc_ctrl_ops,
+        .id = V4L2_CID_FLASH_MODE,
+        .name = "Flash Mode",
+        .type = V4L2_CTRL_TYPE_INTEGER,
+        .flags = V4L2_CTRL_FLAG_SLIDER,
+	.min = 0,
+        .max = 1,
+        .step = 1,
+	.def = 0,
+};
+
+static const struct v4l2_ctrl_config ctrl_frame_rate = {
+        .ops = &vc_ctrl_ops,
+        .id = V4L2_CID_FRAME_RATE,
+        .name = "Frame Rate",
+        .type = V4L2_CTRL_TYPE_INTEGER,
+        .flags = V4L2_CTRL_FLAG_SLIDER,
+	.min = 0,
+        .max = 1000,
+        .step = 1,
+	.def = 0,
+};
+
+static const struct v4l2_ctrl_config ctrl_single_trigger = {
+        .ops = &vc_ctrl_ops,
+        .id = V4L2_CID_SINGLE_TRIGGER,
+        .name = "Single Trigger",
+        .type = V4L2_CTRL_TYPE_INTEGER,
+        .flags = V4L2_CTRL_FLAG_SLIDER,
+	.min = 0,
+        .max = 1,
+        .step = 1,
+	.def = 0,
+};
+
+static int vc_sd_init(struct vc_device *device)
+{
+	struct i2c_client *client = device->cam.ctrl.client_sen;
+	struct device *dev = &client->dev;
 	int ret;
 
 	// Initializes the subdevice
-	v4l2_i2c_subdev_init(sd, client, &vc_subdev_ops);
+	v4l2_i2c_subdev_init(&device->sd, client, &vc_subdev_ops);
 
-	// Initializes the ctrls
-	hdl = devm_kzalloc(dev, sizeof(*hdl), GFP_KERNEL);
-	ret = v4l2_ctrl_handler_init(hdl, 2);
+	// Initialize the handler
+	ret = v4l2_ctrl_handler_init(&device->ctrl_handler, 3);
 	if (ret) {
 		vc_err(dev, "%s(): Failed to init control handler\n", __FUNCTION__);
 		return ret;
 	}
+	// Hook the control handler into the driver
+	device->sd.ctrl_handler = &device->ctrl_handler;
 
-	ret = vc_sd_init_ctrl(device, hdl, &ctrl_config_exposure, &device->cam.ctrl.exposure);
-	if (ret) 
-		return ret;
-
-	ret = vc_sd_init_ctrl(device, hdl, &ctrl_config_gain, &device->cam.ctrl.gain);
-	if (ret) 
-		return ret;
-	
-	if (hdl->error) {
-		ret = hdl->error;
-		vc_err(dev, "%s(): Control init failed (%d)\n", __FUNCTION__, ret);
-		goto error;
-	}
-
-	sd->ctrl_handler = hdl;
+	// Add controls
+	ret |= vc_ctrl_init_ctrl(device, &device->ctrl_handler, V4L2_CID_EXPOSURE, &device->cam.ctrl.exposure);
+	ret |= vc_ctrl_init_ctrl(device, &device->ctrl_handler, V4L2_CID_GAIN, &device->cam.ctrl.gain);
+	ret |= vc_ctrl_init_ctrl(device, &device->ctrl_handler, V4L2_CID_BLACK_LEVEL, &device->cam.ctrl.blacklevel);
+	ret |= vc_ctrl_init_custom_ctrl(device, &device->ctrl_handler, &ctrl_trigger_mode);
+	ret |= vc_ctrl_init_custom_ctrl(device, &device->ctrl_handler, &ctrl_flash_mode);
+	ret |= vc_ctrl_init_custom_ctrl(device, &device->ctrl_handler, &ctrl_frame_rate);
+        ret |= vc_ctrl_init_custom_ctrl(device, &device->ctrl_handler, &ctrl_single_trigger);
 
 	return 0;
-
-error:
-	v4l2_ctrl_handler_free(hdl);
-	return ret;
 }
 
 static int vc_link_setup(struct media_entity *entity, const struct media_pad *local, const struct media_pad *remote,
@@ -394,7 +399,7 @@ static int vc_probe(struct i2c_client *client)
 	return 0;
 
 free_ctrls:
-	v4l2_ctrl_handler_free(device->sd.ctrl_handler);
+	v4l2_ctrl_handler_free(&device->ctrl_handler);
 	media_entity_cleanup(&device->sd.entity);
 	return ret;
 }
@@ -406,7 +411,7 @@ static int vc_remove(struct i2c_client *client)
 
 	v4l2_async_unregister_subdev(&device->sd);
 	media_entity_cleanup(&device->sd.entity);
-	v4l2_ctrl_handler_free(device->sd.ctrl_handler);
+	v4l2_ctrl_handler_free(&device->ctrl_handler);
 
 	return 0;
 }
