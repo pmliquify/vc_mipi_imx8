@@ -1,5 +1,15 @@
 # Version History
 
+## v0.5.0 (V4L2 controls)
+  * New Features
+    * Trigger mode '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via V4L2 control 'trigger_mode'
+    * Flash mode '0: disabled', '1: enabled' can be set via V4L2 control 'flash_mode'
+    * Frame rate can be set via V4L2 control 'frame_rate' *(except IMX412 and OV9281)*
+    * Black level can be set via V4L2 control 'black_level' *(only IMX178, IMX183 and IMX296)*
+    * Single trigger can be set via V4L2 control 'single_trigger' *(under development)*
+  * Removed Features
+    * Removed device tree properties 'trigger_mode', 'flash_mode' and 'frame_rate'    
+
 ## v0.4.0 (Support all pixel formats)
   * Added support for VC MIPI Camera Modules
       * IMX183
@@ -11,9 +21,9 @@
       * OV9281
   * New Features
     * Image Streaming in Y10, Y12, Y14, RG10, RG12, GB10, GB12 (2 bit right shifted)
-    * **Trigger mode** '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via device tree property 'trigger_mode'
-    * **Flash mode** '0: disabled', '1: enabled' can be set via device tree property 'flash_mode'
-    * **Frame rate** can be set via device tree property 'frame_rate' *(except IMX412 and OV9281)*
+    * Trigger mode '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via device tree property 'trigger_mode'
+    * Flash mode '0: disabled', '1: enabled' can be set via device tree property 'flash_mode'
+    * Frame rate can be set via device tree property 'frame_rate' *(except IMX412 and OV9281)*
 
 ## v0.3.0 (Support IMX178)
   * New Features

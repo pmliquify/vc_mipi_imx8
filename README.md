@@ -1,7 +1,7 @@
 # Vision Components MIPI CSI-2 driver for Toradex Apalis i.MX8
 ![VC MIPI camera](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/VC_MIPI_Camera_Module_Hardware_Operating_Manual-Dateien/mipi_sensor_front_back.png)
 
-## Version 0.4.0 ([History](VERSION.md))
+## Version 0.5.0 ([History](VERSION.md))
 * Supported system on modules
   * [Toradex Apalis iMX8](https://www.toradex.com/de/computer-on-modules/apalis-arm-family/nxp-imx-8)
 * Supported carrier boards
@@ -18,11 +18,13 @@
   * Version 5.4.129
 * Features
   * Image Streaming in Y10, Y12, Y14, RG10, RG12, GB10, GB12 (2 bit right shifted)
-  * **Exposure** can be set via V4L2 API 'exposure'
-  * **Gain** can be set via V4L2 API 'gain'
-  * **Trigger mode** '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via device tree property 'trigger_mode'
-  * **Flash mode** '0: disabled', '1: enabled' can be set via device tree property 'flash_mode'
-  * **Frame rate** can be set via device tree property 'frame_rate' *(except IMX412 and OV9281)*
+  * **Exposure** can be set via V4L2 API and via V4L2 control 'exposure'
+  * **Gain** can be set via V4L2 API and via V4L2 control 'gain'
+  * **Trigger mode** '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via V4L2 control 'trigger_mode'
+  * **Flash mode** '0: disabled', '1: enabled' can be set via V4L2 control 'flash_mode'
+  * **Frame rate** can be set via V4L2 control 'frame_rate' *(except IMX412 and OV9281)*
+  * **Black level** can be set via V4L2 control 'black_level' *(only IMX178, IMX183 and IMX296)*
+  * **Single trigger** can be set via V4L2 control 'single_triggerl' *(under development)*
 
 ## Prerequisites for cross-compiling
 ### Host PC
