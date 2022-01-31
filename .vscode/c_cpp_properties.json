@@ -5,11 +5,14 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/apalis_iMX8/drivers/media/i2c/**",
-                "${workspaceFolder}/build/apalis/linux-toradex/include/**",
-                "${workspaceFolder}/build/apalis/linux-toradex/arch/arm64/include/generated/**"
+                "${workspaceFolder}/build/apalis_iMX8/linux-toradex/include/**",
+                "${workspaceFolder}/build/apalis_iMX8/linux-toradex/include/linux/**",
+                "${workspaceFolder}/build/apalis_iMX8/linux-toradex/arch/arm64/include/generated/**",
+                "${workspaceFolder}/build/apalis_iMX8/linux-toradex/tools/include/**",
+                "${workspaceFolder}/build/apalis_iMX8/linux-toradex/tools/include/linux/**"
             ],
             "defines": [],
-            "compilerPath": "${workspaceFolder}/build/apalis/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-gcc",
+            "compilerPath": "${workspaceFolder}/build/apalis_iMX8/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-gcc",
             "cStandard": "c99",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64"
