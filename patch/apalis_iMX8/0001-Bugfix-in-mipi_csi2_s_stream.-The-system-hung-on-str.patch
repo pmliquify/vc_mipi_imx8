@@ -1,0 +1,56 @@
+From 5aaac6ea0229ec1583b4607a41b6c08895c158fe Mon Sep 17 00:00:00 2001
+From: Peter Martienssen <peter.martienssen@liquify-consulting.de>
+Date: Fri, 22 Apr 2022 18:21:35 +0200
+Subject: [PATCH 1/5] Bugfix in mipi_csi2_s_stream. The system hung on stream
+ start when stream was stopped twice before. This was especially the case when
+ using v4l2-ctl --stream-mmap --stream-count=1.
+
+---
+ drivers/staging/media/imx/imx8-mipi-csi2.c | 29 +++++++++++++---------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/staging/media/imx/imx8-mipi-csi2.c b/drivers/staging/media/imx/imx8-mipi-csi2.c
+index 0227a4f25538..47c18d7d33c2 100644
+--- a/drivers/staging/media/imx/imx8-mipi-csi2.c
++++ b/drivers/staging/media/imx/imx8-mipi-csi2.c
+@@ -948,20 +948,25 @@ static int mipi_csi2_s_stream(struct v4l2_subdev *sd, int enable)
+ 		__func__, enable, csi2dev->flags);
+ 
+ 	if (enable) {
+-		pm_runtime_get_sync(dev);
+-		if (!csi2dev->running++) {
+-			mxc_csi2_get_sensor_fmt(csi2dev);
+-			mxc_mipi_csi2_hc_config(csi2dev);
+-			mxc_mipi_csi2_reset(csi2dev);
+-			mxc_mipi_csi2_csr_config(csi2dev);
+-			mxc_mipi_csi2_enable(csi2dev);
+-			mxc_mipi_csi2_reg_dump(csi2dev);
+-		}
+-	} else {
+-		if (!--csi2dev->running)
++		if (csi2dev->running)
+ 			mxc_mipi_csi2_disable(csi2dev);
++		else
++			pm_runtime_get_sync(dev);
++
++		csi2dev->running = 1;
++		mxc_csi2_get_sensor_fmt(csi2dev);
++		mxc_mipi_csi2_hc_config(csi2dev);
++		mxc_mipi_csi2_reset(csi2dev);
++		mxc_mipi_csi2_csr_config(csi2dev);
++		mxc_mipi_csi2_enable(csi2dev);
++		mxc_mipi_csi2_reg_dump(csi2dev);
+ 
+-		pm_runtime_put(dev);
++	} else {
++		if (csi2dev->running) {
++			csi2dev->running = 0;
++			mxc_mipi_csi2_disable(csi2dev);
++			pm_runtime_put(dev);
++		}
+ 	}
+ 
+ 	return ret;
+-- 
+2.25.1
+
