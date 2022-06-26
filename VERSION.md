@@ -1,5 +1,10 @@
 # Version History
 
+## v0.5.1 (BugFix)
+  * BugFixes
+    * Bugfix in mipi_csi2_s_stream. The system hung on stream start when stream was stopped twice before. This was especially the case when using  
+    ```v4l2-ctl --stream-mmap --stream-count=1```.
+
 ## v0.5.0 (V4L2 controls)
   * New Features
     * Trigger mode '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level' can be set via V4L2 control 'trigger_mode'

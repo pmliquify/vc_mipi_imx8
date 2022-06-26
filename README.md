@@ -1,7 +1,7 @@
 # Vision Components MIPI CSI-2 driver for Toradex Apalis i.MX8
 ![VC MIPI camera](https://www.vision-components.com/fileadmin/external/documentation/hardware/VC_MIPI_Camera_Module/VC_MIPI_Camera_Module_Hardware_Operating_Manual-Dateien/mipi_sensor_front_back.png)
 
-## Version 0.5.0 ([History](VERSION.md))
+## Version 0.5.1 ([History](VERSION.md))
 * Supported system on modules
   * [Toradex Apalis iMX8](https://www.toradex.com/de/computer-on-modules/apalis-arm-family/nxp-imx-8)
 * Supported carrier boards
